@@ -45,10 +45,11 @@
       border-radius: 12px;
       margin-bottom: 12px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr auto;
       gap: 8px;
+      align-items: center;
     }
-    .filters select, .filters button {
+    .filters select {
       width: 100%;
       padding: 10px;
       border: 1px solid var(--border);
@@ -56,13 +57,7 @@
       font-size: 13px;
       background: #fff;
     }
-    .filters button {
-      background: var(--secondary);
-      color: white;
-      border: none;
-      font-weight: 500;
-      cursor: pointer;
-    }
+    .filter-label { font-size: 11px; color: var(--text-light); display: block; margin-bottom: 2px; }
     
     .summary-bar {
       background: var(--card-bg);
@@ -133,11 +128,7 @@
       text-align: center;
     }
     .achievement .label { font-size: 0.8rem; color: var(--text-light); }
-    .achievement .value {
-      font-size: 1.3rem;
-      font-weight: 800;
-      margin: 4px 0;
-    }
+    .achievement .value { font-size: 1.3rem; font-weight: 800; margin: 4px 0; }
     .achievement .value.low { color: var(--danger); }
     .achievement .value.mid { color: var(--warning); }
     .achievement .value.high { color: var(--success); }
@@ -149,27 +140,10 @@
       overflow: hidden;
       margin-top: 4px;
     }
-    .progress-fill {
-      height: 100%;
-      border-radius: 3px;
-      transition: width 0.3s;
-    }
+    .progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
     
-    .footer {
-      text-align: center;
-      padding: 16px;
-      color: var(--text-light);
-      font-size: 0.75rem;
-    }
-    
-    .tag {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      margin-left: 6px;
-    }
+    .footer { text-align: center; padding: 16px; color: var(--text-light); font-size: 0.75rem; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; margin-left: 6px; }
     .tag.mtd { background: #dbeafe; color: #1e40af; }
     .tag.ytd { background: #fef3c7; color: #92400e; }
     
@@ -182,63 +156,49 @@
 </head>
 <body>
 
-  <!-- Header -->
   <div class="header">
     <h1>🏦 Bank Muamalat</h1>
     <div class="subtitle">Leading Indicator Performance</div>
-    <div class="date">📅 Per: <span id="displayDate">18 Mei 2026</span> | 📆 Hari Kerja: <span id="workDays">16</span></div>
+    <div class="date">📅 Per: 18 Mei 2026 | 📆 Hari Kerja: 16</div>
   </div>
 
-  <!-- Filters -->
   <div class="filters">
-    <select id="coBranchFilter">
-      <option value="ALL">📍 Semua Co-Branch</option>
-      <option value="BANDA ACEH">BANDA ACEH</option>
-      <option value="BENGKULU">BENGKULU</option>
-      <option value="LAMPUNG">LAMPUNG</option>
-      <option value="MEDAN BALAIKOTA">MEDAN BALAIKOTA</option>
-      <option value="MEDAN BARU">MEDAN BARU</option>
-      <option value="PADANG">PADANG</option>
-      <option value="PALEMBANG">PALEMBANG</option>
-      <option value="PANGKAL PINANG">PANGKAL PINANG</option>
-      <option value="PEKANBARU">PEKANBARU</option>
-    </select>
-    <select id="branchFilter">
-      <option value="ALL">🏢 Semua Branch</option>
-      <!-- Will be populated by JS -->
-    </select>
-    <button onclick="applyFilter()">🔄 Refresh Data</button>
-    <button onclick="resetFilter()" style="background:#64748b">🗑️ Reset</button>
+    <div>
+      <span class="filter-label">📍 Co-Branch</span>
+      <select id="coBranchFilter">
+        <option value="ALL">Semua Co-Branch</option>
+        <option value="BANDA ACEH">BANDA ACEH</option>
+        <option value="BENGKULU">BENGKULU</option>
+        <option value="LAMPUNG">LAMPUNG</option>
+        <option value="MEDAN BALAIKOTA">MEDAN BALAIKOTA</option>
+        <option value="MEDAN BARU">MEDAN BARU</option>
+        <option value="PADANG">PADANG</option>
+        <option value="PALEMBANG">PALEMBANG</option>
+        <option value="PANGKAL PINANG">PANGKAL PINANG</option>
+        <option value="PEKANBARU">PEKANBARU</option>
+      </select>
+    </div>
+    <div>
+      <span class="filter-label">🏢 Branch</span>
+      <select id="branchFilter">
+        <option value="ALL">Semua Branch</option>
+      </select>
+    </div>
+    <button onclick="exportReport()" style="padding:10px 16px; background:var(--secondary); color:#fff; border:none; border-radius:8px; cursor:pointer; font-size:13px; margin-top:18px;">📥 Export</button>
   </div>
 
-  <!-- Summary Bar -->
   <div class="summary-bar">
-    <div class="summary-item">
-      <span class="label">Total Gap CA</span>
-      <span class="value neg" id="sumGapCA">-8.1 M</span>
-    </div>
-    <div class="summary-item">
-      <span class="label">Total Gap SA</span>
-      <span class="value neg" id="sumGapSA">-28.3 M</span>
-    </div>
-    <div class="summary-item">
-      <span class="label">Total Gap Funding</span>
-      <span class="value neg" id="sumGapFU">-55.0 M</span>
-    </div>
-    <div class="summary-item">
-      <span class="label">Avg Achievement</span>
-      <span class="value" id="avgAchieve">5.8%</span>
-    </div>
+    <div class="summary-item"><span class="label">Total Gap CA</span><span class="value neg" id="sumGapCA">0.0 M</span></div>
+    <div class="summary-item"><span class="label">Total Gap SA</span><span class="value neg" id="sumGapSA">0.0 M</span></div>
+    <div class="summary-item"><span class="label">Total Gap Funding</span><span class="value neg" id="sumGapFU">0.0 M</span></div>
+    <div class="summary-item"><span class="label">Avg Achievement</span><span class="value" id="avgAchieve">0.0%</span></div>
   </div>
 
-  <!-- Parameters Grid -->
-  <div class="params-grid" id="paramsContainer">
-    <!-- Cards will be generated by JavaScript -->
-  </div>
+  <div class="params-grid" id="paramsContainer"></div>
 
   <div class="footer">
     💡 Data source: Sheet NTbl | Update hanya di tabel sumber<br>
-    📱 Optimized for Mobile & Web | Last update: <span id="lastUpdate">18 Mei 2026 14:30</span>
+    📱 Optimized for Mobile & Web | Last update: 18 Mei 2026
   </div>
 
 <script>
@@ -300,42 +260,41 @@
     {id:'cif',name:'👥 New CIF',unit:'',color:'cif',metrics:[{k:'cif_mtd',l:'Akuisisi MTD'},{k:'cif_tgt',l:'Target MTD'},{k:'gapCIF',l:'GAP Akuisisi',isGap:true},{k:'achCIF',l:'Achievement',isPct:true}]}
   ];
 
-  // Populate branch filter
-  function populateBranches(coBranch) {
-    const branchSel = document.getElementById('branchFilter');
-    branchSel.innerHTML = '<option value="ALL">🏢 Semua Branch</option>';
-    const branches = [...new Set(ntData.filter(d => coBranch==='ALL' || d.co===coBranch).map(d => d.br))].sort();
-    branches.forEach(b => {
+  const coBranchSelect = document.getElementById('coBranchFilter');
+  const branchSelect = document.getElementById('branchFilter');
+
+  // 🔄 CASCADING DROPDOWN LOGIC
+  coBranchSelect.addEventListener('change', function() {
+    updateBranchOptions(this.value);
+    renderDashboard();
+  });
+  branchSelect.addEventListener('change', renderDashboard);
+
+  function updateBranchOptions(selectedCo) {
+    branchSelect.innerHTML = '<option value="ALL">Semua Branch</option>';
+    const filtered = selectedCo === 'ALL' ? ntData : ntData.filter(d => d.co === selectedCo);
+    const uniqueBranches = [...new Set(filtered.map(d => d.br))].sort();
+    uniqueBranches.forEach(br => {
       const opt = document.createElement('option');
-      opt.value = b;
-      opt.textContent = b;
-      branchSel.appendChild(opt);
+      opt.value = br;
+      opt.textContent = br;
+      branchSelect.appendChild(opt);
     });
+    branchSelect.value = 'ALL'; // Reset ke ALL saat Co-Branch berubah
   }
 
   function calcMetrics(data) {
     return data.map(d => ({
       ...d,
-      gapCA: d.ca_mtd - d.ca_tgt,
-      gapSA: d.sa_mtd - d.sa_tgt,
-      gapFU: d.fu_mtd - d.fu_tgt,
-      gapCon: d.con_mtd - d.con_tgt,
-      gapSME: d.sme_mtd - d.sme_tgt,
-      gapPH: d.ph_mtd - d.ph_tgt,
-      gapMDIN: d.mdin_mtd - d.mdin_tgt,
-      gapQRIS: d.qris_mtd - d.qris_tgt,
-      gapSLI: d.sli_mtd - d.sli_tgt,
+      gapCA: d.ca_mtd - d.ca_tgt, gapSA: d.sa_mtd - d.sa_tgt, gapFU: d.fu_mtd - d.fu_tgt,
+      gapCon: d.con_mtd - d.con_tgt, gapSME: d.sme_mtd - d.sme_tgt, gapPH: d.ph_mtd - d.ph_tgt,
+      gapMDIN: d.mdin_mtd - d.mdin_tgt, gapQRIS: d.qris_mtd - d.qris_tgt, gapSLI: d.sli_mtd - d.sli_tgt,
       gapCIF: d.cif_mtd - d.cif_tgt,
-      achCA: d.ca_tgt>0 ? (d.ca_mtd/d.ca_tgt*100) : 0,
-      achSA: d.sa_tgt>0 ? (d.sa_mtd/d.sa_tgt*100) : 0,
-      achFU: d.fu_tgt>0 ? (d.fu_mtd/d.fu_tgt*100) : 0,
-      achCon: d.con_tgt>0 ? (d.con_mtd/d.con_tgt*100) : 0,
-      achSME: d.sme_tgt>0 ? (d.sme_mtd/d.sme_tgt*100) : 0,
-      achPH: d.ph_tgt>0 ? (d.ph_mtd/d.ph_tgt*100) : 0,
-      achMDIN: d.mdin_tgt>0 ? (d.mdin_mtd/d.mdin_tgt*100) : 0,
-      achQRIS: d.qris_tgt>0 ? (d.qris_mtd/d.qris_tgt*100) : 0,
-      achSLI: d.sli_tgt>0 ? (d.sli_mtd/d.sli_tgt*100) : 0,
-      achCIF: d.cif_tgt>0 ? (d.cif_mtd/d.cif_tgt*100) : 0
+      achCA: d.ca_tgt>0 ? (d.ca_mtd/d.ca_tgt*100) : 0, achSA: d.sa_tgt>0 ? (d.sa_mtd/d.sa_tgt*100) : 0,
+      achFU: d.fu_tgt>0 ? (d.fu_mtd/d.fu_tgt*100) : 0, achCon: d.con_tgt>0 ? (d.con_mtd/d.con_tgt*100) : 0,
+      achSME: d.sme_tgt>0 ? (d.sme_mtd/d.sme_tgt*100) : 0, achPH: d.ph_tgt>0 ? (d.ph_mtd/d.ph_tgt*100) : 0,
+      achMDIN: d.mdin_tgt>0 ? (d.mdin_mtd/d.mdin_tgt*100) : 0, achQRIS: d.qris_tgt>0 ? (d.qris_mtd/d.qris_tgt*100) : 0,
+      achSLI: d.sli_tgt>0 ? (d.sli_mtd/d.sli_tgt*100) : 0, achCIF: d.cif_tgt>0 ? (d.cif_mtd/d.cif_tgt*100) : 0
     }));
   }
 
@@ -345,19 +304,21 @@
     if(br!=='ALL') filtered = filtered.filter(d=>d.br===br);
     
     const sum = (key) => filtered.reduce((a,b)=>a+(b[key]||0),0);
-    const total = {
-      ca_mtd:sum('ca_mtd'), ca_tgt:sum('ca_tgt'), gapCA:sum('gapCA'), achCA: filtered.length>0 ? filtered.reduce((a,b)=>a+b.achCA,0)/filtered.length : 0,
-      sa_mtd:sum('sa_mtd'), sa_tgt:sum('sa_tgt'), gapSA:sum('gapSA'), achSA: filtered.length>0 ? filtered.reduce((a,b)=>a+b.achSA,0)/filtered.length : 0,
-      fu_mtd:sum('fu_mtd'), fu_tgt:sum('fu_tgt'), gapFU:sum('gapFU'), achFU: filtered.length>0 ? filtered.reduce((a,b)=>a+b.achFU,0)/filtered.length : 0,
-      con_mtd:sum('con_mtd'), con_tgt:sum('con_tgt'), gapCon:sum('gapCon'), achCon: filtered.length>0 ? filtered.reduce((a,b)=>a+b.achCon,0)/filtered.length : 0,
-      sme_mtd:sum('sme_mtd'), sme_tgt:sum('sme_tgt'), gapSME:sum('gapSME'), achSME: filtered.length>0 ? filtered.reduce((a,b)=>a+b.achSME,0)/filtered.length : 0,
-      ph_mtd:sum('ph_mtd'), ph_tgt:sum('ph_tgt'), gapPH:sum('gapPH'), achPH: filtered.length>0 ? filtered.reduce((a,b)=>a+b.achPH,0)/filtered.length : 0,
-      mdin_mtd:sum('mdin_mtd'), mdin_tgt:sum('mdin_tgt'), gapMDIN:sum('gapMDIN'), achMDIN: filtered.length>0 ? filtered.reduce((a,b)=>a+b.achMDIN,0)/filtered.length : 0,
-      qris_mtd:sum('qris_mtd'), qris_tgt:sum('qris_tgt'), gapQRIS:sum('gapQRIS'), achQRIS: filtered.length>0 ? filtered.reduce((a,b)=>a+b.achQRIS,0)/filtered.length : 0,
-      sli_mtd:sum('sli_mtd'), sli_tgt:sum('sli_tgt'), gapSLI:sum('gapSLI'), achSLI: filtered.length>0 ? filtered.reduce((a,b)=>a+b.achSLI,0)/filtered.length : 0,
-      cif_mtd:sum('cif_mtd'), cif_tgt:sum('cif_tgt'), gapCIF:sum('gapCIF'), achCIF: filtered.length>0 ? filtered.reduce((a,b)=>a+b.achCIF,0)/filtered.length : 0
+    const count = filtered.length;
+    const avg = (key) => count > 0 ? sum(key)/count : 0;
+
+    return {
+      ca_mtd:sum('ca_mtd'), ca_tgt:sum('ca_tgt'), gapCA:sum('gapCA'), achCA:avg('achCA'),
+      sa_mtd:sum('sa_mtd'), sa_tgt:sum('sa_tgt'), gapSA:sum('gapSA'), achSA:avg('achSA'),
+      fu_mtd:sum('fu_mtd'), fu_tgt:sum('fu_tgt'), gapFU:sum('gapFU'), achFU:avg('achFU'),
+      con_mtd:sum('con_mtd'), con_tgt:sum('con_tgt'), gapCon:sum('gapCon'), achCon:avg('achCon'),
+      sme_mtd:sum('sme_mtd'), sme_tgt:sum('sme_tgt'), gapSME:sum('gapSME'), achSME:avg('achSME'),
+      ph_mtd:sum('ph_mtd'), ph_tgt:sum('ph_tgt'), gapPH:sum('gapPH'), achPH:avg('achPH'),
+      mdin_mtd:sum('mdin_mtd'), mdin_tgt:sum('mdin_tgt'), gapMDIN:sum('gapMDIN'), achMDIN:avg('achMDIN'),
+      qris_mtd:sum('qris_mtd'), qris_tgt:sum('qris_tgt'), gapQRIS:sum('gapQRIS'), achQRIS:avg('achQRIS'),
+      sli_mtd:sum('sli_mtd'), sli_tgt:sum('sli_tgt'), gapSLI:sum('gapSLI'), achSLI:avg('achSLI'),
+      cif_mtd:sum('cif_mtd'), cif_tgt:sum('cif_tgt'), gapCIF:sum('gapCIF'), achCIF:avg('achCIF')
     };
-    return total;
   }
 
   function formatNum(val, unit='') {
@@ -371,7 +332,12 @@
     return 'low';
   }
 
-  function renderCards(total) {
+  function renderDashboard() {
+    const coBr = coBranchSelect.value;
+    const br = branchSelect.value;
+    
+    const calculatedData = calcMetrics(ntData);
+    const total = aggregate(calculatedData, coBr, br);
     const container = document.getElementById('paramsContainer');
     container.innerHTML = '';
     
@@ -396,35 +362,24 @@
       container.appendChild(card);
     });
     
-    // Update summary bar
     document.getElementById('sumGapCA').textContent = formatNum(total.gapCA,'M');
+    document.getElementById('sumGapCA').className = `summary-item value ${total.gapCA >= 0 ? 'pos' : 'neg'}`;
     document.getElementById('sumGapSA').textContent = formatNum(total.gapSA,'M');
+    document.getElementById('sumGapSA').className = `summary-item value ${total.gapSA >= 0 ? 'pos' : 'neg'}`;
     document.getElementById('sumGapFU').textContent = formatNum(total.gapFU,'M');
+    document.getElementById('sumGapFU').className = `summary-item value ${total.gapFU >= 0 ? 'pos' : 'neg'}`;
+    
     const avgAch = (total.achCA+total.achSA+total.achFU+total.achCon+total.achSME+total.achPH+total.achMDIN+total.achQRIS+total.achSLI+total.achCIF)/10;
     document.getElementById('avgAchieve').textContent = avgAch.toFixed(1) + '%';
   }
 
-  function applyFilter() {
-    const coBr = document.getElementById('coBranchFilter').value;
-    const br = document.getElementById('branchFilter').value;
-    populateBranches(coBr);
-    const data = calcMetrics(ntData);
-    const total = aggregate(data, coBr, br);
-    renderCards(total);
-  }
-
-  function resetFilter() {
-    document.getElementById('coBranchFilter').value = 'ALL';
-    document.getElementById('branchFilter').innerHTML = '<option value="ALL">🏢 Semua Branch</option>';
-    ntData.forEach(d => { if(!document.querySelector(`#branchFilter option[value="${d.br}"]`)) { const opt=document.createElement('option'); opt.value=d.br; opt.textContent=d.br; document.getElementById('branchFilter').appendChild(opt); }});
-    applyFilter();
+  function exportReport() {
+    alert("Fitur Export CSV/PDF bisa ditambahkan. Untuk sekarang, screenshot atau Print to PDF langsung dari browser sudah optimal.");
   }
 
   // Init
-  document.addEventListener('DOMContentLoaded', () => {
-    populateBranches('ALL');
-    applyFilter();
-  });
+  updateBranchOptions('ALL');
+  renderDashboard();
 </script>
 </body>
 </html>
