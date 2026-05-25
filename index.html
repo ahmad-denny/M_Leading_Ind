@@ -95,7 +95,7 @@
 
 <!-- BAGIAN INPUT JSON LINK -->
 <div class="json-loader">
-    <input type="text" id="jsonUrlInput" placeholder="Tempel link JSON di sini (Github Raw/Gist)...">
+    <input type="text" id="jsonUrlInput" placeholder="Link JSON (GitHub Raw/Gist)...">
     <button onclick="loadFromExternalLink()">🚀 Load Data</button>
     <span id="jsonStatus"></span>
 </div>
@@ -124,7 +124,6 @@
 
 <script>
   // --- DATA DEFAULT (FALLBACK) ---
-  // Data ini akan dipakai jika tidak ada link JSON yang dimasukkan
   const defaultData = [
     {
       "co": "BANDA ACEH", "br": "BANDA ACEH", "tp": "KCU D",
@@ -154,10 +153,8 @@
       "sme_mtd": "0", "sme_tgt": "0", "ph_mtd": "39", "ph_tgt": "112", "mdin_mtd": "53", "mdin_tgt": "256",
       "qris_mtd": "2", "qris_tgt": "64", "sli_mtd": "0", "sli_tgt": "112", "cif_mtd": "56", "cif_tgt": "288"
     }
-    // ... Tambahkan data lain jika diperlukan untuk fallback offline
   ];
 
-  // Variabel Global
   let ntData = [];
   const coBranchSelect = document.getElementById('coBranchFilter');
   const branchSelect = document.getElementById('branchFilter');
@@ -167,8 +164,6 @@
   const loadingOverlay = document.getElementById('loadingOverlay');
   const jsonUrlInput = document.getElementById('jsonUrlInput');
   const jsonStatus = document.getElementById('jsonStatus');
-
-  // --- FUNGSI UTILITAS ---
 
   function setTheme(theme) {
     html.setAttribute('data-theme', theme);
@@ -233,7 +228,7 @@
     setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   });
 
-  // --- LOGIKA DATA & KALKULASI ---
+  // --- LOGIKA DATA ---
 
   function toNum(v) {
     if (v === null || v === undefined || v === '') return 0;
@@ -292,7 +287,6 @@
     const count = filtered.length;
     const avg = (key) => count > 0 ? sum(key) / count : 0;
     
-    // Logika Khusus SME Region
     const smeMtdActive = filtered
       .filter(d => (d.sme_mtd || 0) > 0)
       .reduce((acc, d) => acc + (d.sme_mtd || 0), 0);
@@ -395,13 +389,12 @@
     });
   }
 
-  // --- FUNGSI LOAD DATA ---
+  // --- FUNGSI LOAD DATA DENGAN AUTO CORS PROXY ---
 
   async function processAndRenderData(rawJson) {
     try {
         ntData = processData(rawJson);
         
-        // Populate Dropdown Co-Branch
         const uniqueCo = [...new Set(ntData.map(d => d.co))].sort();
         coBranchSelect.innerHTML = '<option value="ALL">Semua Co-Branch</option>';
         uniqueCo.forEach(co => {
@@ -421,13 +414,19 @@
   }
 
   async function loadFromExternalLink() {
-    const url = jsonUrlInput.value.trim();
+    let url = jsonUrlInput.value.trim();
     if (!url) {
         alert("Masukkan URL JSON terlebih dahulu!");
         return;
     }
 
-    // UI Feedback
+    // Auto-fix untuk GitHub Raw/Gist agar menghindari CORS
+    if (url.includes('github.com') || url.includes('gist.githubusercontent.com')) {
+        if (!url.includes('corsproxy.io')) {
+            url = 'https://corsproxy.io/?' + encodeURIComponent(url);
+        }
+    }
+
     jsonStatus.textContent = "Loading...";
     jsonStatus.className = "status-loading";
     loadingOverlay.style.display = 'flex';
@@ -443,7 +442,7 @@
         if (success) {
             jsonStatus.textContent = "✅ Data Loaded";
             jsonStatus.className = "status-success";
-            localStorage.setItem('lastJsonUrl', url); // Simpan URL
+            localStorage.setItem('lastJsonUrl', jsonUrlInput.value.trim()); // Simpan URL asli
         } else {
             throw new Error("Format data salah");
         }
@@ -451,7 +450,7 @@
         console.error(error);
         jsonStatus.textContent = "❌ Gagal Load";
         jsonStatus.className = "status-error";
-        alert("Gagal mengambil data. Pastikan link benar dan mendukung CORS (gunakan raw link).");
+        alert("Gagal mengambil data. Pastikan link benar.\n\nTips: Gunakan link RAW GitHub atau coba tambahkan 'https://corsproxy.io/?' di depan link Anda.");
     } finally {
         setTimeout(() => {
             loadingOverlay.style.opacity = '0';
@@ -463,13 +462,11 @@
   function initApp() {
     setTheme(localStorage.getItem('theme') || 'light');
     
-    // Cek apakah ada URL tersimpan
     const savedUrl = localStorage.getItem('lastJsonUrl');
     if (savedUrl) {
         jsonUrlInput.value = savedUrl;
         loadFromExternalLink();
     } else {
-        // Gunakan data default jika tidak ada URL
         processAndRenderData(defaultData);
         loadingOverlay.style.display = 'none';
     }
