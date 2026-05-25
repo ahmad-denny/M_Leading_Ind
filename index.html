@@ -123,10 +123,10 @@
   <button id="themeToggle" class="theme-toggle" aria-label="Ganti Tema">🌙</button>
 </div>
 
-<!-- BAGIAN INPUT JSON LINK (Hidden by default) -->
+<!-- BAGIAN INPUT URL DATA PUSAT -->
 <div class="json-loader hidden" id="jsonLoaderBox">
-    <input type="text" id="jsonUrlInput" placeholder="Link JSON (GitHub Raw/Gist)...">
-    <button onclick="loadFromExternalLink()">🚀 Load Data</button>
+    <input type="text" id="jsonUrlInput" placeholder="Link Google Sheet (CSV) atau JSON...">
+    <button onclick="loadFromExternalLink()">🚀 Set Data Pusat</button>
     <span id="jsonStatus"></span>
 </div>
 
@@ -141,7 +141,6 @@
       <option value="ALL">Semua Branch</option>
     </select>
   </div>
-  <!-- Menggunakan ID unik untuk tombol reset agar tidak konflik -->
   <button id="btnResetFilter" onclick="resetDashboard()">🔄 Reset Filter</button>
 </div>
   
@@ -226,14 +225,12 @@
     }
   }
 
-  // ✅ PERBAIKAN FUNGSI RESET FILTER (Total Rewrite)
+  // ✅ FUNGSI RESET FILTER (DIPERBAIKI)
   function resetDashboard() {
     console.log("Resetting Dashboard...");
-    
-    // 1. Set nilai select ke ALL secara manual
     coBranchSelect.value = 'ALL';
     
-    // 2. Isi ulang opsi Branch dengan semua cabang (karena Co-Branch sekarang ALL)
+    // Isi ulang opsi Branch
     branchSelect.innerHTML = '<option value="ALL">Semua Branch</option>';
     const uniqueBranches = [...new Set(ntData.map(d => d.br))].sort();
     uniqueBranches.forEach(br => {
@@ -241,12 +238,9 @@
       opt.value = br; opt.textContent = br;
       branchSelect.appendChild(opt);
     });
-    branchSelect.value = 'ALL'; // Pastikan branch juga ALL
+    branchSelect.value = 'ALL';
     
-    // 3. Update tampilan teks
     updateBranchDisplay();
-    
-    // 4. Render ulang grafik
     renderDashboard();
   }
 
@@ -283,8 +277,6 @@
     jsonLoaderBox.scrollIntoView({ behavior: 'smooth' });
   }
 
-  // Fungsi untuk mengisi dropdown Branch berdasarkan Co-Branch terpilih
-  // preserveSelection: jika true, mencoba mempertahankan pilihan branch jika masih valid
   function updateBranchOptions(selectedCo, preserveSelection = false) {
     const currentBr = branchSelect.value;
     branchSelect.innerHTML = '<option value="ALL">Semua Branch</option>';
@@ -305,9 +297,8 @@
     }
   }
 
-  // Event Listeners untuk Filter
   coBranchSelect.addEventListener('change', () => { 
-    updateBranchOptions(coBranchSelect.value, false); // Reset branch ke ALL jika co-branch berubah
+    updateBranchOptions(coBranchSelect.value, false);
     updateBranchDisplay();
     renderDashboard(); 
   });
@@ -349,6 +340,26 @@
       sli_mtd: toNum(r.sli_mtd), sli_tgt: toNum(r.sli_tgt),
       cif_mtd: toNum(r.cif_mtd), cif_tgt: toNum(r.cif_tgt)
     }));
+  }
+
+  // Fungsi konversi CSV Google Sheet ke JSON
+  function csvToJSON(csvText) {
+    const lines = csvText.split("\n");
+    const result = [];
+    const headers = lines[0].split(",").map(h => h.trim().replace(/"/g, ''));
+
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i]) continue;
+      const obj = {};
+      const currentline = lines[i].split(","); // Asumsi CSV sederhana
+      
+      // Handle kasus kutipan CSV kompleks (opsional, simplifikasi disini)
+      for (let j = 0; j < headers.length; j++) {
+        obj[headers[j]] = currentline[j] ? currentline[j].trim().replace(/"/g, '') : "";
+      }
+      result.push(obj);
+    }
+    return result;
   }
 
   function calcMetrics(data) {
@@ -482,13 +493,13 @@
     });
   }
 
-  // --- FUNGSI LOAD DATA ---
+  // --- FUNGSI LOAD DATA PUSAT ---
 
   async function processAndRenderData(rawJson) {
     try {
         ntData = processData(rawJson);
         
-        // Simpan posisi filter saat ini sebelum render ulang
+        // Simpan posisi filter saat ini
         const currentCo = coBranchSelect.value;
         
         const uniqueCo = [...new Set(ntData.map(d => d.co))].sort();
@@ -499,16 +510,13 @@
             coBranchSelect.appendChild(opt);
         });
 
-        // Kembalikan posisi Co-Branch jika masih valid
         if (uniqueCo.includes(currentCo)) {
             coBranchSelect.value = currentCo;
         } else {
             coBranchSelect.value = 'ALL';
         }
 
-        // Update Branch Options (mempertahankan pilihan branch jika memungkinkan)
         updateBranchOptions(coBranchSelect.value, true);
-        
         updateBranchDisplay();
         renderDashboard();
         return true;
@@ -521,21 +529,27 @@
   async function loadFromExternalLink(isAutoRefresh = false) {
     let url = jsonUrlInput.value.trim();
     
-    // Jika auto refresh, ambil dari localStorage
     if (isAutoRefresh) {
         url = localStorage.getItem('lastJsonUrl');
-        if (!url) return; // Tidak ada URL tersimpan, skip
+        if (!url) return; 
     }
 
     if (!url) {
-        if(!isAutoRefresh) alert("Masukkan URL JSON terlebih dahulu!");
+        if(!isAutoRefresh) alert("Masukkan URL Data terlebih dahulu!");
         return;
     }
 
-    // Auto-fix CORS untuk GitHub
-    if (url.includes('github.com') || url.includes('gist.githubusercontent.com')) {
-        if (!url.includes('corsproxy.io')) {
-            url = 'https://corsproxy.io/?' + encodeURIComponent(url);
+    // Deteksi Google Sheet CSV
+    let isCSV = false;
+    if (url.includes('docs.google.com/spreadsheets')) {
+        isCSV = true;
+        // Pastikan URL adalah export CSV
+        if (!url.includes('/export?format=csv')) {
+             // Coba konversi manual jika user paste link biasa
+             const match = url.match(/\/d\/(.*?)\//);
+             if(match && match[1]) {
+                 url = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=csv`;
+             }
         }
     }
 
@@ -549,20 +563,26 @@
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-        const data = await response.json();
+        
+        let data;
+        if (isCSV) {
+            const csvText = await response.text();
+            data = csvToJSON(csvText);
+        } else {
+            data = await response.json();
+        }
         
         const success = await processAndRenderData(data);
         
         if (success) {
             if (!isAutoRefresh) {
-                jsonStatus.textContent = "✅ Success";
+                jsonStatus.textContent = "✅ Data Pusat Terhubung";
                 jsonStatus.className = "status-success";
                 localStorage.setItem('lastJsonUrl', jsonUrlInput.value.trim());
                 
-                // Sembunyikan Input Box setelah sukses
                 setTimeout(() => {
                     jsonLoaderBox.classList.add('hidden');
-                }, 1000);
+                }, 1500);
             }
         } else {
             throw new Error("Format data salah");
@@ -570,9 +590,9 @@
     } catch (error) {
         console.error(error);
         if (!isAutoRefresh) {
-            jsonStatus.textContent = "❌ Failed";
+            jsonStatus.textContent = "❌ Gagal Koneksi";
             jsonStatus.className = "status-error";
-            alert("Gagal mengambil data. Pastikan link benar.");
+            alert("Gagal mengambil data. Pastikan Link Publik (Anyone with link can view).");
         }
     } finally {
         if (!isAutoRefresh) {
@@ -592,6 +612,7 @@
         jsonUrlInput.value = savedUrl;
         loadFromExternalLink();
     } else {
+        // Load Default jika belum ada URL
         processAndRenderData(defaultData);
         loadingOverlay.style.display = 'none';
     }
@@ -599,7 +620,7 @@
     // ✅ AUTO REFRESH SETIAP 60 DETIK (Agar terbaca di semua client)
     setInterval(() => {
         if (localStorage.getItem('lastJsonUrl')) {
-            console.log("Auto-refreshing data...");
+            console.log("Auto-refreshing data from Cloud...");
             loadFromExternalLink(true);
         }
     }, 60000); 
