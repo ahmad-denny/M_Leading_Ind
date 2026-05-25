@@ -141,7 +141,8 @@
       <option value="ALL">Semua Branch</option>
     </select>
   </div>
-  <button onclick="resetDashboard()" title="Reset Filter ke Awal">🔄 Reset Filter</button>
+  <!-- Menggunakan ID unik untuk tombol reset agar tidak konflik -->
+  <button id="btnResetFilter" onclick="resetDashboard()">🔄 Reset Filter</button>
 </div>
   
 <div class="params-grid" id="paramsContainer">
@@ -225,18 +226,27 @@
     }
   }
 
-  // ✅ PERBAIKAN FUNGSI RESET FILTER
+  // ✅ PERBAIKAN FUNGSI RESET FILTER (Total Rewrite)
   function resetDashboard() {
-    // 1. Kembalikan nilai dropdown ke ALL
+    console.log("Resetting Dashboard...");
+    
+    // 1. Set nilai select ke ALL secara manual
     coBranchSelect.value = 'ALL';
     
-    // 2. Update opsi Branch (ini juga akan mereset branchSelect ke 'ALL')
-    updateBranchOptions('ALL');
+    // 2. Isi ulang opsi Branch dengan semua cabang (karena Co-Branch sekarang ALL)
+    branchSelect.innerHTML = '<option value="ALL">Semua Branch</option>';
+    const uniqueBranches = [...new Set(ntData.map(d => d.br))].sort();
+    uniqueBranches.forEach(br => {
+      const opt = document.createElement('option');
+      opt.value = br; opt.textContent = br;
+      branchSelect.appendChild(opt);
+    });
+    branchSelect.value = 'ALL'; // Pastikan branch juga ALL
     
-    // 3. Update teks Header
+    // 3. Update tampilan teks
     updateBranchDisplay();
     
-    // 4. Render ulang dashboard dengan data full
+    // 4. Render ulang grafik
     renderDashboard();
   }
 
@@ -270,13 +280,15 @@
     jsonLoaderBox.classList.remove('hidden');
     jsonStatus.textContent = "";
     jsonUrlInput.focus();
-    // Scroll ke input box
     jsonLoaderBox.scrollIntoView({ behavior: 'smooth' });
   }
 
-  function updateBranchOptions(selectedCo) {
+  // Fungsi untuk mengisi dropdown Branch berdasarkan Co-Branch terpilih
+  // preserveSelection: jika true, mencoba mempertahankan pilihan branch jika masih valid
+  function updateBranchOptions(selectedCo, preserveSelection = false) {
     const currentBr = branchSelect.value;
     branchSelect.innerHTML = '<option value="ALL">Semua Branch</option>';
+    
     const filtered = selectedCo === 'ALL' ? ntData : ntData.filter(d => d.co === selectedCo);
     const uniqueBranches = [...new Set(filtered.map(d => d.br))].sort();
     
@@ -286,15 +298,16 @@
       branchSelect.appendChild(opt);
     });
 
-    if (uniqueBranches.includes(currentBr)) {
+    if (preserveSelection && uniqueBranches.includes(currentBr)) {
         branchSelect.value = currentBr;
     } else {
         branchSelect.value = 'ALL';
     }
   }
 
+  // Event Listeners untuk Filter
   coBranchSelect.addEventListener('change', () => { 
-    updateBranchOptions(coBranchSelect.value); 
+    updateBranchOptions(coBranchSelect.value, false); // Reset branch ke ALL jika co-branch berubah
     updateBranchDisplay();
     renderDashboard(); 
   });
@@ -475,6 +488,9 @@
     try {
         ntData = processData(rawJson);
         
+        // Simpan posisi filter saat ini sebelum render ulang
+        const currentCo = coBranchSelect.value;
+        
         const uniqueCo = [...new Set(ntData.map(d => d.co))].sort();
         coBranchSelect.innerHTML = '<option value="ALL">Semua Co-Branch</option>';
         uniqueCo.forEach(co => {
@@ -483,7 +499,16 @@
             coBranchSelect.appendChild(opt);
         });
 
-        updateBranchOptions('ALL');
+        // Kembalikan posisi Co-Branch jika masih valid
+        if (uniqueCo.includes(currentCo)) {
+            coBranchSelect.value = currentCo;
+        } else {
+            coBranchSelect.value = 'ALL';
+        }
+
+        // Update Branch Options (mempertahankan pilihan branch jika memungkinkan)
+        updateBranchOptions(coBranchSelect.value, true);
+        
         updateBranchDisplay();
         renderDashboard();
         return true;
