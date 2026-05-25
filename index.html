@@ -55,21 +55,6 @@
     /* Badge indikator logika khusus */
     .tag.special { background: var(--warning); color: #0f172a; font-size: 0.65rem;padding: 2px 6px;}
     @media (max-width: 600px) { .filters { grid-template-columns: 1fr; } .summary-bar { grid-template-columns: repeat(2, 1fr); } .params-grid { grid-template-columns: 1fr; } }
-
-    /* Container utama untuk membungkus kedua kelompok agar sejajar satu baris */
-    .form-container { display: flex; gap: 20px; /* Jarak antara kelompok Co-Branch dan Branch */ font-family: sans-serif;}
-    /* Mengatur masing-masing kelompok input */
-    .form-group { display: flex; flex-direction: column; /* Label tetap di atas combobox-nya */ gap: 5px; /* Jarak antara label/icon dengan combobox */ flex: 1; /* Membuat kedua kolom punya lebar yang seimbang */ max-width: 300px; /* Batas lebar maksimal biar tidak terlalu panjang */ }
-    /* Mengatur icon dan text label agar sejajar horizontal */
-    .label-container { display: flex; align-items: center; gap: 5px; font-size: 14px; color: #555; }
-    /* Styling untuk Combobox (Select) agar mirip dengan gambar */
-    .custom-select { width: 100%; padding: 10px 15px; font-size: 16px; border: 1px solid #e2e8f0; border-radius: 12px; /* Membuat sudut tumpul (rounded) */ background-color: #fff; 
-                    color: #1a202c; outline: none; cursor: pointer; /* Menonaktifkan style default browser (opsional, jika ingin custom arrow) */ appearance: none;
-                    -webkit-appearance: none;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%231a202c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
-            background-repeat: no-repeat; background-position: right 15px center;
-            background-size: 16px; }
-    .custom-select:focus { border-color: #a0aec0; }    
   </style>
 </head>
 <body oncontextmenu="return false;">
