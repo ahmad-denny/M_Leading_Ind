@@ -25,15 +25,29 @@
     .header .meta { font-size: 0.8rem; opacity: 0.9; }
     .theme-toggle { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.15); border: none; color: var(--header-text); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; backdrop-filter: blur(4px); transition: background 0.2s; }
     .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+    
     .filters { background: var(--card-bg); padding: 14px; border-radius: 12px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; box-shadow: var(--shadow); transition: background 0.3s, box-shadow 0.3s; }
+    /* Style khusus untuk selector dataset */
+    .dataset-selector-container {
+        grid-column: span 3;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px dashed var(--border);
+    }
+    .dataset-selector-container label {
+        font-size: 0.75rem; color: var(--text-light); display: block; margin-bottom: 4px; font-weight: bold;
+    }
+    #datasetSelector {
+        width: 100%; padding: 10px; border: 1px solid var(--accent); border-radius: 8px; 
+        font-size: 13px; background: var(--input-bg); color: var(--text); font-weight: 600;
+        cursor: pointer;
+    }
+
     .filters label { font-size: 0.75rem; color: var(--text-light); display: block; margin-bottom: 4px; }
     .filters select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: var(--input-bg); color: var(--text); transition: background 0.3s, border-color 0.3s; }
     .filters button { padding: 10px 16px; background: var(--btn-bg); color: var(--btn-text); border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: opacity 0.2s, transform 0.1s; white-space: nowrap; }
     .filters button:hover { opacity: 0.9; } .filters button:active { transform: scale(0.98); }
-    .summary-bar { background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 14px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; font-size: 0.8rem; box-shadow: var(--shadow); transition: background 0.3s, box-shadow 0.3s; }
-    .summary-item .label { color: var(--text-light); display: block; margin-bottom: 4px; }
-    .summary-item .value { font-weight: 700; font-size: 1.05rem; transition: color 0.3s; }
-    .summary-item .value.neg { color: var(--danger); } .summary-item .value.pos { color: var(--success); }
+    
     .params-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
     .param-card { background: var(--card-bg); border-radius: 12px; padding: 14px; box-shadow: var(--shadow); border-left: 4px solid var(--info); transition: transform 0.2s, background 0.3s, box-shadow 0.3s; }
     .param-card:hover { transform: translateY(-3px); }
@@ -52,9 +66,8 @@
     .progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, background 0.3s; }
     .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; margin-left: 6px; background: var(--tag-bg); color: var(--tag-text); transition: background 0.3s, color 0.3s; }
     .footer { text-align: center; padding: 20px 10px; color: var(--text-light); font-size: 0.75rem; margin-top: 20px; transition: color 0.3s; }
-    /* Badge indikator logika khusus */
     .tag.special { background: var(--warning); color: #0f172a; font-size: 0.65rem;padding: 2px 6px;}
-    @media (max-width: 600px) { .filters { grid-template-columns: 1fr; } .summary-bar { grid-template-columns: repeat(2, 1fr); } .params-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .filters { grid-template-columns: 1fr; } .dataset-selector-container { grid-column: span 1; } .params-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body oncontextmenu="return false;">
@@ -62,10 +75,19 @@
   <h1>🏦 Bank Muamalat</h1>
   <div class="meta"><b>Leading Indicator Dashboard</b></div>
   <div class="meta" id="selectedBranchDisplay">📍 <span id="branchNameText">Region Sumatera</span></div>
-  <div class="meta">📅 Per: 22 Mei 2026 | 📆 Hari Kerja: 16</div>
+  <div class="meta">📅 Per: <span id="currentPeriodLabel">Loading...</span></div>
   <button id="themeToggle" class="theme-toggle">🌙</button>
 </div>
+
 <div class="filters">
+  <!-- DATASET SELECTOR -->
+  <div class="dataset-selector-container">
+    <label>📂 PILIH PERIODE DATA (ADMIN):</label>
+    <select id="datasetSelector" onchange="loadSelectedDataset()">
+        <option value="">Memuat daftar data...</option>
+    </select>
+  </div>
+
   <div><label>📍 Co-Branch</label> 
     <select id="coBranchFilter" class="custom-select">
       <option value="ALL">Semua Co-Branch</option><option value="BANDA ACEH">BANDA ACEH</option><option value="BENGKULU">BENGKULU</option><option value="LAMPUNG">LAMPUNG</option><option value="MEDAN BALAIKOTA">MEDAN BALAIKOTA</option><option value="MEDAN BARU">MEDAN BARU</option><option value="PADANG">PADANG</option><option value="PALEMBANG">PALEMBANG</option><option value="PANGKAL PINANG">PANGKAL PINANG</option><option value="PEKANBARU">PEKANBARU</option>
@@ -79,26 +101,30 @@
   <button onclick="resetDashboard()">🔄 Reset Filter</button>
 </div>
   
-<!--
-  <div class="summary-bar">
-    <div class="summary-item"><span class="label">Total Gap CA</span><span class="value" id="sumGapCA">0.0 M</span></div>
-    <div class="summary-item"><span class="label">Total Gap SA</span><span class="value" id="sumGapSA">0.0 M</span></div>
-    <div class="summary-item"><span class="label">Total Gap Funding</span><span class="value" id="sumGapFU">0.0 M</span></div>
-    <div class="summary-item"><span class="label">Avg Achievement</span><span class="value" id="avgAchieve">0.0%</span></div>
-  </div>
--->
   <div class="params-grid" id="paramsContainer"></div>
-  <div class="footer">💡 Update data di bagian script HTML | 📱 Optimized for Mobile & Web | Theme: <span id="themeLabel">Light</span>| 📱 Made by Love - RBPM</div>
+  <div class="footer">💡 Update data via config.json & GitHub | 📱 Optimized for Mobile & Web | Theme: <span id="themeLabel">Light</span>| 📱 Made by Love - RBPM</div>
 
 <script>
+  // --- KONFIGURASI ADMIN ---
+  const ADMIN_PASS = ""; // Kosongkan jika tidak mau pakai password. Isi misal: "admin123"
+  
   let ntData = [];
+  let availableDatasets = [];
   const coBranchSelect = document.getElementById('coBranchFilter');
   const branchSelect = document.getElementById('branchFilter');
   const themeToggle = document.getElementById('themeToggle');
   const themeLabel = document.getElementById('themeLabel');
   const html = document.documentElement;
 
-  // --- FUNGSI TEMA & UI (TETAP SAMA) ---
+  // 1. CEK PASSWORD (Opsional)
+  if (ADMIN_PASS !== "") {
+      let inputPass = prompt("Masukkan Password Admin untuk mengakses Dashboard:");
+      if (inputPass !== ADMIN_PASS) {
+          document.body.innerHTML = "<div style='padding:50px; text-align:center; font-family:sans-serif;'><h1 style='color:red'>AKSES DITOLAK</h1><p>Password salah atau Anda tidak memiliki izin.</p></div>";
+          throw new Error("Unauthorized");
+      }
+  }
+
   function setTheme(theme) {
     html.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
@@ -151,7 +177,7 @@
     renderDashboard();
   });
 
-  // --- LOGIKA DATA & PERHITUNGAN (TETAP SAMA) ---
+  // --- LOGIKA DATA & PERHITUNGAN ---
   function calcMetrics(data) {
     return data.map(d => ({
       ...d,
@@ -208,7 +234,10 @@
   function getAchieveClass(pct) { if(pct >= 100) return 'high'; if(pct >= 50) return 'mid'; return 'low'; }
 
   function renderDashboard() {
-    if(ntData.length === 0) return;
+    if(ntData.length === 0) {
+        document.getElementById('paramsContainer').innerHTML = '<div style="padding:20px; text-align:center;">Belum ada data yang dimuat.</div>';
+        return;
+    }
     const coBr = coBranchSelect.value;
     const br = branchSelect.value;
     const total = aggregate(calcMetrics(ntData), coBr, br);
@@ -247,54 +276,103 @@
     });
   }
 
-  // --- INISIALISASI DENGAN FETCH (PERUBAHAN UTAMA) ---
-  function loadData() {
-    // Mengambil data dari file eksternal
-    fetch('data_mei.json')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Gagal memuat data-active.json');
-        }
-        return response.json();
-      })
-      .then(rawData => {
-        const toNum = (v) => {
-          if (!v) return 0;
-          const n = parseFloat(v.toString().replace(',', '.').trim());
-          return isNaN(n) ? 0 : n;
-        };
-
-        ntData = rawData.map(r => ({
-          co: (r.co || "").trim(),
-          br: (r.br || "").trim(),
-          tp: (r.tp || "").trim(),
-          ca_mtd: toNum(r.ca_mtd), ca_tgt: toNum(r.ca_tgt),
-          sa_mtd: toNum(r.sa_mtd), sa_tgt: toNum(r.sa_tgt),
-          fu_mtd: toNum(r.fu_mtd), fu_tgt: toNum(r.fu_tgt),
-          con_mtd: toNum(r.con_mtd), con_tgt: toNum(r.con_tgt),
-          sme_mtd: toNum(r.sme_mtd), sme_tgt: toNum(r.sme_tgt),
-          ph_mtd: toNum(r.ph_mtd), ph_tgt: toNum(r.ph_tgt),
-          mdin_mtd: toNum(r.mdin_mtd), mdin_tgt: toNum(r.mdin_tgt),
-          qris_mtd: toNum(r.qris_mtd), qris_tgt: toNum(r.qris_tgt),
-          sli_mtd: toNum(r.sli_mtd), sli_tgt: toNum(r.sli_tgt),
-          cif_mtd: toNum(r.cif_mtd), cif_tgt: toNum(r.cif_tgt)
-        }));
-
-        updateBranchOptions('ALL');
-        updateBranchDisplay();
-        renderDashboard();
-      })
-      .catch(error => {
-        console.error('Error loading data:', error);
-        document.getElementById('paramsContainer').innerHTML = 
-          '<div style="padding:20px; text-align:center; color:var(--danger)">Gagal memuat data. Pastikan file data-active.json tersedia.</div>';
-      });
+  // --- FUNGSI LOAD DATASET DINAMIS ---
+  
+  function fetchConfig() {
+    fetch('config.json')
+        .then(r => {
+            if (!r.ok) throw new Error("Config not found");
+            return r.json();
+        })
+        .then(config => {
+            availableDatasets = config.datasets;
+            populateDatasetSelector();
+            // Load default dataset (yang pertama di list)
+            if(availableDatasets.length > 0) {
+                loadDatasetFile(availableDatasets[0].file, availableDatasets[0].label);
+            }
+        })
+        .catch(err => {
+            console.warn("config.json tidak ditemukan, menggunakan fallback Dataset.json");
+            // Fallback jika config.json belum dibuat
+            document.getElementById('datasetSelector').innerHTML = '<option value="Dataset.json">Default Data</option>';
+            loadDatasetFile('Dataset.json', 'Default Data');
+        });
   }
 
+  function populateDatasetSelector() {
+    const selector = document.getElementById('datasetSelector');
+    selector.innerHTML = '';
+    availableDatasets.forEach((ds) => {
+        const opt = document.createElement('option');
+        opt.value = ds.file;
+        opt.textContent = ds.label;
+        selector.appendChild(opt);
+    });
+  }
+
+  function loadSelectedDataset() {
+    const selector = document.getElementById('datasetSelector');
+    const selectedFile = selector.value;
+    const selectedLabel = selector.options[selector.selectedIndex].text;
+    if (selectedFile) {
+        loadDatasetFile(selectedFile, selectedLabel);
+    }
+  }
+
+  function loadDatasetFile(filename, label) {
+    document.getElementById('currentPeriodLabel').textContent = `Memuat ${label}...`;
+    
+    fetch(filename)
+        .then(response => {
+            if (!response.ok) throw new Error(`Gagal memuat ${filename}`);
+            return response.json();
+        })
+        .then(rawData => {
+            const toNum = (v) => {
+                if (!v) return 0;
+                const n = parseFloat(v.toString().replace(',', '.').trim());
+                return isNaN(n) ? 0 : n;
+            };
+
+            ntData = rawData.map(r => ({
+                co: (r.co || "").trim(),
+                br: (r.br || "").trim(),
+                tp: (r.tp || "").trim(),
+                ca_mtd: toNum(r.ca_mtd), ca_tgt: toNum(r.ca_tgt),
+                sa_mtd: toNum(r.sa_mtd), sa_tgt: toNum(r.sa_tgt),
+                fu_mtd: toNum(r.fu_mtd), fu_tgt: toNum(r.fu_tgt),
+                con_mtd: toNum(r.con_mtd), con_tgt: toNum(r.con_tgt),
+                sme_mtd: toNum(r.sme_mtd), sme_tgt: toNum(r.sme_tgt),
+                ph_mtd: toNum(r.ph_mtd), ph_tgt: toNum(r.ph_tgt),
+                mdin_mtd: toNum(r.mdin_mtd), mdin_tgt: toNum(r.mdin_tgt),
+                qris_mtd: toNum(r.qris_mtd), qris_tgt: toNum(r.qris_tgt),
+                sli_mtd: toNum(r.sli_mtd), sli_tgt: toNum(r.sli_tgt),
+                cif_mtd: toNum(r.cif_mtd), cif_tgt: toNum(r.cif_tgt)
+            }));
+
+            document.getElementById('currentPeriodLabel').textContent = label;
+            updateBranchOptions('ALL');
+            updateBranchDisplay();
+            renderDashboard();
+        })
+        .catch(error => {
+            console.error('Error loading data:', error);
+            document.getElementById('currentPeriodLabel').textContent = "Error Load Data";
+            document.getElementById('paramsContainer').innerHTML = 
+            `<div style="padding:20px; text-align:center; color:var(--danger)">
+                Gagal memuat file: ${filename}<br>Pastikan file ada di repository GitHub.
+            </div>`;
+        });
+  }
+
+  // --- INIT ---
   document.addEventListener('DOMContentLoaded', () => {
     setTheme(localStorage.getItem('theme') || 'light');
     themeToggle.addEventListener('click', () => setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
-    loadData();
+    
+    // Mulai dengan mengambil config
+    fetchConfig();
   });
 </script>
 </body>
