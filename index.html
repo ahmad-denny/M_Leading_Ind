@@ -1,4 +1,1094 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Leading Indicator - Bank Muamalat</title>
+  <style>
+    :root {
+      --bg: #f1f5f9; --card-bg: #ffffff; --border: #e2e8f0; --text: #0f172a; --text-light: #64748b;
+      --header-bg: #492A75; --header-text: #ffffff; --btn-bg: #1e40af; --btn-text: #ffffff;
+      --input-bg: #ffffff; --success: #16a34a; --warning: #f59e0b; --danger: #dc2626; --info: #3b82f6;
+      --shadow: 0 4px 12px rgba(0,0,0,0.06); --progress-bg: #e2e8f0; --tag-bg: #dbeafe; --tag-text: #1e40af;
+    }
+    [data-theme="dark"] {
+      --bg: #0b1120; --card-bg: #1e293b; --border: #334155; --text: #f8fafc; --text-light: #94a3b8;
+      --header-bg: #1e293b; --header-text: #f8fafc; --btn-bg: #3b82f6; --btn-text: #0f172a;
+      --input-bg: #334155; --success: #4ade80; --warning: #facc15; --danger: #f87171; --info: #60a5fa;
+      --shadow: 0 4px 16px rgba(0,0,0,0.4); --progress-bg: #475569; --tag-bg: #1e3a8a; --tag-text: #93c5fd;
+    }
+    #branchNameText { transition: opacity 0.2s ease; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif; background: var(--bg); color: var(--text); padding: 12px; line-height: 1.4; font-size: 14px; transition: background 0.3s ease, color 0.3s ease; }
+    .header { background: var(--header-bg); color: var(--header-text); padding: 16px; border-radius: 14px; margin-bottom: 14px; text-align: center; position: relative; transition: background 0.3s ease; }
+    .header h1 { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+    .header .meta { font-size: 0.8rem; opacity: 0.9; }
+    .theme-toggle { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.15); border: none; color: var(--header-text); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; backdrop-filter: blur(4px); transition: background 0.2s; }
+    .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+    .filters { background: var(--card-bg); padding: 14px; border-radius: 12px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; box-shadow: var(--shadow); transition: background 0.3s, box-shadow 0.3s; }
+    .filters label { font-size: 0.75rem; color: var(--text-light); display: block; margin-bottom: 4px; }
+    .filters select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: var(--input-bg); color: var(--text); transition: background 0.3s, border-color 0.3s; }
+    .filters button { padding: 10px 16px; background: var(--btn-bg); color: var(--btn-text); border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: opacity 0.2s, transform 0.1s; white-space: nowrap; }
+    .filters button:hover { opacity: 0.9; } .filters button:active { transform: scale(0.98); }
+    .summary-bar { background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 14px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; font-size: 0.8rem; box-shadow: var(--shadow); transition: background 0.3s, box-shadow 0.3s; }
+    .summary-item .label { color: var(--text-light); display: block; margin-bottom: 4px; }
+    .summary-item .value { font-weight: 700; font-size: 1.05rem; transition: color 0.3s; }
+    .summary-item .value.neg { color: var(--danger); } .summary-item .value.pos { color: var(--success); }
+    .params-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+    .param-card { background: var(--card-bg); border-radius: 12px; padding: 14px; box-shadow: var(--shadow); border-left: 4px solid var(--info); transition: transform 0.2s, background 0.3s, box-shadow 0.3s; }
+    .param-card:hover { transform: translateY(-3px); }
+    .param-card.ca { border-left-color: #3b82f6; } .param-card.sa { border-left-color: #8b5cf6; } .param-card.fu { border-left-color: #06b6d4; } .param-card.con { border-left-color: #f59e0b; }
+    .param-card.sme { border-left-color: #16a34a; } .param-card.ph { border-left-color: #ec4899; } .param-card.mdin { border-left-color: #6366f1; } .param-card.qris { border-left-color: #14b8a6; } .param-card.sli { border-left-color: #f97316; } .param-card.cif { border-left-color: #84cc16; }
+    .param-card .title { font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); display: flex; align-items: center; gap: 6px; }
+    .metric-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; }
+    .metric-row .label { color: var(--text-light); } .metric-row .value { font-weight: 600; font-family: 'SF Mono', 'Courier New', monospace; }
+    .metric-row.gap .value.neg { color: var(--danger); font-weight: 700; } .metric-row.gap .value.pos { color: var(--success); font-weight: 700; }
+    .metric-row .label { color: var(--text-light); font-weight: 600; }
+    .achievement { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); text-align: center; }
+    .achievement .label { font-size: 0.8rem; color: var(--text-light); }
+    .achievement .value { font-size: 1.4rem; font-weight: 800; margin: 4px 0; transition: color 0.3s; }
+    .achievement .value.low { color: var(--danger); } .achievement .value.mid { color: var(--warning); } .achievement .value.high { color: var(--success); }
+    .progress-bar { height: 6px; background: var(--progress-bg); border-radius: 3px; overflow: hidden; margin-top: 6px; transition: background 0.3s; }
+    .progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, background 0.3s; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; margin-left: 6px; background: var(--tag-bg); color: var(--tag-text); transition: background 0.3s, color 0.3s; }
+    .footer { text-align: center; padding: 20px 10px; color: var(--text-light); font-size: 0.75rem; margin-top: 20px; transition: color 0.3s; }
+    /* Badge indikator logika khusus */
+    .tag.special { background: var(--warning); color: #0f172a; font-size: 0.65rem;padding: 2px 6px;}
+    @media (max-width: 600px) { .filters { grid-template-columns: 1fr; } .summary-bar { grid-template-columns: repeat(2, 1fr); } .params-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body oncontextmenu="return false;">
+<div class="header">
+  <h1>🏦 Bank Muamalat</h1>
+  <div class="meta"><b>Leading Indicator Dashboard</b></div>
+  <div class="meta" id="selectedBranchDisplay">📍 <span id="branchNameText">Region Sumatera</span></div>
+  <div class="meta">📅 Per: 22 Mei 2026 | 📆 Hari Kerja: 16</div>
+  <button id="themeToggle" class="theme-toggle">🌙</button>
+</div>
+<div class="filters">
+  <div><label>📍 Co-Branch</label> 
+    <select id="coBranchFilter" class="custom-select">
+      <option value="ALL">Semua Co-Branch</option><option value="BANDA ACEH">BANDA ACEH</option><option value="BENGKULU">BENGKULU</option><option value="LAMPUNG">LAMPUNG</option><option value="MEDAN BALAIKOTA">MEDAN BALAIKOTA</option><option value="MEDAN BARU">MEDAN BARU</option><option value="PADANG">PADANG</option><option value="PALEMBANG">PALEMBANG</option><option value="PANGKAL PINANG">PANGKAL PINANG</option><option value="PEKANBARU">PEKANBARU</option>
+    </select>  
+  </div>
+  <div><label>🏢 Branch</label>
+    <select id="branchFilter" class="custom-select">
+      <option value="ALL">Semua Branch</option>
+    </select>
+  </div>
+  <button onclick="resetDashboard()">🔄 Reset Filter</button>
+</div>
+  
+  <div class="params-grid" id="paramsContainer"></div>
+  <div class="footer">💡 Update data di bagian script HTML | 📱 Optimized for Mobile & Web | Theme: <span id="themeLabel">Light</span>| 📱 Made by Love - RBPM</div>
+
 <script>
+  // 📊 DATA EMBEDDED - UPDATE DI SINI
+  // Data JSON asli Anda dipindahkan ke variabel const agar tidak kena blokir CORS
+  const embeddedData = 
+[
+    {
+      "co": "BANDA ACEH",
+      "br": "BANDA ACEH",
+      "tp": "KCU D",
+      "ca_mtd": "-0.368474108",
+      "ca_tgt": "1.2",
+      "sa_mtd": "-0.872052812",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-1.340868821",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.027270313",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "28",
+      "ph_tgt": "112",
+      "mdin_mtd": "47",
+      "mdin_tgt": "256",
+      "qris_mtd": "3",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "52",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "BANDA ACEH",
+      "br": "KCP LHOKSEUMAWE",
+      "tp": "KCP D",
+      "ca_mtd": "0.127769468",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.127769468",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-0.141783879",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.553853022",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "29",
+      "ph_tgt": "112",
+      "mdin_mtd": "38",
+      "mdin_tgt": "256",
+      "qris_mtd": "5",
+      "qris_tgt": "64",
+      "sli_mtd": "76",
+      "sli_tgt": "112",
+      "cif_mtd": "67",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "BANDA ACEH",
+      "br": "LANGSA",
+      "tp": "KCU NC",
+      "ca_mtd": "-0.285069328",
+      "ca_tgt": "1.2",
+      "sa_mtd": "-0.285069328",
+      "sa_tgt": "4.56",
+      "fu_mtd": "0.296173318",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.385138235",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "30",
+      "ph_tgt": "112",
+      "mdin_mtd": "22",
+      "mdin_tgt": "256",
+      "qris_mtd": "4",
+      "qris_tgt": "64",
+      "sli_mtd": "32",
+      "sli_tgt": "112",
+      "cif_mtd": "59",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "BENGKULU",
+      "br": "BENGKULU",
+      "tp": "KCU D",
+      "ca_mtd": "0.040690916",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.040690916",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-2.307108698",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.37234547",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "28",
+      "ph_tgt": "112",
+      "mdin_mtd": "30",
+      "mdin_tgt": "256",
+      "qris_mtd": "12",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "49",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "BENGKULU",
+      "br": "KCP CURUP",
+      "tp": "KCP D",
+      "ca_mtd": "-1.430248353",
+      "ca_tgt": "1.2",
+      "sa_mtd": "-1.430248353",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-0.527676073",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.391077008",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "26",
+      "ph_tgt": "112",
+      "mdin_mtd": "29",
+      "mdin_tgt": "256",
+      "qris_mtd": "16",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "39",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "BENGKULU",
+      "br": "KCP ARGA MAKMUR",
+      "tp": "KCP NC",
+      "ca_mtd": "0.05492993",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.05492993",
+      "sa_tgt": "4.56",
+      "fu_mtd": "1.180406684",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.15",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "4",
+      "ph_tgt": "112",
+      "mdin_mtd": "16",
+      "mdin_tgt": "256",
+      "qris_mtd": "25",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "15",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "BENGKULU",
+      "br": "KCP MANNA BENGKULU",
+      "tp": "KCP NC",
+      "ca_mtd": "0.0497565",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.0497565",
+      "sa_tgt": "4.56",
+      "fu_mtd": "1.144972581",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.110515514",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "7",
+      "ph_tgt": "112",
+      "mdin_mtd": "6",
+      "mdin_tgt": "256",
+      "qris_mtd": "6",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "16",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "BENGKULU",
+      "br": "JAMBI",
+      "tp": "KCU D",
+      "ca_mtd": "0.724003291",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.724003291",
+      "sa_tgt": "4.56",
+      "fu_mtd": "1.592151741",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.733969663",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "9",
+      "ph_tgt": "112",
+      "mdin_mtd": "14",
+      "mdin_tgt": "256",
+      "qris_mtd": "11",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "23",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "BENGKULU",
+      "br": "KCP MUARA BUNGO",
+      "tp": "KCP NC",
+      "ca_mtd": "0.018920599",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.018920599",
+      "sa_tgt": "4.56",
+      "fu_mtd": "1.340721107",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.214795014",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "28",
+      "ph_tgt": "112",
+      "mdin_mtd": "45",
+      "mdin_tgt": "256",
+      "qris_mtd": "8",
+      "qris_tgt": "64",
+      "sli_mtd": "32",
+      "sli_tgt": "112",
+      "cif_mtd": "56",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "LAMPUNG",
+      "br": "LAMPUNG",
+      "tp": "KCU C",
+      "ca_mtd": "1.978106632",
+      "ca_tgt": "1.2",
+      "sa_mtd": "1.978106632",
+      "sa_tgt": "4.56",
+      "fu_mtd": "0.640815634",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.347386307",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "46",
+      "ph_tgt": "112",
+      "mdin_mtd": "58",
+      "mdin_tgt": "256",
+      "qris_mtd": "10",
+      "qris_tgt": "64",
+      "sli_mtd": "16",
+      "sli_tgt": "112",
+      "cif_mtd": "60",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "LAMPUNG",
+      "br": "KCP METRO LAMPUNG",
+      "tp": "KCP D",
+      "ca_mtd": "-3.857804308",
+      "ca_tgt": "1.2",
+      "sa_mtd": "-3.857804308",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-4.24443328",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.123504902",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "57",
+      "ph_tgt": "112",
+      "mdin_mtd": "50",
+      "mdin_tgt": "256",
+      "qris_mtd": "3",
+      "qris_tgt": "64",
+      "sli_mtd": "16",
+      "sli_tgt": "112",
+      "cif_mtd": "86",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "LAMPUNG",
+      "br": "KCP ZA PAGAR ALAM LAMPUNG",
+      "tp": "KCP NC",
+      "ca_mtd": "1.746304049",
+      "ca_tgt": "1.2",
+      "sa_mtd": "1.746304049",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-0.31197251",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.356301102",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "8",
+      "ph_tgt": "112",
+      "mdin_mtd": "31",
+      "mdin_tgt": "256",
+      "qris_mtd": "4",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "36",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "LAMPUNG",
+      "br": "KCP KOTABUMI LAMPUNG",
+      "tp": "KCP NC",
+      "ca_mtd": "-2.851974685",
+      "ca_tgt": "1.2",
+      "sa_mtd": "-2.851974685",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-2.324411016",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.1234274",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "57",
+      "ph_tgt": "112",
+      "mdin_mtd": "28",
+      "mdin_tgt": "256",
+      "qris_mtd": "3",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "67",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "LAMPUNG",
+      "br": "KCP BANDAR JAYA",
+      "tp": "KCP NC",
+      "ca_mtd": "0.397396552",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.397396552",
+      "sa_tgt": "4.56",
+      "fu_mtd": "0.038648061",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.095693639",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "82",
+      "ph_tgt": "112",
+      "mdin_mtd": "15",
+      "mdin_tgt": "256",
+      "qris_mtd": "1",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "89",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "MEDAN BALAIKOTA",
+      "br": "MEDAN BALAIKOTA",
+      "tp": "KCU C",
+      "ca_mtd": "-1.491454129",
+      "ca_tgt": "1.2",
+      "sa_mtd": "-1.491454129",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-4.973931613",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.539504994",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "39",
+      "ph_tgt": "112",
+      "mdin_mtd": "55",
+      "mdin_tgt": "256",
+      "qris_mtd": "16",
+      "qris_tgt": "64",
+      "sli_mtd": "19.6",
+      "sli_tgt": "112",
+      "cif_mtd": "60",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "MEDAN BALAIKOTA",
+      "br": "KCP SERDANG",
+      "tp": "KCP NC",
+      "ca_mtd": "-0.554774403",
+      "ca_tgt": "1.2",
+      "sa_mtd": "-0.554774403",
+      "sa_tgt": "4.56",
+      "fu_mtd": "0.494833168",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.262010396",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "6",
+      "ph_tgt": "112",
+      "mdin_mtd": "15",
+      "mdin_tgt": "256",
+      "qris_mtd": "4",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "13",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "MEDAN BALAIKOTA",
+      "br": "KCP SUKARAMAI",
+      "tp": "KCP D",
+      "ca_mtd": "-1.828314295",
+      "ca_tgt": "1.2",
+      "sa_mtd": "-1.828314295",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-3.300270581",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.155678268",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "2",
+      "ph_tgt": "112",
+      "mdin_mtd": "15",
+      "mdin_tgt": "256",
+      "qris_mtd": "3",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "16",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "MEDAN BALAIKOTA",
+      "br": "PADANG SIDEMPUAN",
+      "tp": "KCU NC",
+      "ca_mtd": "-0.233560543",
+      "ca_tgt": "1.2",
+      "sa_mtd": "-0.233560543",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-1.060625997",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.410382428",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "12",
+      "ph_tgt": "112",
+      "mdin_mtd": "31",
+      "mdin_tgt": "256",
+      "qris_mtd": "21",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "32",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "MEDAN BALAIKOTA",
+      "br": "KCP PANYABUNGAN",
+      "tp": "KCP NC",
+      "ca_mtd": "0.049000563",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.049000563",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-1.072528083",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.081753878",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "25",
+      "ph_tgt": "112",
+      "mdin_mtd": "28",
+      "mdin_tgt": "256",
+      "qris_mtd": "2",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "30",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "MEDAN BARU",
+      "br": "MEDAN BARU",
+      "tp": "KCU D",
+      "ca_mtd": "3.214361009",
+      "ca_tgt": "1.2",
+      "sa_mtd": "3.214361009",
+      "sa_tgt": "4.56",
+      "fu_mtd": "5.545567553",
+      "fu_tgt": "9.12",
+      "con_mtd": "1.005258158",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "18",
+      "ph_tgt": "112",
+      "mdin_mtd": "82",
+      "mdin_tgt": "256",
+      "qris_mtd": "19",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "81",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "MEDAN BARU",
+      "br": "PEMATANG SIANTAR",
+      "tp": "KCU NC",
+      "ca_mtd": "1.160326167",
+      "ca_tgt": "1.2",
+      "sa_mtd": "1.160326167",
+      "sa_tgt": "4.56",
+      "fu_mtd": "0.637423086",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.124332057",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "3",
+      "ph_tgt": "112",
+      "mdin_mtd": "13",
+      "mdin_tgt": "256",
+      "qris_mtd": "4",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "18",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "MEDAN BARU",
+      "br": "KCP KISARAN",
+      "tp": "KCP NC",
+      "ca_mtd": "0.175330778",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.175330778",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-2.133697403",
+      "fu_tgt": "9.12",
+      "con_mtd": "2.290438833",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "38",
+      "ph_tgt": "112",
+      "mdin_mtd": "39",
+      "mdin_tgt": "256",
+      "qris_mtd": "13",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "37",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "MEDAN BARU",
+      "br": "KCP BINJAI",
+      "tp": "KCP NC",
+      "ca_mtd": "0.268269501",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.268269501",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-2.166429691",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.109399818",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "16",
+      "ph_tgt": "112",
+      "mdin_mtd": "18",
+      "mdin_tgt": "256",
+      "qris_mtd": "2",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "23",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "MEDAN BARU",
+      "br": "KCP STABAT",
+      "tp": "KCP NC",
+      "ca_mtd": "0.000215",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.000215",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-2.037478102",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.638599018",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "18",
+      "ph_tgt": "112",
+      "mdin_mtd": "16",
+      "mdin_tgt": "256",
+      "qris_mtd": "6",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "28",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PADANG",
+      "br": "PADANG",
+      "tp": "KCU D",
+      "ca_mtd": "1.285802125",
+      "ca_tgt": "1.2",
+      "sa_mtd": "1.285802125",
+      "sa_tgt": "4.56",
+      "fu_mtd": "2.797705376",
+      "fu_tgt": "9.12",
+      "con_mtd": "1.307788884",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "51",
+      "ph_tgt": "112",
+      "mdin_mtd": "49",
+      "mdin_tgt": "256",
+      "qris_mtd": "3",
+      "qris_tgt": "64",
+      "sli_mtd": "7.5",
+      "sli_tgt": "112",
+      "cif_mtd": "43",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PADANG",
+      "br": "KCP BUKITTINGGI",
+      "tp": "KCP D",
+      "ca_mtd": "0.022384041",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.022384041",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-0.771097691",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.343737903",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "6",
+      "ph_tgt": "112",
+      "mdin_mtd": "23",
+      "mdin_tgt": "256",
+      "qris_mtd": "2",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "25",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PADANG",
+      "br": "KCP PAYAKUMBUH",
+      "tp": "KCP D",
+      "ca_mtd": "0.497820629",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.497820629",
+      "sa_tgt": "4.56",
+      "fu_mtd": "1.825990033",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.207677904",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "4",
+      "ph_tgt": "112",
+      "mdin_mtd": "14",
+      "mdin_tgt": "256",
+      "qris_mtd": "7",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "20",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PADANG",
+      "br": "KCP SOLOK",
+      "tp": "KCP NC",
+      "ca_mtd": "-0.098462619",
+      "ca_tgt": "1.2",
+      "sa_mtd": "-0.098462619",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-0.880079375",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.1550172",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "2",
+      "ph_tgt": "112",
+      "mdin_mtd": "13",
+      "mdin_tgt": "256",
+      "qris_mtd": "1",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "11",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PALEMBANG",
+      "br": "PALEMBANG",
+      "tp": "KCU D",
+      "ca_mtd": "-4.421266826",
+      "ca_tgt": "1.2",
+      "sa_mtd": "-4.421266826",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-3.200310594",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.867157015",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "35",
+      "ph_tgt": "112",
+      "mdin_mtd": "47",
+      "mdin_tgt": "256",
+      "qris_mtd": "4",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "49",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PALEMBANG",
+      "br": "KCP PLAJU",
+      "tp": "KCP NC",
+      "ca_mtd": "1.100269863",
+      "ca_tgt": "1.2",
+      "sa_mtd": "1.100269863",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-0.134689033",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.069668739",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "47",
+      "ph_tgt": "112",
+      "mdin_mtd": "18",
+      "mdin_tgt": "256",
+      "qris_mtd": "10",
+      "qris_tgt": "64",
+      "sli_mtd": "69.5",
+      "sli_tgt": "112",
+      "cif_mtd": "53",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PALEMBANG",
+      "br": "KCP BATURAJA",
+      "tp": "KCP NC",
+      "ca_mtd": "0.086671102",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.086671102",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-0.124678177",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.761022969",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "14",
+      "ph_tgt": "112",
+      "mdin_mtd": "15",
+      "mdin_tgt": "256",
+      "qris_mtd": "1",
+      "qris_tgt": "64",
+      "sli_mtd": "50",
+      "sli_tgt": "112",
+      "cif_mtd": "24",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PALEMBANG",
+      "br": "KCP ENIM",
+      "tp": "KCP NC",
+      "ca_mtd": "0.0025",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.0025",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-0.42817935",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.354930481",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "14",
+      "ph_tgt": "112",
+      "mdin_mtd": "15",
+      "mdin_tgt": "256",
+      "qris_mtd": "2",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "18",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PANGKAL PINANG",
+      "br": "PANGKAL PINANG",
+      "tp": "KCU C",
+      "ca_mtd": "0.287165939",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.287165939",
+      "sa_tgt": "4.56",
+      "fu_mtd": "1.983437278",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.464620182",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "28",
+      "ph_tgt": "112",
+      "mdin_mtd": "42",
+      "mdin_tgt": "256",
+      "qris_mtd": "2",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "44",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PANGKAL PINANG",
+      "br": "KCP TANJUNG PANDAN",
+      "tp": "KCP NC",
+      "ca_mtd": "0",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-0.273761411",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.356480984",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "4",
+      "ph_tgt": "112",
+      "mdin_mtd": "16",
+      "mdin_tgt": "256",
+      "qris_mtd": "7",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "14",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PANGKAL PINANG",
+      "br": "KCP SUNGAILIAT",
+      "tp": "KCP D",
+      "ca_mtd": "0.019336949",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.019336949",
+      "sa_tgt": "4.56",
+      "fu_mtd": "1.077356479",
+      "fu_tgt": "9.12",
+      "con_mtd": "1.203269915",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "27",
+      "ph_tgt": "112",
+      "mdin_mtd": "36",
+      "mdin_tgt": "256",
+      "qris_mtd": "8",
+      "qris_tgt": "64",
+      "sli_mtd": "20",
+      "sli_tgt": "112",
+      "cif_mtd": "34",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PANGKAL PINANG",
+      "br": "KCP KOBA",
+      "tp": "KCP NC",
+      "ca_mtd": "0",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0",
+      "sa_tgt": "4.56",
+      "fu_mtd": "0.48825272",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.083362889",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "26",
+      "ph_tgt": "112",
+      "mdin_mtd": "33",
+      "mdin_tgt": "256",
+      "qris_mtd": "4",
+      "qris_tgt": "64",
+      "sli_mtd": "16",
+      "sli_tgt": "112",
+      "cif_mtd": "30",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PEKANBARU",
+      "br": "PEKANBARU",
+      "tp": "KCU C",
+      "ca_mtd": "-1.121665675",
+      "ca_tgt": "1.2",
+      "sa_mtd": "-1.121665675",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-3.910779995",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.709673099",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "46",
+      "ph_tgt": "112",
+      "mdin_mtd": "56",
+      "mdin_tgt": "256",
+      "qris_mtd": "3",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "59",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PEKANBARU",
+      "br": "KCP KAMPAR",
+      "tp": "KCP NC",
+      "ca_mtd": "2.841742356",
+      "ca_tgt": "1.2",
+      "sa_mtd": "2.841742356",
+      "sa_tgt": "4.56",
+      "fu_mtd": "2.458689784",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.24693079",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "47",
+      "ph_tgt": "112",
+      "mdin_mtd": "110",
+      "mdin_tgt": "256",
+      "qris_mtd": "4",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "117",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PEKANBARU",
+      "br": "BATAM",
+      "tp": "KCU D",
+      "ca_mtd": "0.164757765",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.164757765",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-1.781144213",
+      "fu_tgt": "9.12",
+      "con_mtd": "1.540813526",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "13",
+      "ph_tgt": "112",
+      "mdin_mtd": "25",
+      "mdin_tgt": "256",
+      "qris_mtd": "9",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "18",
+      "cif_tgt": "288"
+    },
+    {
+      "co": "PEKANBARU",
+      "br": "TANJUNG PINANG",
+      "tp": "KCU D",
+      "ca_mtd": "0.045625625",
+      "ca_tgt": "1.2",
+      "sa_mtd": "0.045625625",
+      "sa_tgt": "4.56",
+      "fu_mtd": "-0.153080637",
+      "fu_tgt": "9.12",
+      "con_mtd": "0.167463488",
+      "con_tgt": "3.04",
+      "sme_mtd": "0",
+      "sme_tgt": "0",
+      "ph_mtd": "5",
+      "ph_tgt": "112",
+      "mdin_mtd": "12",
+      "mdin_tgt": "256",
+      "qris_mtd": "6",
+      "qris_tgt": "64",
+      "sli_mtd": "0",
+      "sli_tgt": "112",
+      "cif_mtd": "10",
+      "cif_tgt": "288"
+    }
+  ];
+
   let ntData = [];
   const coBranchSelect = document.getElementById('coBranchFilter');
   const branchSelect = document.getElementById('branchFilter');
@@ -6,7 +1096,6 @@
   const themeLabel = document.getElementById('themeLabel');
   const html = document.documentElement;
 
-  // --- FUNGSI TEMA & UI (TETAP SAMA) ---
   function setTheme(theme) {
     html.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
@@ -14,10 +1103,12 @@
     themeLabel.textContent = theme === 'dark' ? 'Dark' : 'Light';
   }
 
+  // 🔄 Update tampilan nama cabang terpilih (Co-Branch / Branch)
   function updateBranchDisplay() {
     const coVal = coBranchSelect.value;
     const brVal = branchSelect.value;
     const branchNameText = document.getElementById('branchNameText');
+
     if (!branchNameText) return;
   
     if (brVal !== 'ALL') {
@@ -33,9 +1124,10 @@
     coBranchSelect.value = 'ALL';
     updateBranchOptions('ALL');
     updateBranchDisplay();
+    document.getElementById('branchNameText').textContent = 'Region Sumatera';
     renderDashboard();
   }
-
+  // 🔄 CASCADING DROPDOWN & FILTER
   function updateBranchOptions(selectedCo) {
     branchSelect.innerHTML = '<option value="ALL">Semua Branch</option>';
     const filtered = selectedCo === 'ALL' ? ntData : ntData.filter(d => d.co === selectedCo);
@@ -49,17 +1141,24 @@
   }
 
   coBranchSelect.addEventListener('change', () => { 
-    updateBranchOptions(coBranchSelect.value); 
-    updateBranchDisplay();
-    renderDashboard(); 
+  updateBranchOptions(coBranchSelect.value); 
+  updateBranchDisplay();  // ← Update teks cabang
+  renderDashboard(); 
   });
 
   branchSelect.addEventListener('change', () => {
-    updateBranchDisplay();
-    renderDashboard();
+  updateBranchDisplay();  // ← Update teks cabang
+  renderDashboard();
   });
 
-  // --- LOGIKA DATA & PERHITUNGAN (TETAP SAMA) ---
+  function resetDashboard() {
+  coBranchSelect.value = 'ALL';
+  updateBranchOptions('ALL');  // Ini otomatis set branchSelect.value = 'ALL'
+  updateBranchDisplay();       // ← Paksa update teks ke 'Semua Branch'
+  renderDashboard();
+  }
+
+  // 📊 CALCULATION & RENDER
   function calcMetrics(data) {
     return data.map(d => ({
       ...d,
@@ -76,36 +1175,46 @@
   }
 
   function aggregate(data, coBr, br) {
-    let filtered = data;
-    if(coBr!=='ALL') filtered = filtered.filter(d=>d.co===coBr);
-    if(br!=='ALL') filtered = filtered.filter(d=>d.br===br);
+  let filtered = data;
+  if(coBr!=='ALL') filtered = filtered.filter(d=>d.co===coBr);
+  if(br!=='ALL') filtered = filtered.filter(d=>d.br===br);
+  
+  const sum = (key) => filtered.reduce((a,b)=>a+(b[key]||0),0);
+  const count = filtered.length;
+  const avg = (key) => count > 0 ? sum(key)/count : 0;
+  
+  // 🎯 SPECIAL HANDLING FOR SME - REGION
+  // 1. Booking MTD: hanya jumlahkan cabang yang booking > 0
+  const smeMtdActive = filtered
+    .filter(d => (d.sme_mtd || 0) > 0)
+    .reduce((acc, d) => acc + (d.sme_mtd || 0), 0);
+  
+  // 2. Target: 50 M hanya jika filter ALL + ALL, selain itu sum normal
+  const isAllFilter = (coBr === 'ALL' && br === 'ALL');
+  const smeTgtValue = isAllFilter ? 50 : sum('sme_tgt');
+  
+  // 3. Hitung gap & achievement SME dengan nilai khusus di atas
+  const gapSMEValue = smeMtdActive - smeTgtValue;
+  const achSMEValue = smeTgtValue > 0 ? (smeMtdActive / smeTgtValue * 100) : 0;
+  
+  return {
+    ca_mtd:sum('ca_mtd'), ca_tgt:sum('ca_tgt'), gapCA:sum('gapCA'), achCA:avg('achCA'),
+    sa_mtd:sum('sa_mtd'), sa_tgt:sum('sa_tgt'), gapSA:sum('gapSA'), achSA:avg('achSA'),
+    fu_mtd:sum('fu_mtd'), fu_tgt:sum('fu_tgt'), gapFU:sum('gapFU'), achFU:avg('achFU'),
+    con_mtd:sum('con_mtd'), con_tgt:sum('con_tgt'), gapCon:sum('gapCon'), achCon:avg('achCon'),
     
-    const sum = (key) => filtered.reduce((a,b)=>a+(b[key]||0),0);
-    const count = filtered.length;
-    const avg = (key) => count > 0 ? sum(key)/count : 0;
+    // ✅ SME dengan logika khusus
+    sme_mtd: smeMtdActive,
+    sme_tgt: smeTgtValue,
+    gapSME: gapSMEValue,
+    achSME: achSMEValue,
     
-    const smeMtdActive = filtered
-      .filter(d => (d.sme_mtd || 0) > 0)
-      .reduce((acc, d) => acc + (d.sme_mtd || 0), 0);
-    
-    const isAllFilter = (coBr === 'ALL' && br === 'ALL');
-    const smeTgtValue = isAllFilter ? 50 : sum('sme_tgt');
-    
-    const gapSMEValue = smeMtdActive - smeTgtValue;
-    const achSMEValue = smeTgtValue > 0 ? (smeMtdActive / smeTgtValue * 100) : 0;
-    
-    return {
-      ca_mtd:sum('ca_mtd'), ca_tgt:sum('ca_tgt'), gapCA:sum('gapCA'), achCA:avg('achCA'),
-      sa_mtd:sum('sa_mtd'), sa_tgt:sum('sa_tgt'), gapSA:sum('gapSA'), achSA:avg('achSA'),
-      fu_mtd:sum('fu_mtd'), fu_tgt:sum('fu_tgt'), gapFU:sum('gapFU'), achFU:avg('achFU'),
-      con_mtd:sum('con_mtd'), con_tgt:sum('con_tgt'), gapCon:sum('gapCon'), achCon:avg('achCon'),
-      sme_mtd: smeMtdActive, sme_tgt: smeTgtValue, gapSME: gapSMEValue, achSME: achSMEValue,
-      ph_mtd:sum('ph_mtd'), ph_tgt:sum('ph_tgt'), gapPH:sum('gapPH'), achPH:avg('achPH'),
-      mdin_mtd:sum('mdin_mtd'), mdin_tgt:sum('mdin_tgt'), gapMDIN:sum('gapMDIN'), achMDIN:avg('achMDIN'),
-      qris_mtd:sum('qris_mtd'), qris_tgt:sum('qris_tgt'), gapQRIS:sum('gapQRIS'), achQRIS:avg('achQRIS'),
-      sli_mtd:sum('sli_mtd'), sli_tgt:sum('sli_tgt'), gapSLI:sum('gapSLI'), achSLI:avg('achSLI'),
-      cif_mtd:sum('cif_mtd'), cif_tgt:sum('cif_tgt'), gapCIF:sum('gapCIF'), achCIF:avg('achCIF')
-    };
+    ph_mtd:sum('ph_mtd'), ph_tgt:sum('ph_tgt'), gapPH:sum('gapPH'), achPH:avg('achPH'),
+    mdin_mtd:sum('mdin_mtd'), mdin_tgt:sum('mdin_tgt'), gapMDIN:sum('gapMDIN'), achMDIN:avg('achMDIN'),
+    qris_mtd:sum('qris_mtd'), qris_tgt:sum('qris_tgt'), gapQRIS:sum('gapQRIS'), achQRIS:avg('achQRIS'),
+    sli_mtd:sum('sli_mtd'), sli_tgt:sum('sli_tgt'), gapSLI:sum('gapSLI'), achSLI:avg('achSLI'),
+    cif_mtd:sum('cif_mtd'), cif_tgt:sum('cif_tgt'), gapCIF:sum('gapCIF'), achCIF:avg('achCIF')
+  };
   }
 
   function formatNum(val, unit='') {
@@ -137,66 +1246,59 @@
     ];
     
     params.forEach(p => {
-      const m0 = total[p.metrics[0].k], m1 = total[p.metrics[1].k], gap = total[p.metrics[2].k], ach = total[p.metrics[3].k];
-      const gapClass = gap >= 0 ? 'pos' : 'neg';
-      const achClass = getAchieveClass(ach);
-      const isSmeAll = (p.id === 'sme' && coBr === 'ALL' && br === 'ALL');
-      const specialBadge = isSmeAll ? '<span class="tag special">★ Target 50M</span>' : '';
-      
-      const card = document.createElement('div');
-      card.className = `param-card ${p.color}`;
-      card.innerHTML = `
-        <div class="title">${p.name} <span class="tag mtd">MTD</span>${specialBadge}</div>
-        <div class="metric-row"><span class="label">${p.metrics[0].l}</span><span class="value">${formatNum(m0,p.unit)}</span></div>
-        <div class="metric-row"><span class="label">${p.metrics[1].l}</span><span class="value">${formatNum(m1,p.unit)}</span></div>
-        <div class="metric-row gap"><span class="label">${p.metrics[2].l}</span><span class="value ${gapClass}">${formatNum(gap,p.unit)}</span></div>
-        <div class="achievement"><span class="label">${p.metrics[3].l}</span><div class="value ${achClass}">${ach.toFixed(1)}%</div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,ach)}%; background:${ach>=100?'var(--success)':ach>=50?'var(--warning)':'var(--danger)'}"></div></div></div>`;
-      container.appendChild(card);
+  const m0 = total[p.metrics[0].k], m1 = total[p.metrics[1].k], gap = total[p.metrics[2].k], ach = total[p.metrics[3].k];
+  const gapClass = gap >= 0 ? 'pos' : 'neg';
+  const achClass = getAchieveClass(ach);
+  
+  // 🎯 Tambahkan badge "Target 50M" khusus untuk SME saat filter ALL
+  const isSmeAll = (p.id === 'sme' && coBr === 'ALL' && br === 'ALL');
+  const specialBadge = isSmeAll ? '<span class="tag special">★ Target 50M</span>' : '';
+  
+  const card = document.createElement('div');
+  card.className = `param-card ${p.color}`;
+  card.innerHTML = `
+    <div class="title">${p.name} <span class="tag mtd">MTD</span>${specialBadge}</div>
+    <div class="metric-row"><span class="label">${p.metrics[0].l}</span><span class="value">${formatNum(m0,p.unit)}</span></div>
+    <div class="metric-row"><span class="label">${p.metrics[1].l}</span><span class="value">${formatNum(m1,p.unit)}</span></div>
+    <div class="metric-row gap"><span class="label">${p.metrics[2].l}</span><span class="value ${gapClass}">${formatNum(gap,p.unit)}</span></div>
+    <div class="achievement"><span class="label">${p.metrics[3].l}</span><div class="value ${achClass}">${ach.toFixed(1)}%</div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,ach)}%; background:${ach>=100?'var(--success)':ach>=50?'var(--warning)':'var(--danger)'}"></div></div></div>`;
+  container.appendChild(card);
+  });
+    
+    ['CA','SA','FU'].forEach(k => {
+      document.getElementById('sumGap'+k).textContent = formatNum(total['gap'+k],'M');
+      document.getElementById('sumGap'+k).className = `summary-item value ${total['gap'+k] >= 0 ? 'pos' : 'neg'}`;
     });
+    document.getElementById('avgAchieve').textContent = ([total.achCA,total.achSA,total.achFU,total.achCon,total.achSME,total.achPH,total.achMDIN,total.achQRIS,total.achSLI,total.achCIF].reduce((a,b)=>a+b,0)/10).toFixed(1) + '%';
   }
 
-  // --- INISIALISASI DENGAN FETCH (PERUBAHAN UTAMA) ---
+  // 🚀 INIT - Load embedded data
   function loadData() {
-    // Mengambil data dari file eksternal
-    fetch('data_mei.json')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Gagal memuat data-active.json');
-        }
-        return response.json();
-      })
-      .then(rawData => {
-        const toNum = (v) => {
-          if (!v) return 0;
-          const n = parseFloat(v.toString().replace(',', '.').trim());
-          return isNaN(n) ? 0 : n;
-        };
+    const toNum = (v) => {
+      if (!v) return 0;
+      const n = parseFloat(v.toString().replace(',', '.').trim());
+      return isNaN(n) ? 0 : n;
+    };
 
-        ntData = rawData.map(r => ({
-          co: (r.co || "").trim(),
-          br: (r.br || "").trim(),
-          tp: (r.tp || "").trim(),
-          ca_mtd: toNum(r.ca_mtd), ca_tgt: toNum(r.ca_tgt),
-          sa_mtd: toNum(r.sa_mtd), sa_tgt: toNum(r.sa_tgt),
-          fu_mtd: toNum(r.fu_mtd), fu_tgt: toNum(r.fu_tgt),
-          con_mtd: toNum(r.con_mtd), con_tgt: toNum(r.con_tgt),
-          sme_mtd: toNum(r.sme_mtd), sme_tgt: toNum(r.sme_tgt),
-          ph_mtd: toNum(r.ph_mtd), ph_tgt: toNum(r.ph_tgt),
-          mdin_mtd: toNum(r.mdin_mtd), mdin_tgt: toNum(r.mdin_tgt),
-          qris_mtd: toNum(r.qris_mtd), qris_tgt: toNum(r.qris_tgt),
-          sli_mtd: toNum(r.sli_mtd), sli_tgt: toNum(r.sli_tgt),
-          cif_mtd: toNum(r.cif_mtd), cif_tgt: toNum(r.cif_tgt)
-        }));
+    ntData = embeddedData.map(r => ({
+      co: (r.co || "").trim(),
+      br: (r.br || "").trim(),
+      tp: (r.tp || "").trim(),
+      ca_mtd: toNum(r.ca_mtd), ca_tgt: toNum(r.ca_tgt),
+      sa_mtd: toNum(r.sa_mtd), sa_tgt: toNum(r.sa_tgt),
+      fu_mtd: toNum(r.fu_mtd), fu_tgt: toNum(r.fu_tgt),
+      con_mtd: toNum(r.con_mtd), con_tgt: toNum(r.con_tgt),
+      sme_mtd: toNum(r.sme_mtd), sme_tgt: toNum(r.sme_tgt),
+      ph_mtd: toNum(r.ph_mtd), ph_tgt: toNum(r.ph_tgt),
+      mdin_mtd: toNum(r.mdin_mtd), mdin_tgt: toNum(r.mdin_tgt),
+      qris_mtd: toNum(r.qris_mtd), qris_tgt: toNum(r.qris_tgt),
+      sli_mtd: toNum(r.sli_mtd), sli_tgt: toNum(r.sli_tgt),
+      cif_mtd: toNum(r.cif_mtd), cif_tgt: toNum(r.cif_tgt)
+    }));
 
-        updateBranchOptions('ALL');
-        updateBranchDisplay();
-        renderDashboard();
-      })
-      .catch(error => {
-        console.error('Error loading data:', error);
-        document.getElementById('paramsContainer').innerHTML = 
-          '<div style="padding:20px; text-align:center; color:var(--danger)">Gagal memuat data. Pastikan file data-active.json tersedia.</div>';
-      });
+    updateBranchOptions('ALL');
+    updateBranchDisplay();
+    renderDashboard();
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -205,3 +1307,5 @@
     loadData();
   });
 </script>
+</body>
+</html>
