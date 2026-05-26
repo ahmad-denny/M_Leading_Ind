@@ -242,10 +242,10 @@
   // --- INISIALISASI DENGAN FETCH (PERUBAHAN UTAMA) ---
   function loadData() {
     // Mengambil data dari file eksternal
-    fetch('data-active.json')
+    fetch('data-mei.json')
       .then(response => {
         if (!response.ok) {
-          throw new Error('Gagal memuat data-active.json');
+          throw new Error('Gagal memuat data');
         }
         return response.json();
       })
