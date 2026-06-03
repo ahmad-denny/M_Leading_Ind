@@ -7,381 +7,286 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #006837;
-            --secondary: #F4A261;
-            --accent: #2A9D8F;
-            --accent2: #264653;
-            --bg: #f8f9fa;
-            --surface: #ffffff;
-            --surface2: #e9ecef;
-            --text: #212529;
-            --text-light: #6c757d;
-            --border: #dee2e6;
-            --shadow: 0 2px 8px rgba(0,0,0,0.1);
-            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --primary-color: #006837;
+            --secondary-color: #f8f9fa;
+            --text-color: #333;
+            --border-color: #dee2e6;
         }
-
-        * {
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
-
-        body {
-            font-family: var(--font-main);
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
-
+        
         .header {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background: linear-gradient(135deg, var(--primary-color), #004d29);
             color: white;
-            padding: 20px;
-            border-radius: 0 0 20px 20px;
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
+        
         .header h1 {
             font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .header-info {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .filter-section {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
-        }
-
-        .filter-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .filter-group label {
-            display: block;
             font-weight: 600;
             margin-bottom: 5px;
-            color: var(--text);
-            font-size: 0.9rem;
         }
-
-        .filter-group select {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid var(--border);
+        
+        .header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .filter-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .filter-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-select {
+            border: 2px solid var(--border-color);
             border-radius: 8px;
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font-main);
-            transition: all 0.3s;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
         }
-
-        .filter-group select:hover {
-            border-color: var(--accent);
+        
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 104, 55, 0.25);
         }
-
-        .btn-reset {
-            background: var(--secondary);
+        
+        .btn-custom {
+            background-color: var(--primary-color);
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
-
-        .btn-reset:hover {
-            background: #e07a5f;
+        
+        .btn-custom:hover {
+            background-color: #004d29;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 104, 55, 0.3);
         }
-
+        
+        .btn-ranking {
+            background-color: #ffc107;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-ranking:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+        
         .table-container {
-            background: var(--surface);
-            border-radius: 12px;
-            box-shadow: var(--shadow);
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             overflow-x: auto;
-            margin-bottom: 20px;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        
+        .table {
+            margin-bottom: 0;
         }
-
-        thead {
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
+        
+        .table thead th {
+            background-color: var(--primary-color);
             color: white;
-        }
-
-        th {
+            font-weight: 600;
+            border: none;
             padding: 12px 15px;
-            text-align: left;
-            font-weight: 600;
-            white-space: nowrap;
         }
-
-        td {
-            padding: 10px 15px;
-            border-bottom: 1px solid var(--border);
+        
+        .table tbody td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-color: var(--border-color);
         }
-
-        tbody tr:hover {
-            background: var(--surface2);
+        
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
         }
-
+        
         .status-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 5px 12px;
+            border-radius: 20px;
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 500;
         }
-
+        
         .status-on-track {
-            background: #d4edda;
+            background-color: #d4edda;
             color: #155724;
         }
-
+        
         .status-at-risk {
-            background: #fff3cd;
+            background-color: #fff3cd;
             color: #856404;
         }
-
+        
         .status-off-track {
-            background: #f8d7da;
+            background-color: #f8d7da;
             color: #721c24;
         }
-
+        
         .footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            margin-top: 40px;
             text-align: center;
-            padding: 20px;
-            color: var(--text-light);
-            font-size: 0.9rem;
         }
-
+        
         .footer a {
-            color: var(--accent);
+            color: #ffd700;
             text-decoration: none;
         }
-
-        /* Ranking Section Styles */
-        .ranking-section {
-            margin-top: 30px;
-            background: var(--surface);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: var(--shadow);
+        
+        .footer a:hover {
+            text-decoration: underline;
         }
-
-        .ranking-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .ranking-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .ranking-filters {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .ranking-select {
-            padding: 8px 12px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font-main);
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .ranking-select:hover {
-            border-color: var(--accent);
-        }
-
-        .ranking-table-container {
-            overflow-x: auto;
-            margin-top: 15px;
-        }
-
-        .ranking-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-
-        .ranking-table thead {
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: white;
-        }
-
-        .ranking-table th {
-            padding: 12px 15px;
-            text-align: left;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .ranking-table td {
-            padding: 10px 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .ranking-table tbody tr {
-            transition: background 0.2s;
-        }
-
-        .ranking-table tbody tr:hover {
-            background: var(--surface2);
-        }
-
-        .rank-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-
-        .rank-1 { 
-            background: linear-gradient(135deg, #FFD700, #FFA500); 
-            color: #000; 
-        }
-        .rank-2 { 
-            background: linear-gradient(135deg, #C0C0C0, #A0A0A0); 
-            color: #000; 
-        }
-        .rank-3 { 
-            background: linear-gradient(135deg, #CD7F32, #B87333); 
-            color: #fff; 
-        }
-        .rank-other { 
-            background: var(--surface2); 
-            color: var(--text); 
-        }
-
-        .achievement-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--surface2);
-            border-radius: 4px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .achievement-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .achievement-high { 
-            background: linear-gradient(90deg, #10b981, #059669); 
-        }
-        .achievement-medium { 
-            background: linear-gradient(90deg, #f59e0b, #d97706); 
-        }
-        .achievement-low { 
-            background: linear-gradient(90deg, #ef4444, #dc2626); 
-        }
-
+        
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.4rem;
             }
-
-            .header-info {
-                font-size: 0.8rem;
-            }
-
-            .filter-row {
-                grid-template-columns: 1fr;
-            }
-
-            th, td {
-                padding: 8px 10px;
-                font-size: 0.85rem;
-            }
-
-            .ranking-header {
-                flex-direction: column;
-                align-items: flex-start;
+            
+            .filter-section {
+                padding: 15px;
             }
             
-            .ranking-title {
-                font-size: 1.2rem;
+            .table-container {
+                padding: 10px;
             }
             
-            .ranking-table {
-                font-size: 0.8rem;
+            .btn-custom, .btn-ranking {
+                width: 100%;
+                margin-bottom: 10px;
             }
-            
-            .ranking-table th,
-            .ranking-table td {
-                padding: 8px 10px;
-            }
-            
-            .rank-badge {
-                width: 28px;
-                height: 28px;
-                font-size: 0.8rem;
-            }
+        }
+        
+        /* Modal Ranking Styles */
+        .modal-ranking .modal-dialog {
+            max-width: 900px;
+        }
+        
+        .modal-ranking .modal-content {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .modal-ranking .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), #004d29);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .modal-ranking .modal-title {
+            font-weight: 600;
+        }
+        
+        .modal-ranking .btn-close {
+            filter: brightness(0) invert(1);
+        }
+        
+        .ranking-tabs .nav-link {
+            color: var(--primary-color);
+            font-weight: 500;
+            border: 2px solid transparent;
+        }
+        
+        .ranking-tabs .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .ranking-table {
+            font-size: 0.9rem;
+        }
+        
+        .ranking-table thead th {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .rank-medal {
+            font-size: 1.2rem;
+        }
+        
+        .achievement-bar {
+            height: 20px;
+            border-radius: 10px;
+            background-color: #e9ecef;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .achievement-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .achievement-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #333;
         }
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
-        <h1>🏦 Bank Muamalat</h1>
-        <h2>Leading Indicator Dashboard</h2>
-        <div class="header-info">
-            <span>📍 Region Sumatera</span>
-            <span>📅 Per: Juni 2026</span>
-            <span>📆 Hari Kerja: 20</span>
-            <span>🌙</span>
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1>🏦 Bank Muamalat</h1>
+                    <p class="mb-0">Leading Indicator Dashboard 📍 Region Sumatera</p>
+                    <p class="mb-0">📅 Per: Juni 2026 | 📆 Hari Kerja: 20</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="badge bg-light text-dark fs-6">🌙</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="container-fluid px-3 px-md-4">
-        <!-- Filter Section -->
+    <!-- Filter Section -->
+    <div class="container">
         <div class="filter-section">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label>📍 Co-Branch</label>
-                    <select id="coBranchFilter" onchange="applyFilters()">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="filter-label">📍 Co-Branch</label>
+                    <select class="form-select" id="coBranchFilter">
                         <option value="">Semua Co-Branch</option>
                         <option value="BANDA ACEH">BANDA ACEH</option>
                         <option value="BENGKULU">BENGKULU</option>
@@ -394,71 +299,44 @@
                         <option value="PEKANBARU">PEKANBARU</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label>🏢 Branch</label>
-                    <select id="branchFilter" onchange="applyFilters()">
+                <div class="col-md-4">
+                    <label class="filter-label">🏢 Branch</label>
+                    <select class="form-select" id="branchFilter">
                         <option value="">Semua Branch</option>
                     </select>
                 </div>
+                <div class="col-md-4 d-flex align-items-end gap-2">
+                    <button class="btn btn-custom flex-grow-1" onclick="resetFilters()">
+                        🔄 Reset Filter
+                    </button>
+                    <button class="btn btn-ranking flex-grow-1" onclick="showRanking()">
+                        📊 Ranking Performance
+                    </button>
+                </div>
             </div>
-            <button class="btn-reset" onclick="resetFilter()">🔄 Reset Filter</button>
         </div>
 
-        <!-- Main Table -->
+        <!-- Info Box -->
+        <div class="alert alert-info" role="alert">
+            💡 Update data di bagian script HTML | 📱 Optimized for Mobile & Web | Theme: Light | 📱 Made by Love - RBPM
+        </div>
+
+        <!-- Table Container -->
         <div class="table-container">
-            <table id="mainTable">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Co-Branch</th>
-                        <th>Branch</th>
-                        <th>Indikator</th>
-                        <th>Target</th>
-                        <th>Realisasi</th>
-                        <th>% Achieve</th>
-                        <th>Gap</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <!-- Data will be populated by JavaScript -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Ranking Performance Section -->
-        <div class="ranking-section" id="rankingSection">
-            <div class="ranking-header">
-                <div class="ranking-title">
-                    🏆 Ranking Performance by Achievement
-                </div>
-                <div class="ranking-filters">
-                    <select class="ranking-select" id="rankingGroupBy" onchange="updateRanking()">
-                        <option value="co-branch">Group by Co-Branch</option>
-                        <option value="branch">Group by Branch</option>
-                    </select>
-                    <select class="ranking-select" id="rankingMetric" onchange="updateRanking()">
-                        <option value="avg">Average Achievement</option>
-                        <option value="funding">Funding</option>
-                        <option value="financing">Financing</option>
-                        <option value="customer">Customer Base</option>
-                        <option value="transaction">Transaction</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="ranking-table-container">
-                <table class="ranking-table" id="rankingTable">
+            <div class="table-responsive">
+                <table class="table table-hover" id="dataTable">
                     <thead>
                         <tr>
-                            <th>Rank</th>
-                            <th>Co-Branch / Branch</th>
-                            <th>Achievement %</th>
-                            <th>Progress</th>
+                            <th>No</th>
+                            <th>Indikator</th>
+                            <th>Target</th>
+                            <th>Realisasi</th>
+                            <th>% Achieve</th>
+                            <th>Gap</th>
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody id="rankingBody">
+                    <tbody id="tableBody">
                         <!-- Data will be populated by JavaScript -->
                     </tbody>
                 </table>
@@ -468,227 +346,587 @@
 
     <!-- Footer -->
     <div class="footer">
-        <p>💡 Update data di bagian script HTML | 📱 Optimized for Mobile & Web | Theme: Light</p>
-        <p>📱 Made with ❤️ by RBPM | <a href="https://www.bankmuamalat.co.id" target="_blank">www.bankmuamalat.co.id</a></p>
-        <p>&copy; 2026 Bank Muamalat Indonesia. All rights reserved.</p>
+        <div class="container">
+            <p class="mb-2">Made with ❤️ by RBPM</p>
+            <p class="mb-0">
+                <a href="https://www.bankmuamalat.co.id" target="_blank">www.bankmuamalat.co.id</a> | 
+                © 2026 Bank Muamalat Indonesia
+            </p>
+        </div>
+    </div>
+
+    <!-- Ranking Performance Modal -->
+    <div class="modal fade modal-ranking" id="rankingModal" tabindex="-1" aria-labelledby="rankingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rankingModalLabel">📊 Ranking Performance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs ranking-tabs mb-3" id="rankingTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="cobranch-tab" data-bs-toggle="tab" data-bs-target="#cobranch" type="button" role="tab" onclick="switchRankingTab('cobranch')">
+                                🏦 By Co-Branch
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="branch-tab" data-bs-toggle="tab" data-bs-target="#branch" type="button" role="tab" onclick="switchRankingTab('branch')">
+                                🏢 By Branch
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="rankingTabContent">
+                        <!-- Co-Branch Ranking -->
+                        <div class="tab-pane fade show active" id="cobranch" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover ranking-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Rank</th>
+                                            <th>Co-Branch</th>
+                                            <th>Avg % Achievement</th>
+                                            <th>Total Indicators</th>
+                                            <th>On Track ✅</th>
+                                            <th>At Risk ⚠️</th>
+                                            <th>Off Track ❌</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="coBranchRankingBody">
+                                        <!-- Data will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Branch Ranking -->
+                        <div class="tab-pane fade" id="branch" role="tabpanel">
+                            <div class="mb-3">
+                                <label class="form-label">Filter by Co-Branch:</label>
+                                <select class="form-select" id="branchCoBranchFilter" onchange="renderBranchRanking()">
+                                    <option value="">All Co-Branches</option>
+                                    <option value="BANDA ACEH">BANDA ACEH</option>
+                                    <option value="BENGKULU">BENGKULU</option>
+                                    <option value="LAMPUNG">LAMPUNG</option>
+                                    <option value="MEDAN BALAIKOTA">MEDAN BALAIKOTA</option>
+                                    <option value="MEDAN BARU">MEDAN BARU</option>
+                                    <option value="PADANG">PADANG</option>
+                                    <option value="PALEMBANG">PALEMBANG</option>
+                                    <option value="PANGKAL PINANG">PANGKAL PINANG</option>
+                                    <option value="PEKANBARU">PEKANBARU</option>
+                                </select>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover ranking-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Rank</th>
+                                            <th>Co-Branch</th>
+                                            <th>Branch</th>
+                                            <th>% Achievement</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="branchRankingBody">
+                                        <!-- Data will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeRankingModal()">Close</button>
+                    <button type="button" class="btn btn-custom" onclick="exportRanking()">📥 Export CSV</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Data dari juni.json (placeholder - ganti dengan data aktual)
-        let tableData = [];
-        
-        // Load data from juni.json
-        async function loadData() {
-            try {
-                const response = await fetch('juni.json');
-                const data = await response.json();
-                tableData = data;
-                populateBranchFilter();
-                applyFilters();
-            } catch (error) {
-                console.error('Error loading data:', error);
-                // Use sample data if file not found
-                loadSampleData();
+        // Sample data structure - Replace with actual data from juni.json
+        const dashboardData = [
+            {
+                no: 1,
+                indikator: "CASA Ratio",
+                kategori: "Funding",
+                cobranch: "BANDA ACEH",
+                branch: "Banda Aceh Utama",
+                target: 65,
+                realisasi: 68,
+                achieve: 104.62,
+                gap: 3,
+                status: "On Track"
+            },
+            {
+                no: 2,
+                indikator: "Current Account Growth",
+                kategori: "Funding",
+                cobranch: "BANDA ACEH",
+                branch: "Banda Aceh Utama",
+                target: 10,
+                realisasi: 12.5,
+                achieve: 125,
+                gap: 2.5,
+                status: "On Track"
+            },
+            {
+                no: 3,
+                indikator: "Total Financing Growth",
+                kategori: "Financing",
+                cobranch: "MEDAN BALAIKOTA",
+                branch: "Medan Kota",
+                target: 15,
+                realisasi: 13.2,
+                achieve: 88,
+                gap: -1.8,
+                status: "At Risk"
+            },
+            {
+                no: 4,
+                indikator: "NPF Ratio",
+                kategori: "Financing",
+                cobranch: "PALEMBANG",
+                branch: "Palembang Ilir",
+                target: 3,
+                realisasi: 4.5,
+                achieve: 66.67,
+                gap: 1.5,
+                status: "Off Track"
+            },
+            {
+                no: 5,
+                indikator: "New Customer Acquisition",
+                kategori: "Customer Base",
+                cobranch: "PEKANBARU",
+                branch: "Pekanbaru Pusat",
+                target: 500,
+                realisasi: 620,
+                achieve: 124,
+                gap: 120,
+                status: "On Track"
+            },
+            {
+                no: 6,
+                indikator: "Digital Banking Users Growth",
+                kategori: "Customer Base",
+                cobranch: "PADANG",
+                branch: "Padang Barat",
+                target: 20,
+                realisasi: 18.5,
+                achieve: 92.5,
+                gap: -1.5,
+                status: "On Track"
+            },
+            {
+                no: 7,
+                indikator: "Transaction Value Growth",
+                kategori: "Transaction Volume",
+                cobranch: "LAMPUNG",
+                branch: "Bandar Lampung",
+                target: 25,
+                realisasi: 22,
+                achieve: 88,
+                gap: -3,
+                status: "At Risk"
+            },
+            {
+                no: 8,
+                indikator: "Customer Satisfaction Score",
+                kategori: "Service Quality",
+                cobranch: "BENGKULU",
+                branch: "Bengkulu Kota",
+                target: 85,
+                realisasi: 82,
+                achieve: 96.47,
+                gap: -3,
+                status: "On Track"
+            },
+            {
+                no: 9,
+                indikator: "Revenue per Employee",
+                kategori: "Employee Productivity",
+                cobranch: "MEDAN BARU",
+                branch: "Medan Baru",
+                target: 150,
+                realisasi: 165,
+                achieve: 110,
+                gap: 15,
+                status: "On Track"
+            },
+            {
+                no: 10,
+                indikator: "Operational Risk Incidents",
+                kategori: "Risk Management",
+                cobranch: "PANGKAL PINANG",
+                branch: "Pangkal Pinang",
+                target: 0,
+                realisasi: 2,
+                achieve: 0,
+                gap: 2,
+                status: "Off Track"
             }
-        }
+        ];
 
-        function loadSampleData() {
-            // Sample data structure - replace with actual data
-            tableData = [
-                {
-                    "Co-Branch": "BANDA ACEH",
-                    "Branch": "BANDA ACEH KC",
-                    "Indikator": "CASA Ratio",
-                    "Target": "65%",
-                    "Realisasi": "68%",
-                    "% Achieve": "104.6%",
-                    "Gap": "+3.0%",
-                    "Status": "On Track"
-                },
-                // Add more sample data as needed
-            ];
+        let filteredData = [...dashboardData];
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
             populateBranchFilter();
-            applyFilters();
-        }
+            renderTable();
+            setupEventListeners();
+        });
 
+        // Populate branch filter based on co-branch selection
         function populateBranchFilter() {
+            const coBranchFilter = document.getElementById('coBranchFilter');
             const branchFilter = document.getElementById('branchFilter');
-            const branches = [...new Set(tableData.map(item => item.Branch))].sort();
+            const selectedCoBranch = coBranchFilter.value;
             
+            // Clear existing options
             branchFilter.innerHTML = '<option value="">Semua Branch</option>';
+            
+            // Get unique branches for selected co-branch or all branches
+            let branches = [];
+            if (selectedCoBranch) {
+                branches = [...new Set(dashboardData
+                    .filter(item => item.cobranch === selectedCoBranch)
+                    .map(item => item.branch))];
+            } else {
+                branches = [...new Set(dashboardData.map(item => item.branch))];
+            }
+            
+            // Add branch options
             branches.forEach(branch => {
-                if (branch) {
-                    branchFilter.innerHTML += `<option value="${branch}">${branch}</option>`;
-                }
+                const option = document.createElement('option');
+                option.value = branch;
+                option.textContent = branch;
+                branchFilter.appendChild(option);
             });
         }
 
-        function applyFilters() {
-            const coBranch = document.getElementById('coBranchFilter').value;
-            const branch = document.getElementById('branchFilter').value;
+        // Render table with current filtered data
+        function renderTable() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
             
-            let filteredData = tableData;
-            
-            if (coBranch) {
-                filteredData = filteredData.filter(item => item['Co-Branch'] === coBranch);
-            }
-            
-            if (branch) {
-                filteredData = filteredData.filter(item => item.Branch === branch);
-            }
-            
-            renderTable(filteredData);
-            updateRanking();
-        }
-
-        function renderTable(data) {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-            
-            data.forEach((item, index) => {
+            filteredData.forEach(item => {
                 const row = document.createElement('tr');
                 
-                let statusClass = 'status-off-track';
-                if (item.Status === 'On Track') statusClass = 'status-on-track';
-                else if (item.Status === 'At Risk') statusClass = 'status-at-risk';
+                // Determine status class
+                let statusClass = '';
+                if (item.status === 'On Track') {
+                    statusClass = 'status-on-track';
+                } else if (item.status === 'At Risk') {
+                    statusClass = 'status-at-risk';
+                } else {
+                    statusClass = 'status-off-track';
+                }
                 
                 row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${item['Co-Branch']}</td>
-                    <td>${item.Branch}</td>
-                    <td>${item.Indikator}</td>
-                    <td>${item.Target}</td>
-                    <td>${item.Realisasi}</td>
-                    <td>${item['% Achieve']}</td>
-                    <td>${item.Gap}</td>
-                    <td><span class="status-badge ${statusClass}">${item.Status}</span></td>
+                    <td>${item.no}</td>
+                    <td><strong>${item.indikator}</strong><br><small class="text-muted">${item.kategori}</small></td>
+                    <td>${item.target.toLocaleString()}</td>
+                    <td>${item.realisasi.toLocaleString()}</td>
+                    <td><strong>${item.achieve.toFixed(2)}%</strong></td>
+                    <td class="${item.gap >= 0 ? 'text-success' : 'text-danger'}">${item.gap > 0 ? '+' : ''}${item.gap.toLocaleString()}</td>
+                    <td><span class="status-badge ${statusClass}">${item.status}</span></td>
                 `;
                 
-                tbody.appendChild(row);
+                tableBody.appendChild(row);
             });
         }
 
-        function resetFilter() {
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('coBranchFilter').addEventListener('change', applyFilters);
+            document.getElementById('branchFilter').addEventListener('change', applyFilters);
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const coBranchValue = document.getElementById('coBranchFilter').value;
+            const branchValue = document.getElementById('branchFilter').value;
+            
+            filteredData = dashboardData.filter(item => {
+                const matchCoBranch = !coBranchValue || item.cobranch === coBranchValue;
+                const matchBranch = !branchValue || item.branch === branchValue;
+                return matchCoBranch && matchBranch;
+            });
+            
+            renderTable();
+            populateBranchFilter();
+        }
+
+        // Reset filters
+        function resetFilters() {
             document.getElementById('coBranchFilter').value = '';
             document.getElementById('branchFilter').value = '';
-            applyFilters();
-            updateRanking();
+            filteredData = [...dashboardData];
+            renderTable();
+            populateBranchFilter();
         }
 
-        // Ranking Performance Functions
-        let rankingData = [];
+        // Show Ranking Modal
+        function showRanking() {
+            calculateRankings();
+            const modal = new bootstrap.Modal(document.getElementById('rankingModal'));
+            modal.show();
+        }
 
-        function calculateRanking() {
-            const groupBy = document.getElementById('rankingGroupBy').value;
-            const metric = document.getElementById('rankingMetric').value;
+        // Close Ranking Modal
+        function closeRankingModal() {
+            const modalElement = document.getElementById('rankingModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+        }
+
+        // Calculate Rankings
+        function calculateRankings() {
+            renderCoBranchRanking();
+            renderBranchRanking();
+        }
+
+        // Render Co-Branch Ranking
+        function renderCoBranchRanking() {
+            const tbody = document.getElementById('coBranchRankingBody');
+            tbody.innerHTML = '';
             
-            // Group data by selected criteria
-            const groupedData = {};
-            
-            tableData.forEach(row => {
-                let key;
-                if (groupBy === 'co-branch') {
-                    key = row['Co-Branch'] || 'Unknown';
-                } else {
-                    key = row.Branch || 'Unknown';
-                }
-                
-                if (!groupedData[key]) {
-                    groupedData[key] = {
-                        name: key,
+            // Group data by co-branch
+            const coBranchGroups = {};
+            dashboardData.forEach(item => {
+                if (!coBranchGroups[item.cobranch]) {
+                    coBranchGroups[item.cobranch] = {
                         achievements: [],
-                        count: 0
+                        onTrack: 0,
+                        atRisk: 0,
+                        offTrack: 0,
+                        total: 0
                     };
                 }
+                coBranchGroups[item.cobranch].achievements.push(item.achieve);
+                coBranchGroups[item.cobranch].total++;
                 
-                // Calculate achievement for each indicator
-                const achieveStr = row['% Achieve'];
-                if (achieveStr && achieveStr !== '-') {
-                    const achieve = parseFloat(achieveStr.replace('%', ''));
-                    if (!isNaN(achieve)) {
-                        groupedData[key].achievements.push(achieve);
-                    }
+                if (item.status === 'On Track') {
+                    coBranchGroups[item.cobranch].onTrack++;
+                } else if (item.status === 'At Risk') {
+                    coBranchGroups[item.cobranch].atRisk++;
+                } else {
+                    coBranchGroups[item.cobranch].offTrack++;
                 }
-                
-                groupedData[key].count++;
             });
             
-            // Calculate average achievement for each group
-            rankingData = Object.values(groupedData).map(group => {
-                let avgAchievement = 0;
-                
-                if (group.achievements.length > 0) {
-                    avgAchievement = group.achievements.reduce((a, b) => a + b, 0) / group.achievements.length;
-                }
-                
+            // Calculate averages and create ranking array
+            const rankings = Object.keys(coBranchGroups).map(cobranch => {
+                const group = coBranchGroups[cobranch];
+                const avgAchievement = group.achievements.reduce((a, b) => a + b, 0) / group.achievements.length;
                 return {
-                    name: group.name,
-                    achievement: avgAchievement,
-                    count: group.count
+                    cobranch,
+                    avgAchievement,
+                    total: group.total,
+                    onTrack: group.onTrack,
+                    atRisk: group.atRisk,
+                    offTrack: group.offTrack
                 };
             });
             
-            // Sort by achievement (descending)
-            rankingData.sort((a, b) => b.achievement - a.achievement);
+            // Sort by average achievement descending
+            rankings.sort((a, b) => b.avgAchievement - a.avgAchievement);
             
-            // Render ranking table
-            renderRankingTable();
-        }
-
-        function renderRankingTable() {
-            const tbody = document.getElementById('rankingBody');
-            tbody.innerHTML = '';
-            
-            rankingData.forEach((item, index) => {
+            // Render table
+            rankings.forEach((item, index) => {
                 const rank = index + 1;
-                let rankClass = 'rank-other';
-                if (rank === 1) rankClass = 'rank-1';
-                else if (rank === 2) rankClass = 'rank-2';
-                else if (rank === 3) rankClass = 'rank-3';
+                let medal = '';
+                if (rank === 1) medal = '🥇';
+                else if (rank === 2) medal = '🥈';
+                else if (rank === 3) medal = '🥉';
+                else medal = `#${rank}`;
                 
-                const achievement = item.achievement.toFixed(1);
-                let statusEmoji = '❌';
-                let statusText = 'Off Track';
-                let barClass = 'achievement-low';
-                
-                if (achievement >= 90) {
-                    statusEmoji = '✅';
-                    statusText = 'On Track';
-                    barClass = 'achievement-high';
-                } else if (achievement >= 70) {
-                    statusEmoji = '⚠️';
-                    statusText = 'At Risk';
-                    barClass = 'achievement-medium';
+                // Determine background color based on performance
+                let bgColor = '#f8f9fa';
+                if (item.avgAchievement >= 100) {
+                    bgColor = '#d4edda';
+                } else if (item.avgAchievement >= 80) {
+                    bgColor = '#fff3cd';
+                } else {
+                    bgColor = '#f8d7da';
                 }
                 
                 const row = document.createElement('tr');
+                row.style.backgroundColor = bgColor;
                 row.innerHTML = `
-                    <td><span class="rank-badge ${rankClass}">${rank}</span></td>
-                    <td><strong>${item.name}</strong></td>
-                    <td><strong>${achievement}%</strong></td>
+                    <td><span class="rank-medal">${medal}</span></td>
+                    <td><strong>${item.cobranch}</strong></td>
                     <td>
                         <div class="achievement-bar">
-                            <div class="achievement-fill ${barClass}" style="width: ${Math.min(achievement, 100)}%"></div>
+                            <div class="achievement-fill" style="width: ${Math.min(item.avgAchievement, 100)}%; background-color: ${item.avgAchievement >= 100 ? '#28a745' : item.avgAchievement >= 80 ? '#ffc107' : '#dc3545'};"></div>
+                            <span class="achievement-text">${item.avgAchievement.toFixed(2)}%</span>
                         </div>
                     </td>
-                    <td>
-                        <span>${statusEmoji} ${statusText}</span>
-                    </td>
+                    <td>${item.total}</td>
+                    <td><span class="badge bg-success">${item.onTrack}</span></td>
+                    <td><span class="badge bg-warning text-dark">${item.atRisk}</span></td>
+                    <td><span class="badge bg-danger">${item.offTrack}</span></td>
                 `;
-                
                 tbody.appendChild(row);
             });
         }
 
-        function updateRanking() {
-            calculateRanking();
+        // Render Branch Ranking
+        function renderBranchRanking() {
+            const tbody = document.getElementById('branchRankingBody');
+            const coBranchFilter = document.getElementById('branchCoBranchFilter').value;
+            tbody.innerHTML = '';
+            
+            // Filter data by co-branch if selected
+            let filteredBranchData = dashboardData;
+            if (coBranchFilter) {
+                filteredBranchData = dashboardData.filter(item => item.cobranch === coBranchFilter);
+            }
+            
+            // Get unique branches with their average achievement
+            const branchGroups = {};
+            filteredBranchData.forEach(item => {
+                const key = `${item.cobranch}|${item.branch}`;
+                if (!branchGroups[key]) {
+                    branchGroups[key] = {
+                        cobranch: item.cobranch,
+                        branch: item.branch,
+                        achievements: [],
+                        statuses: []
+                    };
+                }
+                branchGroups[key].achievements.push(item.achieve);
+                branchGroups[key].statuses.push(item.status);
+            });
+            
+            // Calculate averages and determine overall status
+            const branchRankings = Object.values(branchGroups).map(group => {
+                const avgAchievement = group.achievements.reduce((a, b) => a + b, 0) / group.achievements.length;
+                
+                // Determine overall status based on majority
+                const statusCount = {
+                    'On Track': group.statuses.filter(s => s === 'On Track').length,
+                    'At Risk': group.statuses.filter(s => s === 'At Risk').length,
+                    'Off Track': group.statuses.filter(s => s === 'Off Track').length
+                };
+                
+                let overallStatus = 'On Track';
+                if (statusCount['Off Track'] > statusCount['On Track'] && statusCount['Off Track'] > statusCount['At Risk']) {
+                    overallStatus = 'Off Track';
+                } else if (statusCount['At Risk'] > statusCount['On Track']) {
+                    overallStatus = 'At Risk';
+                }
+                
+                return {
+                    cobranch: group.cobranch,
+                    branch: group.branch,
+                    avgAchievement,
+                    overallStatus
+                };
+            });
+            
+            // Sort by average achievement descending
+            branchRankings.sort((a, b) => b.avgAchievement - a.avgAchievement);
+            
+            // Render table
+            branchRankings.forEach((item, index) => {
+                const rank = index + 1;
+                let medal = '';
+                if (rank === 1) medal = '🥇';
+                else if (rank === 2) medal = '🥈';
+                else if (rank === 3) medal = '🥉';
+                else medal = `#${rank}`;
+                
+                let statusClass = '';
+                let statusBadge = '';
+                if (item.overallStatus === 'On Track') {
+                    statusClass = 'status-on-track';
+                    statusBadge = '<span class="badge bg-success">On Track ✅</span>';
+                } else if (item.overallStatus === 'At Risk') {
+                    statusClass = 'status-at-risk';
+                    statusBadge = '<span class="badge bg-warning text-dark">At Risk ⚠️</span>';
+                } else {
+                    statusClass = 'status-off-track';
+                    statusBadge = '<span class="badge bg-danger">Off Track ❌</span>';
+                }
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="rank-medal">${medal}</span></td>
+                    <td>${item.cobranch}</td>
+                    <td><strong>${item.branch}</strong></td>
+                    <td>
+                        <div class="achievement-bar">
+                            <div class="achievement-fill" style="width: ${Math.min(item.avgAchievement, 100)}%; background-color: ${item.avgAchievement >= 100 ? '#28a745' : item.avgAchievement >= 80 ? '#ffc107' : '#dc3545'};"></div>
+                            <span class="achievement-text">${item.avgAchievement.toFixed(2)}%</span>
+                        </div>
+                    </td>
+                    <td>${statusBadge}</td>
+                `;
+                tbody.appendChild(row);
+            });
         }
 
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-        });
+        // Switch Ranking Tab
+        function switchRankingTab(tab) {
+            // This function is called when tabs are clicked
+            // The actual tab switching is handled by Bootstrap's data-bs-toggle
+        }
+
+        // Export Ranking to CSV
+        function exportRanking() {
+            let csv = 'Ranking Performance Export\n';
+            csv += 'Generated: ' + new Date().toLocaleString('id-ID') + '\n\n';
+            
+            // Co-Branch Ranking
+            csv += 'CO-BRANCH RANKING\n';
+            csv += 'Rank,Co-Branch,Avg % Achievement,Total Indicators,On Track,At Risk,Off Track\n';
+            
+            const coBranchRows = document.querySelectorAll('#coBranchRankingBody tr');
+            coBranchRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rank = cells[0].textContent.trim();
+                const cobranch = cells[1].textContent.trim();
+                const avgAchieve = cells[2].querySelector('.achievement-text').textContent;
+                const total = cells[3].textContent;
+                const onTrack = cells[4].textContent;
+                const atRisk = cells[5].textContent;
+                const offTrack = cells[6].textContent;
+                csv += `${rank},${cobranch},${avgAchieve},${total},${onTrack},${atRisk},${offTrack}\n`;
+            });
+            
+            csv += '\nBRANCH RANKING\n';
+            csv += 'Rank,Co-Branch,Branch,% Achievement,Status\n';
+            
+            const branchRows = document.querySelectorAll('#branchRankingBody tr');
+            branchRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rank = cells[0].textContent.trim();
+                const cobranch = cells[1].textContent;
+                const branch = cells[2].textContent.trim();
+                const avgAchieve = cells[3].querySelector('.achievement-text').textContent;
+                const status = cells[4].textContent.trim();
+                csv += `${rank},${cobranch},${branch},${avgAchieve},${status}\n`;
+            });
+            
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'ranking_performance_' + new Date().toISOString().slice(0,10) + '.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 </body>
 </html>
