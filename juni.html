@@ -67,8 +67,8 @@
         .filter-group { 
             display: flex; 
             gap: 10px; 
-            flex: 1; /* Mengisi sisa ruang */
-            min-width: 0; /* Mencegah overflow pada flex item */
+            flex: 1; /* Mengisi sisa ruang sepenuhnya */
+            min-width: 0; 
         }
         select { 
             padding: 8px 12px; 
@@ -90,7 +90,7 @@
             display: inline-flex; 
             align-items: center; 
             gap: 6px;
-            white-space: nowrap; /* Tombol tidak wrap ke bawah */
+            white-space: nowrap; 
         }
         .btn-reset { background: var(--text-muted); color: white; }
         .btn-ranking { background: var(--warning); color: #333; }
@@ -181,7 +181,7 @@
         .modal-content { 
             background: var(--card-bg); 
             width: 95%; 
-            max-width: 900px; 
+            max-width: 950px; 
             max-height: 90vh; 
             border-radius: var(--radius); 
             overflow: hidden; 
@@ -228,7 +228,7 @@
             width: 100%; 
             border-collapse: collapse; 
             font-size: 0.8rem; 
-            min-width: 800px; /* Memaksa scroll horizontal di mobile */
+            min-width: 900px; 
         }
         .ranking-table th { 
             background: var(--bg); 
@@ -247,13 +247,37 @@
             text-align: center;
             white-space: nowrap;
         }
-        .ranking-table td:first-child, 
-        .ranking-table th:first-child { text-align: left; position: sticky; left: 0; background: var(--card-bg); z-index: 1; }
-        .ranking-table td:nth-child(2), 
-        .ranking-table th:nth-child(2) { text-align: left; }
-        .ranking-table td:last-child, 
-        .ranking-table th:last-child { text-align: right; font-weight: bold; }
         
+        /* Sticky Columns untuk Rank & Name */
+        .ranking-table td:first-child, 
+        .ranking-table th:first-child { 
+            text-align: left; 
+            position: sticky; 
+            left: 0; 
+            background: var(--card-bg); 
+            z-index: 2; 
+            border-right: 1px solid var(--border);
+        }
+        .ranking-table td:nth-child(2), 
+        .ranking-table th:nth-child(2) { 
+            text-align: left; 
+            position: sticky; 
+            left: 60px; /* Sesuaikan dengan lebar kolom rank */
+            background: var(--card-bg); 
+            z-index: 2; 
+            border-right: 1px solid var(--border);
+            min-width: 140px;
+        }
+        
+        /* Total Achv % Column Styling */
+        .ranking-table td:nth-child(3), 
+        .ranking-table th:nth-child(3) {
+            font-weight: bold;
+            background: rgba(75, 46, 131, 0.05);
+            border-left: 2px solid var(--primary);
+            border-right: 2px solid var(--primary);
+        }
+
         .rank-badge { 
             display: inline-block; 
             width: 24px; height: 24px; 
@@ -275,6 +299,8 @@
             .filter-group { flex-basis: 100%; }
             .btn { flex: 1; justify-content: center; }
             .dashboard-grid { grid-template-columns: 1fr; }
+            /* Adjust sticky left for mobile if needed */
+            .ranking-table td:nth-child(2), .ranking-table th:nth-child(2) { left: 50px; }
         }
     </style>
 </head>
@@ -342,9 +368,10 @@
 
     <script>
         // --- KONFIGURASI METRIK DENGAN ICON ---
+        // PERBAIKAN: Saving Account menggunakan fa-sack-dollar (Bag of Dollar)
         const metrics = [
             { key: 'ca', label: 'Current Account', icon: 'fa-wallet', type: 'Growth MTD', unit: 'M' },
-            { key: 'sa', label: 'Saving Account', icon: 'fa-piggy-bank', type: 'Growth MTD', unit: 'M' },
+            { key: 'sa', label: 'Saving Account', icon: 'fa-sack-dollar', type: 'Growth MTD', unit: 'M' },
             { key: 'fu', label: 'Funding', icon: 'fa-chart-line', type: 'Growth MTD', unit: 'M' },
             { key: 'con', label: 'Booking Consumer', icon: 'fa-users', type: 'Booking MTD', unit: 'M' },
             { key: 'sme', label: 'SME - Region', icon: 'fa-building', type: 'Booking MTD', unit: 'M' },
@@ -587,14 +614,16 @@
                 return { ...g, metricVals: mv, totalAchv: totalTgt !== 0 ? (totalMtd/totalTgt*100) : 0 };
             }).sort((a,b) => b.totalAchv - a.totalAchv);
 
-            // Build Header Dinamis
+            // Build Header Dinamis: Rank -> Name -> TOTAL ACHV -> Detail Indicators
             let headerHTML = `<tr>
                 <th style="min-width:50px;">Rank</th>
-                <th style="min-width:150px;">${currentRankingMode === 'co' ? 'Co-Branch' : 'Branch'}</th>`;
+                <th style="min-width:150px;">${currentRankingMode === 'co' ? 'Co-Branch' : 'Branch'}</th>
+                <th style="min-width:100px; background:rgba(75,46,131,0.1);">Total Achv %</th>`;
+            
             metrics.forEach(m => {
                 headerHTML += `<th title="${m.label}"><i class="fas ${m.icon}"></i></th>`;
             });
-            headerHTML += `<th>Total Achv %</th></tr>`;
+            headerHTML += `</tr>`;
             thead.innerHTML = headerHTML;
 
             // Build Body
@@ -608,9 +637,11 @@
 
                 const totalColor = r.totalAchv >= 100 ? 'var(--success)' : 'var(--danger)';
                 
+                // Urutan kolom: Rank | Name | Total Achv | CA% | SA% | ... | CIF%
                 let rowHTML = `<tr>
                     <td><span class="${badgeClass}">${rank}</span></td>
-                    <td><strong>${r.name}</strong><br><small style="color:var(--text-muted)">${r.sub}</small></td>`;
+                    <td><strong>${r.name}</strong><br><small style="color:var(--text-muted)">${r.sub}</small></td>
+                    <td style="color:${totalColor}; font-size:0.9rem;">${r.totalAchv.toFixed(2)}%</td>`;
                 
                 metrics.forEach(m => {
                     const v = r.metricVals[m.key];
@@ -618,7 +649,7 @@
                     rowHTML += `<td style="color:${color}; font-size:0.75rem;">${v.achv.toFixed(0)}%</td>`;
                 });
 
-                rowHTML += `<td style="color:${totalColor}; font-size:0.9rem;">${r.totalAchv.toFixed(2)}%</td></tr>`;
+                rowHTML += `</tr>`;
                 tbody.innerHTML += rowHTML;
             });
         }
