@@ -76,7 +76,7 @@
         .progress-fill.under { background: var(--danger); }
         .footer { text-align: center; padding: 20px; font-size: 0.75rem; color: var(--text-muted); margin-top: 20px; }
 
-        /* MODAL RANKING - PERBAIKAN VERTICAL FREEZE TOTAL */
+        /* MODAL RANKING - PERBAIKAN TOTAL STICKY COLUMN */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { 
             background: var(--card-bg); width: 95%; max-width: 950px; 
@@ -88,9 +88,9 @@
         .modal-header { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
 
-        /* Area Body Modal: Hanya tabel yang discroll vertikal, tab & header tabel tetap freeze */
+        /* Area Body Modal: Hanya tabel yang discroll vertikal */
         .modal-body { 
-            padding: 0; /* Padding dipindah ke dalam wrapper agar sticky bekerja sempurna */
+            padding: 0; 
             overflow-y: auto; 
             flex: 1; 
             display: flex; 
@@ -102,7 +102,7 @@
         .ranking-tabs-wrapper {
             position: sticky;
             top: 0;
-            z-index: 40; /* Z-index tertinggi agar selalu di atas table header */
+            z-index: 40; 
             background: var(--card-bg);
             padding: 15px 20px;
             border-bottom: 1px solid var(--border);
@@ -121,8 +121,8 @@
         .rank-2 { background: #c0c0c0; color: #333; }
         .rank-3 { background: #cd7f32; color: white; }
 
-        /* --- TABLE STICKY COLUMNS & HEADER FIX --- */
-        /* Table wrapper tidak lagi overflow-y, hanya overflow-x untuk horizontal scroll */
+        /* --- TABLE STICKY COLUMNS FIX --- */
+        /* Table wrapper HANYA overflow-x, TIDAK overflow-y agar sticky column bekerja */
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; flex: 1; }
         
         .ranking-table { 
@@ -130,39 +130,28 @@
             font-size: 0.8rem; min-width: 800px; 
         }
         
-        /* PERBAIKAN UTAMA: Header Tabel Sticky dengan Background Solid */
+        /* Header Tabel Sticky Vertikal */
         .ranking-table th { 
-            background: var(--bg); /* Warna solid agar tidak tembus pandang */
-            padding: 0; /* Padding diatur di dalam div */
+            background: var(--bg); 
+            padding: 0; 
             text-align: center; 
             border-bottom: 2px solid var(--border); 
             position: sticky; 
-            top: 0; /* Menempel di atas .table-wrapper, tapi karena .table-wrapper ada di bawah .ranking-tabs-wrapper yang sticky,视觉上它们是一起的 */
-            z-index: 5; /* Z-index dasar untuk header non-sticky */
+            top: 0; 
+            z-index: 5; 
             color: var(--text); 
             vertical-align: middle;
             height: 55px;
         }
 
-        /* Wrapper di dalam TH untuk Icon + Prefix */
         .th-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            padding: 8px 4px;
-            height: 100%;
-            box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 3px; padding: 8px 4px; height: 100%; box-sizing: border-box;
         }
 
         .indicator-prefix {
-            font-size: 0.6rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            line-height: 1;
+            font-size: 0.6rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px; line-height: 1;
         }
 
         .ranking-table td { 
@@ -208,11 +197,9 @@
         
         /* Responsive Mobile */
         @media (max-width: 600px) {
-            /* PERBAIKAN 1: Filter Muncul di Mobile */
             .controls { flex-wrap: wrap; flex-direction: column; align-items: stretch; }
             .filter-group { flex-basis: 100%; flex-direction: column; }
             .btn { flex: 1; justify-content: center; }
-            
             .dashboard-grid { grid-template-columns: 1fr; }
             
             :root {
@@ -232,7 +219,6 @@
                 font-size: 0.65rem;
             }
 
-            /* PERBAIKAN 3: Perkecil lebar kolom indikator non-sticky di mobile */
             .ranking-table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)),
             .ranking-table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
                 min-width: 36px !important;
@@ -241,7 +227,6 @@
                 font-size: 0.6rem !important;
             }
             
-            /* Penyesuaian ukuran prefix di mobile */
             .indicator-prefix { font-size: 0.45rem; }
             .ranking-table th { height: 48px; }
             .th-content { padding: 4px 2px; gap: 2px; }
@@ -294,7 +279,6 @@
                 <button class="close-btn" onclick="closeRankingModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <!-- Wrapper Sticky Vertikal untuk Tab -->
                 <div class="ranking-tabs-wrapper">
                     <div class="ranking-tabs">
                         <button class="tab-btn active" id="tabAll" onclick="setRankingTab('all', this)">Semua Branch</button>
@@ -567,7 +551,6 @@
                 return { ...g, metricVals: mv, totalAchv: totalTgt !== 0 ? (totalMtd/totalTgt*100) : 0 };
             }).sort((a,b) => b.totalAchv - a.totalAchv);
 
-            // Build Header Dinamis dengan Prefix
             let headerHTML = `<tr>
                 <th><div class="th-content">#</div></th>
                 <th><div class="th-content">${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</div></th>
