@@ -1,321 +1,694 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Leading Indicator - Bank Muamalat</title>
-  <style>
-    :root {
-      --bg: #f1f5f9; --card-bg: #ffffff; --border: #e2e8f0; --text: #0f172a; --text-light: #64748b;
-      --header-bg: #492A75; --header-text: #ffffff; --btn-bg: #1e40af; --btn-text: #ffffff;
-      --input-bg: #ffffff; --success: #16a34a; --warning: #f59e0b; --danger: #dc2626; --info: #3b82f6;
-      --shadow: 0 4px 12px rgba(0,0,0,0.06); --progress-bg: #e2e8f0; --tag-bg: #dbeafe; --tag-text: #1e40af;
-    }
-    [data-theme="dark"] {
-      --bg: #0b1120; --card-bg: #1e293b; --border: #334155; --text: #f8fafc; --text-light: #94a3b8;
-      --header-bg: #1e293b; --header-text: #f8fafc; --btn-bg: #3b82f6; --btn-text: #0f172a;
-      --input-bg: #334155; --success: #4ade80; --warning: #facc15; --danger: #f87171; --info: #60a5fa;
-      --shadow: 0 4px 16px rgba(0,0,0,0.4); --progress-bg: #475569; --tag-bg: #1e3a8a; --tag-text: #93c5fd;
-    }
-    #branchNameText { transition: opacity 0.2s ease; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif; background: var(--bg); color: var(--text); padding: 12px; line-height: 1.4; font-size: 14px; transition: background 0.3s ease, color 0.3s ease; }
-    .header { background: var(--header-bg); color: var(--header-text); padding: 16px; border-radius: 14px; margin-bottom: 14px; text-align: center; position: relative; transition: background 0.3s ease; }
-    .header h1 { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
-    .header .meta { font-size: 0.8rem; opacity: 0.9; }
-    .theme-toggle { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.15); border: none; color: var(--header-text); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; backdrop-filter: blur(4px); transition: background 0.2s; }
-    .theme-toggle:hover { background: rgba(255,255,255,0.25); }
-    .filters { background: var(--card-bg); padding: 14px; border-radius: 12px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; box-shadow: var(--shadow); transition: background 0.3s, box-shadow 0.3s; }
-    .filters label { font-size: 0.75rem; color: var(--text-light); display: block; margin-bottom: 4px; }
-    .filters select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: var(--input-bg); color: var(--text); transition: background 0.3s, border-color 0.3s; }
-    .filters button { padding: 10px 16px; background: var(--btn-bg); color: var(--btn-text); border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: opacity 0.2s, transform 0.1s; white-space: nowrap; }
-    .filters button:hover { opacity: 0.9; } .filters button:active { transform: scale(0.98); }
-    .summary-bar { background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 14px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; font-size: 0.8rem; box-shadow: var(--shadow); transition: background 0.3s, box-shadow 0.3s; }
-    .summary-item .label { color: var(--text-light); display: block; margin-bottom: 4px; }
-    .summary-item .value { font-weight: 700; font-size: 1.05rem; transition: color 0.3s; }
-    .summary-item .value.neg { color: var(--danger); } .summary-item .value.pos { color: var(--success); }
-    .params-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
-    .param-card { background: var(--card-bg); border-radius: 12px; padding: 14px; box-shadow: var(--shadow); border-left: 4px solid var(--info); transition: transform 0.2s, background 0.3s, box-shadow 0.3s; }
-    .param-card:hover { transform: translateY(-3px); }
-    .param-card.ca { border-left-color: #3b82f6; } .param-card.sa { border-left-color: #8b5cf6; } .param-card.fu { border-left-color: #06b6d4; } .param-card.con { border-left-color: #f59e0b; }
-    .param-card.sme { border-left-color: #16a34a; } .param-card.ph { border-left-color: #ec4899; } .param-card.mdin { border-left-color: #6366f1; } .param-card.qris { border-left-color: #14b8a6; } .param-card.sli { border-left-color: #f97316; } .param-card.cif { border-left-color: #84cc16; }
-    .param-card .title { font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); display: flex; align-items: center; gap: 6px; }
-    .metric-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; }
-    .metric-row .label { color: var(--text-light); } .metric-row .value { font-weight: 600; font-family: 'SF Mono', 'Courier New', monospace; }
-    .metric-row.gap .value.neg { color: var(--danger); font-weight: 700; } .metric-row.gap .value.pos { color: var(--success); font-weight: 700; }
-    .metric-row .label { color: var(--text-light); font-weight: 600; }
-    .achievement { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); text-align: center; }
-    .achievement .label { font-size: 0.8rem; color: var(--text-light); }
-    .achievement .value { font-size: 1.4rem; font-weight: 800; margin: 4px 0; transition: color 0.3s; }
-    .achievement .value.low { color: var(--danger); } .achievement .value.mid { color: var(--warning); } .achievement .value.high { color: var(--success); }
-    .progress-bar { height: 6px; background: var(--progress-bg); border-radius: 3px; overflow: hidden; margin-top: 6px; transition: background 0.3s; }
-    .progress-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease, background 0.3s; }
-    .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; margin-left: 6px; background: var(--tag-bg); color: var(--tag-text); transition: background 0.3s, color 0.3s; }
-    .footer { text-align: center; padding: 20px 10px; color: var(--text-light); font-size: 0.75rem; margin-top: 20px; transition: color 0.3s; }
-    /* Badge indikator logika khusus */
-    .tag.special { background: var(--warning); color: #0f172a; font-size: 0.65rem;padding: 2px 6px;}
-    @media (max-width: 600px) { .filters { grid-template-columns: 1fr; } .summary-bar { grid-template-columns: repeat(2, 1fr); } .params-grid { grid-template-columns: 1fr; } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Leading Indicator - Bank Muamalat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #006837;
+            --secondary: #F4A261;
+            --accent: #2A9D8F;
+            --accent2: #264653;
+            --bg: #f8f9fa;
+            --surface: #ffffff;
+            --surface2: #e9ecef;
+            --text: #212529;
+            --text-light: #6c757d;
+            --border: #dee2e6;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 20px;
+            border-radius: 0 0 20px 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .filter-section {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            transition: all 0.3s;
+        }
+
+        .filter-group select:hover {
+            border-color: var(--accent);
+        }
+
+        .btn-reset {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-reset:hover {
+            background: #e07a5f;
+            transform: translateY(-2px);
+        }
+
+        .table-container {
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+        }
+
+        th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr:hover {
+            background: var(--surface2);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-on-track {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-at-risk {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-off-track {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Ranking Section Styles */
+        .ranking-section {
+            margin-top: 30px;
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .ranking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .ranking-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ranking-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .ranking-select {
+            padding: 8px 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ranking-select:hover {
+            border-color: var(--accent);
+        }
+
+        .ranking-table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .ranking-table thead {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white;
+        }
+
+        .ranking-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .ranking-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ranking-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .ranking-table tbody tr:hover {
+            background: var(--surface2);
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .rank-1 { 
+            background: linear-gradient(135deg, #FFD700, #FFA500); 
+            color: #000; 
+        }
+        .rank-2 { 
+            background: linear-gradient(135deg, #C0C0C0, #A0A0A0); 
+            color: #000; 
+        }
+        .rank-3 { 
+            background: linear-gradient(135deg, #CD7F32, #B87333); 
+            color: #fff; 
+        }
+        .rank-other { 
+            background: var(--surface2); 
+            color: var(--text); 
+        }
+
+        .achievement-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--surface2);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .achievement-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .achievement-high { 
+            background: linear-gradient(90deg, #10b981, #059669); 
+        }
+        .achievement-medium { 
+            background: linear-gradient(90deg, #f59e0b, #d97706); 
+        }
+        .achievement-low { 
+            background: linear-gradient(90deg, #ef4444, #dc2626); 
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .header-info {
+                font-size: 0.8rem;
+            }
+
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+
+            th, td {
+                padding: 8px 10px;
+                font-size: 0.85rem;
+            }
+
+            .ranking-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .ranking-title {
+                font-size: 1.2rem;
+            }
+            
+            .ranking-table {
+                font-size: 0.8rem;
+            }
+            
+            .ranking-table th,
+            .ranking-table td {
+                padding: 8px 10px;
+            }
+            
+            .rank-badge {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
 </head>
-<body oncontextmenu="return false;">
-<div class="header">
-  <h1>🏦 Bank Muamalat</h1>
-  <div class="meta"><b>Leading Indicator Dashboard</b></div>
-  <div class="meta" id="selectedBranchDisplay">📍 <span id="branchNameText">Region Sumatera</span></div>
-  <div class="meta">📅 Per: Juni 2026 | 📆 Hari Kerja: 20</div>
-  <button id="themeToggle" class="theme-toggle">🌙</button>
-</div>
-<div class="filters">
-  <div><label>📍 Co-Branch</label> 
-    <select id="coBranchFilter" class="custom-select">
-      <option value="ALL">Semua Co-Branch</option><option value="BANDA ACEH">BANDA ACEH</option><option value="BENGKULU">BENGKULU</option><option value="LAMPUNG">LAMPUNG</option><option value="MEDAN BALAIKOTA">MEDAN BALAIKOTA</option><option value="MEDAN BARU">MEDAN BARU</option><option value="PADANG">PADANG</option><option value="PALEMBANG">PALEMBANG</option><option value="PANGKAL PINANG">PANGKAL PINANG</option><option value="PEKANBARU">PEKANBARU</option>
-    </select>  
-  </div>
-  <div><label>🏢 Branch</label>
-    <select id="branchFilter" class="custom-select">
-      <option value="ALL">Semua Branch</option>
-    </select>
-  </div>
-  <button onclick="resetDashboard()">🔄 Reset Filter</button>
-</div>
-  
-  <div class="params-grid" id="paramsContainer"></div>
-  <div class="footer">💡 Update data di bagian script HTML | 📱 Optimized for Mobile & Web | Theme: <span id="themeLabel">Light</span>| 📱 Made by Love - RBPM</div>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🏦 Bank Muamalat</h1>
+        <h2>Leading Indicator Dashboard</h2>
+        <div class="header-info">
+            <span>📍 Region Sumatera</span>
+            <span>📅 Per: Juni 2026</span>
+            <span>📆 Hari Kerja: 20</span>
+            <span>🌙</span>
+        </div>
+    </div>
 
-<script>
-  let ntData = [];
-  const coBranchSelect = document.getElementById('coBranchFilter');
-  const branchSelect = document.getElementById('branchFilter');
-  const themeToggle = document.getElementById('themeToggle');
-  const themeLabel = document.getElementById('themeLabel');
-  const html = document.documentElement;
+    <div class="container-fluid px-3 px-md-4">
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>📍 Co-Branch</label>
+                    <select id="coBranchFilter" onchange="applyFilters()">
+                        <option value="">Semua Co-Branch</option>
+                        <option value="BANDA ACEH">BANDA ACEH</option>
+                        <option value="BENGKULU">BENGKULU</option>
+                        <option value="LAMPUNG">LAMPUNG</option>
+                        <option value="MEDAN BALAIKOTA">MEDAN BALAIKOTA</option>
+                        <option value="MEDAN BARU">MEDAN BARU</option>
+                        <option value="PADANG">PADANG</option>
+                        <option value="PALEMBANG">PALEMBANG</option>
+                        <option value="PANGKAL PINANG">PANGKAL PINANG</option>
+                        <option value="PEKANBARU">PEKANBARU</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>🏢 Branch</label>
+                    <select id="branchFilter" onchange="applyFilters()">
+                        <option value="">Semua Branch</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-reset" onclick="resetFilter()">🔄 Reset Filter</button>
+        </div>
 
-  // --- FUNGSI TEMA & UI (TETAP SAMA) ---
-  function setTheme(theme) {
-    html.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-    themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
-    themeLabel.textContent = theme === 'dark' ? 'Dark' : 'Light';
-  }
+        <!-- Main Table -->
+        <div class="table-container">
+            <table id="mainTable">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Co-Branch</th>
+                        <th>Branch</th>
+                        <th>Indikator</th>
+                        <th>Target</th>
+                        <th>Realisasi</th>
+                        <th>% Achieve</th>
+                        <th>Gap</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
 
-  function updateBranchDisplay() {
-    const coVal = coBranchSelect.value;
-    const brVal = branchSelect.value;
-    const branchNameText = document.getElementById('branchNameText');
-    if (!branchNameText) return;
-  
-    if (brVal !== 'ALL') {
-      branchNameText.textContent = `Branch ${brVal}`;
-    } else if (coVal !== 'ALL') {
-      branchNameText.textContent = `Co-Branch ${coVal}`;
-    } else {
-      branchNameText.textContent = 'Region Sumatera';
-    }
-  }
+        <!-- Ranking Performance Section -->
+        <div class="ranking-section" id="rankingSection">
+            <div class="ranking-header">
+                <div class="ranking-title">
+                    🏆 Ranking Performance by Achievement
+                </div>
+                <div class="ranking-filters">
+                    <select class="ranking-select" id="rankingGroupBy" onchange="updateRanking()">
+                        <option value="co-branch">Group by Co-Branch</option>
+                        <option value="branch">Group by Branch</option>
+                    </select>
+                    <select class="ranking-select" id="rankingMetric" onchange="updateRanking()">
+                        <option value="avg">Average Achievement</option>
+                        <option value="funding">Funding</option>
+                        <option value="financing">Financing</option>
+                        <option value="customer">Customer Base</option>
+                        <option value="transaction">Transaction</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="ranking-table-container">
+                <table class="ranking-table" id="rankingTable">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Co-Branch / Branch</th>
+                            <th>Achievement %</th>
+                            <th>Progress</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankingBody">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-  function resetDashboard() {
-    coBranchSelect.value = 'ALL';
-    updateBranchOptions('ALL');
-    updateBranchDisplay();
-    renderDashboard();
-  }
+    <!-- Footer -->
+    <div class="footer">
+        <p>💡 Update data di bagian script HTML | 📱 Optimized for Mobile & Web | Theme: Light</p>
+        <p>📱 Made with ❤️ by RBPM | <a href="https://www.bankmuamalat.co.id" target="_blank">www.bankmuamalat.co.id</a></p>
+        <p>&copy; 2026 Bank Muamalat Indonesia. All rights reserved.</p>
+    </div>
 
-  function updateBranchOptions(selectedCo) {
-    branchSelect.innerHTML = '<option value="ALL">Semua Branch</option>';
-    const filtered = selectedCo === 'ALL' ? ntData : ntData.filter(d => d.co === selectedCo);
-    const uniqueBranches = [...new Set(filtered.map(d => d.br))].sort();
-    uniqueBranches.forEach(br => {
-      const opt = document.createElement('option');
-      opt.value = br; opt.textContent = br;
-      branchSelect.appendChild(opt);
-    });
-    branchSelect.value = 'ALL';
-  }
-
-  coBranchSelect.addEventListener('change', () => { 
-    updateBranchOptions(coBranchSelect.value); 
-    updateBranchDisplay();
-    renderDashboard(); 
-  });
-
-  branchSelect.addEventListener('change', () => {
-    updateBranchDisplay();
-    renderDashboard();
-  });
-
-  // --- LOGIKA DATA & PERHITUNGAN (TETAP SAMA) ---
-    function calcMetrics(data) {
-    return data.map(d => ({
-      ...d,
-      gapCA: d.ca_mtd - d.ca_tgt, gapSA: d.sa_mtd - d.sa_tgt, gapFU: d.fu_mtd - d.fu_tgt,
-      gapCon: d.con_mtd - d.con_tgt, gapSME: d.sme_mtd - d.sme_tgt, gapPH: d.ph_mtd - d.ph_tgt,
-      gapMDIN: d.mdin_mtd - d.mdin_tgt, gapQRIS: d.qris_mtd - d.qris_tgt, gapSLI: d.sli_mtd - d.sli_tgt,
-      gapCIF: d.cif_mtd - d.cif_tgt,
-      
-      // LOGIKA PERBAIKAN: Jika Target 0, cek apakah Realisasi > 0
-      achCA: d.ca_tgt > 0 ? (d.ca_mtd / d.ca_tgt * 100) : (d.ca_mtd > 0 ? 100 : 0), 
-      achSA: d.sa_tgt > 0 ? (d.sa_mtd / d.sa_tgt * 100) : (d.sa_mtd > 0 ? 100 : 0),
-      achFU: d.fu_tgt > 0 ? (d.fu_mtd / d.fu_tgt * 100) : (d.fu_mtd > 0 ? 100 : 0), 
-      achCon: d.con_tgt > 0 ? (d.con_mtd / d.con_tgt * 100) : (d.con_mtd > 0 ? 100 : 0),
-      
-      // Khusus SME: Jika target 0 tapi ada booking, achievement 100%
-      achSME: d.sme_tgt > 0 ? (d.sme_mtd / d.sme_tgt * 100) : (d.sme_mtd > 0 ? 100 : 0), 
-      
-      achPH: d.ph_tgt > 0 ? (d.ph_mtd / d.ph_tgt * 100) : (d.ph_mtd > 0 ? 100 : 0),
-      achMDIN: d.mdin_tgt > 0 ? (d.mdin_mtd / d.mdin_tgt * 100) : (d.mdin_mtd > 0 ? 100 : 0), 
-      achQRIS: d.qris_tgt > 0 ? (d.qris_mtd / d.qris_tgt * 100) : (d.qris_mtd > 0 ? 100 : 0),
-      achSLI: d.sli_tgt > 0 ? (d.sli_mtd / d.sli_tgt * 100) : (d.sli_mtd > 0 ? 100 : 0), 
-      achCIF: d.cif_tgt > 0 ? (d.cif_mtd / d.cif_tgt * 100) : (d.cif_mtd > 0 ? 100 : 0)
-    }));
-  }
-
-    function aggregate(data, coBr, br) {
-    let filtered = data;
-    if(coBr !== 'ALL') filtered = filtered.filter(d => d.co === coBr);
-    if(br !== 'ALL') filtered = filtered.filter(d => d.br === br);
-    
-    const sum = (key) => filtered.reduce((a,b) => a + (b[key] || 0), 0);
-    const count = filtered.length;
-    
-    // Helper untuk menghitung rata-rata achievement dengan logika baru
-    const avgAch = (realKey, tgtKey) => {
-        const totalReal = sum(realKey);
-        const totalTgt = sum(tgtKey);
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Data dari juni.json (placeholder - ganti dengan data aktual)
+        let tableData = [];
         
-        if (totalTgt > 0) {
-            return (totalReal / totalTgt) * 100;
-        } else {
-            // Jika Total Target 0, tapi Total Realisasi > 0, maka Achievement 100%
-            return totalReal > 0 ? 100 : 0;
+        // Load data from juni.json
+        async function loadData() {
+            try {
+                const response = await fetch('juni.json');
+                const data = await response.json();
+                tableData = data;
+                populateBranchFilter();
+                applyFilters();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // Use sample data if file not found
+                loadSampleData();
+            }
         }
-    };
 
-    const smeMtdActive = filtered
-      .filter(d => (d.sme_mtd || 0) > 0)
-      .reduce((acc, d) => acc + (d.sme_mtd || 0), 0);
-    
-    const isAllFilter = (coBr === 'ALL' && br === 'ALL');
-    const smeTgtValue = isAllFilter ? 50 : sum('sme_tgt');
-    
-    const gapSMEValue = smeMtdActive - smeTgtValue;
-    
-    // PERBAIKAN DI SINI: Gunakan logika jika Target 0
-    const achSMEValue = smeTgtValue > 0 ? (smeMtdActive / smeTgtValue * 100) : (smeMtdActive > 0 ? 100 : 0);
-    
-    return {
-      ca_mtd: sum('ca_mtd'), ca_tgt: sum('ca_tgt'), gapCA: sum('gapCA'), achCA: avgAch('ca_mtd', 'ca_tgt'),
-      sa_mtd: sum('sa_mtd'), sa_tgt: sum('sa_tgt'), gapSA: sum('gapSA'), achSA: avgAch('sa_mtd', 'sa_tgt'),
-      fu_mtd: sum('fu_mtd'), fu_tgt: sum('fu_tgt'), gapFU: sum('gapFU'), achFU: avgAch('fu_mtd', 'fu_tgt'),
-      con_mtd: sum('con_mtd'), con_tgt: sum('con_tgt'), gapCon: sum('gapCon'), achCon: avgAch('con_mtd', 'con_tgt'),
-      
-      sme_mtd: smeMtdActive, 
-      sme_tgt: smeTgtValue, 
-      gapSME: gapSMEValue, 
-      achSME: achSMEValue, // Menggunakan nilai yang sudah diperbaiki
-      
-      ph_mtd: sum('ph_mtd'), ph_tgt: sum('ph_tgt'), gapPH: sum('gapPH'), achPH: avgAch('ph_mtd', 'ph_tgt'),
-      mdin_mtd: sum('mdin_mtd'), mdin_tgt: sum('mdin_tgt'), gapMDIN: sum('gapMDIN'), achMDIN: avgAch('mdin_mtd', 'mdin_tgt'),
-      qris_mtd: sum('qris_mtd'), qris_tgt: sum('qris_tgt'), gapQRIS: sum('gapQRIS'), achQRIS: avgAch('qris_mtd', 'qris_tgt'),
-      sli_mtd: sum('sli_mtd'), sli_tgt: sum('sli_tgt'), gapSLI: sum('gapSLI'), achSLI: avgAch('sli_mtd', 'sli_tgt'),
-      cif_mtd: sum('cif_mtd'), cif_tgt: sum('cif_tgt'), gapCIF: sum('gapCIF'), achCIF: avgAch('cif_mtd', 'cif_tgt')
-    };
-  }
-  function formatNum(val, unit='') {
-    if(unit==='M') return (val>=0?'+':'') + val.toFixed(1) + ' M';
-    return val>=0 ? val.toLocaleString('id-ID') : '(' + Math.abs(val).toLocaleString('id-ID') + ')';
-  }
-
-  function getAchieveClass(pct) { if(pct >= 100) return 'high'; if(pct >= 50) return 'mid'; return 'low'; }
-
-  function renderDashboard() {
-    if(ntData.length === 0) return;
-    const coBr = coBranchSelect.value;
-    const br = branchSelect.value;
-    const total = aggregate(calcMetrics(ntData), coBr, br);
-    const container = document.getElementById('paramsContainer');
-    container.innerHTML = '';
-    
-    const params = [
-      {id:'ca',name:'🏦 Current Account',unit:'M',color:'ca',metrics:[{k:'ca_mtd',l:'Growth MTD'},{k:'ca_tgt',l:'Target MTD'},{k:'gapCA',l:'GAP Growth',isGap:true},{k:'achCA',l:'Achievement',isPct:true}]},
-      {id:'sa',name:'💰 Saving Account',unit:'M',color:'sa',metrics:[{k:'sa_mtd',l:'Growth MTD'},{k:'sa_tgt',l:'Target MTD'},{k:'gapSA',l:'GAP Growth',isGap:true},{k:'achSA',l:'Achievement',isPct:true}]},
-      {id:'fu',name:'📈 Funding',unit:'M',color:'fu',metrics:[{k:'fu_mtd',l:'Growth MTD'},{k:'fu_tgt',l:'Target MTD'},{k:'gapFU',l:'GAP Growth',isGap:true},{k:'achFU',l:'Achievement',isPct:true}]},
-      {id:'con',name:'🛒 Booking Consumer',unit:'M',color:'con',metrics:[{k:'con_mtd',l:'Booking MTD'},{k:'con_tgt',l:'Target MTD'},{k:'gapCon',l:'GAP Booking',isGap:true},{k:'achCon',l:'Achievement',isPct:true}]},
-      {id:'sme',name:'🏢 SME - Region',unit:'M',color:'sme',metrics:[{k:'sme_mtd',l:'Booking MTD'},{k:'sme_tgt',l:'Target MTD'},{k:'gapSME',l:'GAP Booking',isGap:true},{k:'achSME',l:'Achievement',isPct:true}]},
-      {id:'ph',name:'🕋 Porsi Haji',unit:'',color:'ph',metrics:[{k:'ph_mtd',l:'Booking MTD'},{k:'ph_tgt',l:'Target MTD'},{k:'gapPH',l:'GAP Booking',isGap:true},{k:'achPH',l:'Achievement',isPct:true}]},
-      {id:'mdin',name:'📱 MDIN',unit:'',color:'mdin',metrics:[{k:'mdin_mtd',l:'Akuisisi MTD'},{k:'mdin_tgt',l:'Target MTD'},{k:'gapMDIN',l:'GAP Akuisisi',isGap:true},{k:'achMDIN',l:'Achievement',isPct:true}]},
-      {id:'qris',name:'💳 QRIS',unit:'',color:'qris',metrics:[{k:'qris_mtd',l:'Akuisisi MTD'},{k:'qris_tgt',l:'Target MTD'},{k:'gapQRIS',l:'GAP Akuisisi',isGap:true},{k:'achQRIS',l:'Achievement',isPct:true}]},
-      {id:'sli',name:'☂️ Sunlife (SLI)',unit:'',color:'sli',metrics:[{k:'sli_mtd',l:'Booking MTD'},{k:'sli_tgt',l:'Target MTD'},{k:'gapSLI',l:'GAP Booking',isGap:true},{k:'achSLI',l:'Achievement',isPct:true}]},
-      {id:'cif',name:'👥 New CIF',unit:'',color:'cif',metrics:[{k:'cif_mtd',l:'Akuisisi MTD'},{k:'cif_tgt',l:'Target MTD'},{k:'gapCIF',l:'GAP Akuisisi',isGap:true},{k:'achCIF',l:'Achievement',isPct:true}]}
-    ];
-    
-    params.forEach(p => {
-      const m0 = total[p.metrics[0].k], m1 = total[p.metrics[1].k], gap = total[p.metrics[2].k], ach = total[p.metrics[3].k];
-      const gapClass = gap >= 0 ? 'pos' : 'neg';
-      const achClass = getAchieveClass(ach);
-      const isSmeAll = (p.id === 'sme' && coBr === 'ALL' && br === 'ALL');
-      const specialBadge = isSmeAll ? '<span class="tag special">★ Target 50M</span>' : '';
-      
-      const card = document.createElement('div');
-      card.className = `param-card ${p.color}`;
-      card.innerHTML = `
-        <div class="title">${p.name} <span class="tag mtd">MTD</span>${specialBadge}</div>
-        <div class="metric-row"><span class="label">${p.metrics[0].l}</span><span class="value">${formatNum(m0,p.unit)}</span></div>
-        <div class="metric-row"><span class="label">${p.metrics[1].l}</span><span class="value">${formatNum(m1,p.unit)}</span></div>
-        <div class="metric-row gap"><span class="label">${p.metrics[2].l}</span><span class="value ${gapClass}">${formatNum(gap,p.unit)}</span></div>
-        <div class="achievement"><span class="label">${p.metrics[3].l}</span><div class="value ${achClass}">${ach.toFixed(1)}%</div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,ach)}%; background:${ach>=100?'var(--success)':ach>=50?'var(--warning)':'var(--danger)'}"></div></div></div>`;
-      container.appendChild(card);
-    });
-  }
-
-  // --- INISIALISASI DENGAN FETCH (PERUBAHAN UTAMA) ---
-  function loadData() {
-    // Mengambil data dari file eksternal
-    fetch('data_juni.json')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Gagal memuat data');
+        function loadSampleData() {
+            // Sample data structure - replace with actual data
+            tableData = [
+                {
+                    "Co-Branch": "BANDA ACEH",
+                    "Branch": "BANDA ACEH KC",
+                    "Indikator": "CASA Ratio",
+                    "Target": "65%",
+                    "Realisasi": "68%",
+                    "% Achieve": "104.6%",
+                    "Gap": "+3.0%",
+                    "Status": "On Track"
+                },
+                // Add more sample data as needed
+            ];
+            populateBranchFilter();
+            applyFilters();
         }
-        return response.json();
-      })
-      .then(rawData => {
-        const toNum = (v) => {
-          if (!v) return 0;
-          const n = parseFloat(v.toString().replace(',', '.').trim());
-          return isNaN(n) ? 0 : n;
-        };
 
-        ntData = rawData.map(r => ({
-          co: (r.co || "").trim(),
-          br: (r.br || "").trim(),
-          tp: (r.tp || "").trim(),
-          ca_mtd: toNum(r.ca_mtd), ca_tgt: toNum(r.ca_tgt),
-          sa_mtd: toNum(r.sa_mtd), sa_tgt: toNum(r.sa_tgt),
-          fu_mtd: toNum(r.fu_mtd), fu_tgt: toNum(r.fu_tgt),
-          con_mtd: toNum(r.con_mtd), con_tgt: toNum(r.con_tgt),
-          sme_mtd: toNum(r.sme_mtd), sme_tgt: toNum(r.sme_tgt),
-          ph_mtd: toNum(r.ph_mtd), ph_tgt: toNum(r.ph_tgt),
-          mdin_mtd: toNum(r.mdin_mtd), mdin_tgt: toNum(r.mdin_tgt),
-          qris_mtd: toNum(r.qris_mtd), qris_tgt: toNum(r.qris_tgt),
-          sli_mtd: toNum(r.sli_mtd), sli_tgt: toNum(r.sli_tgt),
-          cif_mtd: toNum(r.cif_mtd), cif_tgt: toNum(r.cif_tgt)
-        }));
+        function populateBranchFilter() {
+            const branchFilter = document.getElementById('branchFilter');
+            const branches = [...new Set(tableData.map(item => item.Branch))].sort();
+            
+            branchFilter.innerHTML = '<option value="">Semua Branch</option>';
+            branches.forEach(branch => {
+                if (branch) {
+                    branchFilter.innerHTML += `<option value="${branch}">${branch}</option>`;
+                }
+            });
+        }
 
-        updateBranchOptions('ALL');
-        updateBranchDisplay();
-        renderDashboard();
-      })
-      .catch(error => {
-        console.error('Error loading data:', error);
-        document.getElementById('paramsContainer').innerHTML = 
-          '<div style="padding:20px; text-align:center; color:var(--danger)">Gagal memuat data. Sepertinya database bulan juni belum ada.</div>';
-      });
-  }
+        function applyFilters() {
+            const coBranch = document.getElementById('coBranchFilter').value;
+            const branch = document.getElementById('branchFilter').value;
+            
+            let filteredData = tableData;
+            
+            if (coBranch) {
+                filteredData = filteredData.filter(item => item['Co-Branch'] === coBranch);
+            }
+            
+            if (branch) {
+                filteredData = filteredData.filter(item => item.Branch === branch);
+            }
+            
+            renderTable(filteredData);
+            updateRanking();
+        }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    setTheme(localStorage.getItem('theme') || 'light');
-    themeToggle.addEventListener('click', () => setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
-    loadData();
-  });
-</script>
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            data.forEach((item, index) => {
+                const row = document.createElement('tr');
+                
+                let statusClass = 'status-off-track';
+                if (item.Status === 'On Track') statusClass = 'status-on-track';
+                else if (item.Status === 'At Risk') statusClass = 'status-at-risk';
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${item['Co-Branch']}</td>
+                    <td>${item.Branch}</td>
+                    <td>${item.Indikator}</td>
+                    <td>${item.Target}</td>
+                    <td>${item.Realisasi}</td>
+                    <td>${item['% Achieve']}</td>
+                    <td>${item.Gap}</td>
+                    <td><span class="status-badge ${statusClass}">${item.Status}</span></td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function resetFilter() {
+            document.getElementById('coBranchFilter').value = '';
+            document.getElementById('branchFilter').value = '';
+            applyFilters();
+            updateRanking();
+        }
+
+        // Ranking Performance Functions
+        let rankingData = [];
+
+        function calculateRanking() {
+            const groupBy = document.getElementById('rankingGroupBy').value;
+            const metric = document.getElementById('rankingMetric').value;
+            
+            // Group data by selected criteria
+            const groupedData = {};
+            
+            tableData.forEach(row => {
+                let key;
+                if (groupBy === 'co-branch') {
+                    key = row['Co-Branch'] || 'Unknown';
+                } else {
+                    key = row.Branch || 'Unknown';
+                }
+                
+                if (!groupedData[key]) {
+                    groupedData[key] = {
+                        name: key,
+                        achievements: [],
+                        count: 0
+                    };
+                }
+                
+                // Calculate achievement for each indicator
+                const achieveStr = row['% Achieve'];
+                if (achieveStr && achieveStr !== '-') {
+                    const achieve = parseFloat(achieveStr.replace('%', ''));
+                    if (!isNaN(achieve)) {
+                        groupedData[key].achievements.push(achieve);
+                    }
+                }
+                
+                groupedData[key].count++;
+            });
+            
+            // Calculate average achievement for each group
+            rankingData = Object.values(groupedData).map(group => {
+                let avgAchievement = 0;
+                
+                if (group.achievements.length > 0) {
+                    avgAchievement = group.achievements.reduce((a, b) => a + b, 0) / group.achievements.length;
+                }
+                
+                return {
+                    name: group.name,
+                    achievement: avgAchievement,
+                    count: group.count
+                };
+            });
+            
+            // Sort by achievement (descending)
+            rankingData.sort((a, b) => b.achievement - a.achievement);
+            
+            // Render ranking table
+            renderRankingTable();
+        }
+
+        function renderRankingTable() {
+            const tbody = document.getElementById('rankingBody');
+            tbody.innerHTML = '';
+            
+            rankingData.forEach((item, index) => {
+                const rank = index + 1;
+                let rankClass = 'rank-other';
+                if (rank === 1) rankClass = 'rank-1';
+                else if (rank === 2) rankClass = 'rank-2';
+                else if (rank === 3) rankClass = 'rank-3';
+                
+                const achievement = item.achievement.toFixed(1);
+                let statusEmoji = '❌';
+                let statusText = 'Off Track';
+                let barClass = 'achievement-low';
+                
+                if (achievement >= 90) {
+                    statusEmoji = '✅';
+                    statusText = 'On Track';
+                    barClass = 'achievement-high';
+                } else if (achievement >= 70) {
+                    statusEmoji = '⚠️';
+                    statusText = 'At Risk';
+                    barClass = 'achievement-medium';
+                }
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="rank-badge ${rankClass}">${rank}</span></td>
+                    <td><strong>${item.name}</strong></td>
+                    <td><strong>${achievement}%</strong></td>
+                    <td>
+                        <div class="achievement-bar">
+                            <div class="achievement-fill ${barClass}" style="width: ${Math.min(achievement, 100)}%"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <span>${statusEmoji} ${statusText}</span>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateRanking() {
+            calculateRanking();
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+        });
+    </script>
 </body>
 </html>
