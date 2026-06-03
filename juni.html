@@ -4,86 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Leading Indicator - Bank Muamalat</title>
-    <!-- Menggunakan Font Awesome untuk ikon (opsional, jika belum ada di file asli) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- CSS EKSISTING (Simulasi Tema Asli) --- */
         :root {
-            --primary-color: #4b2e83; /* Warna ungu khas Bank Muamalat */
-            --secondary-color: #f8f9fa;
-            --text-color: #333;
-            --card-bg: #ffffff;
-            --border-radius: 8px;
-            --shadow: 0 2px 5px rgba(0,0,0,0.1);
+            --primary: #4b2e83;
+            --secondary: #f8f9fa;
+            --text: #333;
+            --bg: #f4f6f9;
+            --card-bg: #fff;
+            --radius: 8px;
+            --shadow: 0 2px 5px rgba(0,0,0,0.08);
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; color: var(--text-color); }
-        
-        .header { background-color: var(--primary-color); color: white; padding: 15px 20px; text-align: center; border-radius: 0 0 var(--border-radius) var(--border-radius); }
-        .header h1 { margin: 0; font-size: 1.5rem; }
-        .header p { margin: 5px 0 0; font-size: 0.9rem; opacity: 0.9; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 40px; }
 
-        .controls { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; flex-wrap: wrap; gap: 10px; background: white; margin: 15px; border-radius: var(--border-radius); box-shadow: var(--shadow); }
-        .filter-group { display: flex; gap: 10px; flex-wrap: wrap; }
-        select, button { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
-        
-        /* Tombol Reset & Ranking Style */
-        .btn-reset { background-color: #6c757d; color: white; border: none; cursor: pointer; }
-        .btn-ranking { background-color: #ffc107; color: #333; border: none; cursor: pointer; font-weight: bold; }
-        .btn-ranking:hover { background-color: #e0a800; }
+        /* HEADER */
+        .header { background: var(--primary); color: white; padding: 20px; text-align: center; border-radius: 0 0 var(--radius) var(--radius); }
+        .header h1 { font-size: 1.4rem; margin-bottom: 5px; }
+        .header p { font-size: 0.85rem; opacity: 0.9; margin: 2px 0; }
 
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; padding: 0 20px 20px; }
-        .card { background: var(--card-bg); padding: 15px; border-radius: var(--border-radius); box-shadow: var(--shadow); border-top: 4px solid var(--primary-color); }
-        .card h3 { margin-top: 0; font-size: 1rem; color: var(--primary-color); display: flex; justify-content: space-between; align-items: center; }
-        .metric-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.85rem; }
-        .achievement-box { margin-top: 10px; text-align: center; font-weight: bold; font-size: 1.2rem; color: var(--primary-color); }
-        .progress-bar { height: 6px; background: #eee; border-radius: 3px; overflow: hidden; margin-top: 5px; }
-        .progress-fill { height: 100%; background: var(--primary-color); }
+        /* CONTROLS */
+        .controls { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: white; margin: 15px 20px; border-radius: var(--radius); box-shadow: var(--shadow); flex-wrap: wrap; gap: 10px; }
+        .filter-group { display: flex; gap: 10px; flex-wrap: wrap; flex: 1; }
+        select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; min-width: 150px; }
+        
+        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
+        .btn-reset { background: #6c757d; color: white; }
+        .btn-ranking { background: #ffc107; color: #333; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        .footer { text-align: center; padding: 15px; font-size: 0.8rem; color: #777; }
+        /* DASHBOARD GRID */
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 15px; 
+            padding: 0 20px; 
+        }
 
-        /* --- CSS BARU UNTUK MODAL RANKING --- */
-        .modal-overlay {
-            display: none; /* Tersembunyi default */
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6); z-index: 1000;
-            justify-content: center; align-items: center;
+        .card { 
+            background: var(--card-bg); 
+            padding: 15px; 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow); 
+            border-top: 4px solid var(--primary); 
+            display: flex; flex-direction: column; justify-content: space-between;
         }
-        .modal-content {
-            background: white; width: 90%; max-width: 700px; max-height: 85vh;
-            border-radius: var(--border-radius); overflow-y: auto;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: slideDown 0.3s ease;
-        }
-        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .card-title { font-size: 0.95rem; font-weight: bold; color: var(--primary); }
+        .badge-mtd { font-size: 0.65rem; background: #eee; padding: 2px 6px; border-radius: 4px; color: #666; }
         
-        .modal-header {
-            background: var(--primary-color); color: white; padding: 15px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 10;
-        }
-        .modal-header h2 { margin: 0; font-size: 1.2rem; }
-        .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1; }
+        .metric-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; color: #555; }
+        .metric-val { font-weight: 600; color: #333; }
+        .metric-val.neg { color: #dc3545; }
+        .metric-val.pos { color: #28a745; }
+
+        .achievement-box { margin-top: auto; text-align: center; padding-top: 10px; border-top: 1px dashed #eee; }
+        .achv-label { font-size: 0.75rem; color: #777; margin-bottom: 3px; }
+        .achv-val { font-size: 1.3rem; font-weight: bold; }
+        .achv-val.red { color: #dc3545; }
+        .achv-val.green { color: #28a745; }
+
+        /* MODAL RANKING */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 95%; max-width: 800px; max-height: 90vh; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        .ranking-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .ranking-table th { background: #f8f9fa; padding: 12px 15px; text-align: left; border-bottom: 2px solid #ddd; position: sticky; top: 0; }
-        .ranking-table td { padding: 10px 15px; border-bottom: 1px solid #eee; }
-        .ranking-table tr:hover { background-color: #f1f3f5; }
-        .rank-badge { 
-            display: inline-block; width: 28px; height: 28px; line-height: 28px; 
-            text-align: center; border-radius: 50%; font-weight: bold; font-size: 0.85rem;
-        }
-        .rank-1 { background: #ffd700; color: #333; } /* Emas */
-        .rank-2 { background: #c0c0c0; color: #333; } /* Perak */
-        .rank-3 { background: #cd7f32; color: white; } /* Perunggu */
-        .rank-other { background: #e9ecef; color: #555; }
-        
-        .ach-positive { color: #28a745; font-weight: bold; }
-        .ach-negative { color: #dc3545; font-weight: bold; }
+        .modal-header { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+        .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+
+        /* TABS DI DALAM MODAL */
+        .ranking-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .tab-btn { padding: 6px 12px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .ranking-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .ranking-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #ddd; position: sticky; top: 0; }
+        .ranking-table td { padding: 10px; border-bottom: 1px solid #eee; }
+        .rank-badge { display: inline-block; width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; font-weight: bold; font-size: 0.75rem; background: #eee; }
+        .rank-1 { background: #ffd700; color: #333; }
+        .rank-2 { background: #c0c0c0; color: #333; }
+        .rank-3 { background: #cd7f32; color: white; }
+
+        .footer { text-align: center; padding: 20px; font-size: 0.75rem; color: #888; margin-top: 20px; }
 
         @media (max-width: 600px) {
             .controls { flex-direction: column; align-items: stretch; }
             .filter-group { flex-direction: column; }
-            select, button { width: 100%; }
+            select, .btn { width: 100%; }
+            .dashboard-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -91,178 +101,310 @@
 
     <!-- HEADER -->
     <div class="header">
-        <h1> Bank Muamalat</h1>
+        <h1><i class="fas fa-university"></i> Bank Muamalat</h1>
         <p>Leading Indicator Dashboard 📍 Region Sumatera</p>
-        <p style="font-size: 0.8rem; margin-top: 5px;">📅 Per: Juni 2026 | 📆 Hari Kerja: 20 </p>
+        <p>📅 Per: Juni 2026 | 📆 Hari Kerja: 20</p>
     </div>
 
-    <!-- CONTROLS / FILTER -->
+    <!-- CONTROLS -->
     <div class="controls">
         <div class="filter-group">
-            <select id="coBranchFilter">
+            <select id="coBranchFilter" onchange="applyFilters()">
                 <option value="">Semua Co-Branch</option>
-                <!-- Opsi akan diisi via JS atau statis sesuai file asli -->
-                <option>BANDA ACEH</option><option>BENGKULU</option><option>LAMPUNG</option>
-                <option>MEDAN BALAIKOTA</option><option>MEDAN BARU</option><option>PADANG</option>
-                <option>PALEMBANG</option><option>PANGKAL PINANG</option><option>PEKANBARU</option>
             </select>
-            <select id="branchFilter">
+            <select id="branchFilter" onchange="applyFilters()">
                 <option value="">Semua Branch</option>
-                <!-- Opsi dinamis biasanya, disederhanakan untuk contoh -->
             </select>
         </div>
-        <div class="filter-group">
-            <button class="btn-reset" onclick="resetFilters()">🔄 Reset Filter</button>
-            <!-- TOMBOL BARU: RANKING PERFORMANCE -->
-            <button class="btn-ranking" onclick="openRankingModal()">🏆 Ranking Performance</button>
+        <div class="filter-group" style="justify-content: flex-end;">
+            <button class="btn btn-reset" onclick="resetFilters()"><i class="fas fa-sync-alt"></i> Reset Filter</button>
+            <button class="btn btn-ranking" onclick="openRankingModal()"><i class="fas fa-trophy"></i> Ranking Performance</button>
         </div>
     </div>
 
-    <!-- DASHBOARD CARDS (Placeholder Struktur Sesuai File Asli) -->
+    <!-- DASHBOARD CARDS (DIRENDER VIA JS) -->
     <div class="dashboard-grid" id="dashboardContainer">
-        <!-- Kartu-kartu metrik (CA, SA, Funding, dll) akan dirender di sini oleh script asli Anda -->
-        <div class="card"><h3>Current Account <span style="font-size:0.7em; background:#eee; padding:2px 6px; border-radius:4px;">MTD</span></h3><div class="metric-row"><span>Growth MTD</span><span>-3.1 M</span></div><div class="achievement-box">Achievement<br><span style="color:red">-51.1%</span></div></div>
-        <div class="card"><h3>Saving Account <span style="font-size:0.7em; background:#eee; padding:2px 6px; border-radius:4px;">MTD</span></h3><div class="metric-row"><span>Growth MTD</span><span>-2.7 M</span></div><div class="achievement-box">Achievement<br><span style="color:red">-1.5%</span></div></div>
-        <div class="card"><h3>Funding <span style="font-size:0.7em; background:#eee; padding:2px 6px; border-radius:4px;">MTD</span></h3><div class="metric-row"><span>Growth MTD</span><span>-7.8 M</span></div><div class="achievement-box">Achievement<br><span style="color:red">-2.1%</span></div></div>
-        <div class="card"><h3>Booking Consumer <span style="font-size:0.7em; background:#eee; padding:2px 6px; border-radius:4px;">MTD</span></h3><div class="metric-row"><span>Booking MTD</span><span>+24.9 M</span></div><div class="achievement-box">Achievement<br><span style="color:green">20.5%</span></div></div>
-        <!-- ... kartu lainnya sesuai layout asli ... -->
+        <!-- Kartu akan diisi otomatis oleh JavaScript -->
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #888;">Memuat data...</div>
     </div>
 
     <!-- FOOTER -->
     <div class="footer">
-        💡 Update data di bagian script HTML | 📱 Optimized for Mobile & Web | Theme: Light | 📱 Made by Love - RBPM
+        💡 Update data di bagian script HTML | 📱 Optimized for Mobile & Web | Theme: Light | Made by Love - RBPM
     </div>
 
-    <!-- ========================================== -->
-    <!-- MODAL RANKING PERFORMANCE (FITUR BARU)     -->
-    <!-- ========================================== -->
+    <!-- MODAL RANKING -->
     <div id="rankingModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>🏆 Ranking Performance - Juni 2026</h2>
+                <h3><i class="fas fa-chart-bar"></i> Ranking Performance</h3>
                 <button class="close-btn" onclick="closeRankingModal()">&times;</button>
             </div>
-            <table class="ranking-table">
-                <thead>
-                    <tr>
-                        <th style="width: 60px;">Rank</th>
-                        <th>Co-Branch</th>
-                        <th>Branch</th>
-                        <th style="text-align: right; width: 120px;">Total Achv %</th>
-                    </tr>
-                </thead>
-                <tbody id="rankingTableBody">
-                    <!-- Data ranking akan di-inject di sini via JS -->
-                    <tr><td colspan="4" style="text-align:center; padding:20px;">Memuat data...</td></tr>
-                </tbody>
-            </table>
+            <div class="modal-body">
+                <div class="ranking-tabs">
+                    <button class="tab-btn active" onclick="setRankingTab('all', this)">Semua Branch</button>
+                    <button class="tab-btn" onclick="setRankingTab('co', this)">Per Co-Branch</button>
+                    <button class="tab-btn" onclick="setRankingTab('br', this)">Per Branch</button>
+                </div>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">Rank</th>
+                            <th id="rankColName">Unit</th>
+                            <th style="text-align: right;">Total Achv %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankingTableBody">
+                        <tr><td colspan="3" style="text-align:center; padding:20px;">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA -->
     <script>
-        // --- FUNGSI UTILITAS DASAR (Sesuai file asli) ---
+        // --- KONFIGURASI METRIK ---
+        const metrics = [
+            { key: 'ca', label: 'Current Account', type: 'Growth MTD', unit: 'M' },
+            { key: 'sa', label: 'Saving Account', type: 'Growth MTD', unit: 'M' },
+            { key: 'fu', label: 'Funding', type: 'Growth MTD', unit: 'M' },
+            { key: 'con', label: 'Booking Consumer', type: 'Booking MTD', unit: 'M' },
+            { key: 'sme', label: 'SME - Region', type: 'Booking MTD', unit: 'M' },
+            { key: 'ph', label: 'Porsi Haji', type: 'Booking MTD', unit: '' },
+            { key: 'mdin', label: 'MDIN', type: 'Akuisisi MTD', unit: '' },
+            { key: 'qris', label: 'QRIS', type: 'Akuisisi MTD', unit: '' },
+            { key: 'sli', label: 'Sunlife (SLI)', type: 'Booking MTD', unit: '' },
+            { key: 'cif', label: 'New CIF', type: 'Akuisisi MTD', unit: '' }
+        ];
+
+        let rawData = [];
+        let currentRankingMode = 'all'; // 'all', 'co', 'br'
+
+        // --- INISIALISASI ---
+        window.onload = async function() {
+            try {
+                const res = await fetch('data_juni.json');
+                if (!res.ok) throw new Error('File data_juni.json tidak ditemukan');
+                rawData = await res.json();
+                
+                // Bersihkan data dari spasi di key dan value
+                rawData = rawData.map(item => {
+                    const clean = {};
+                    Object.keys(item).forEach(k => {
+                        const val = item[k];
+                        clean[k.trim()] = (typeof val === 'string') ? val.trim() : val;
+                    });
+                    return clean;
+                });
+
+                populateFilters();
+                renderDashboard(rawData);
+            } catch (err) {
+                document.getElementById('dashboardContainer').innerHTML = 
+                    `<div style="color:red; text-align:center; padding:20px;">Error: ${err.message}</div>`;
+            }
+        };
+
+        // --- FUNGSI FILTER & RENDER ---
+        function populateFilters() {
+            const coSet = new Set();
+            const brSet = new Set();
+            
+            rawData.forEach(d => {
+                if(d['co']) coSet.add(d['co']);
+                if(d['br']) brSet.add(d['br']);
+            });
+
+            const coSelect = document.getElementById('coBranchFilter');
+            const brSelect = document.getElementById('branchFilter');
+
+            [...coSet].sort().forEach(co => {
+                coSelect.innerHTML += `<option value="${co}">${co}</option>`;
+            });
+
+            [...brSet].sort().forEach(br => {
+                brSelect.innerHTML += `<option value="${br}">${br}</option>`;
+            });
+        }
+
+        function applyFilters() {
+            const coVal = document.getElementById('coBranchFilter').value;
+            const brVal = document.getElementById('branchFilter').value;
+
+            let filtered = rawData;
+            if (coVal) filtered = filtered.filter(d => d['co'] === coVal);
+            if (brVal) filtered = filtered.filter(d => d['br'] === brVal);
+
+            renderDashboard(filtered);
+        }
+
         function resetFilters() {
             document.getElementById('coBranchFilter').value = "";
             document.getElementById('branchFilter').value = "";
-            // Logika refresh dashboard asli Anda di sini...
-            console.log("Filter direset");
+            renderDashboard(rawData);
         }
 
-        // --- LOGIKA BARU: RANKING PERFORMANCE ---
-        
-        // Membuka Modal
-        async function openRankingModal() {
-            const modal = document.getElementById('rankingModal');
-            const tbody = document.getElementById('rankingTableBody');
-            
-            modal.style.display = 'flex';
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">⏳ Sedang memproses data...</td></tr>';
+        function renderDashboard(data) {
+            const container = document.getElementById('dashboardContainer');
+            container.innerHTML = '';
 
-            try {
-                // Mengambil data dari file JSON eksternal
-                const response = await fetch('data_juni.json');
-                if (!response.ok) throw new Error('Gagal memuat data_juni.json');
-                
-                const rawData = await response.json();
-                
-                // Proses data untuk kalkulasi ranking
-                const processedData = rawData.map(item => {
-                    // Membersihkan spasi pada key object (karena JSON punya spasi di key "co ", "br ")
-                    const clean = {};
-                    Object.keys(item).forEach(k => clean[k.trim()] = item[k]);
-                    
-                    // Kalkulasi Total Achievement
-                    // Rumus: Sum(MTD) / Sum(TGT) * 100
-                    // Catatan: Sesuaikan field name dengan JSON Anda. Di JSON keynya "ca_mtd", "ca_tgt" dst.
-                    const metrics = ['ca', 'sa', 'fu', 'con', 'sme', 'ph', 'mdin', 'qris', 'sli', 'cif'];
-                    
-                    let totalMtd = 0;
-                    let totalTgt = 0;
-                    
-                    metrics.forEach(m => {
-                        totalMtd += parseFloat(clean[`${m}_mtd`] || 0);
-                        totalTgt += parseFloat(clean[`${m}_tgt`] || 0);
-                    });
-
-                    const achvPct = totalTgt !== 0 ? (totalMtd / totalTgt) * 100 : 0;
-
-                    return {
-                        co: clean['co']?.trim() || '-',
-                        br: clean['br']?.trim() || '-',
-                        tp: clean['tp']?.trim() || '-',
-                        mtd: totalMtd,
-                        tgt: totalTgt,
-                        achv: achvPct
-                    };
-                });
-
-                // Sorting Descending berdasarkan Achievement %
-                processedData.sort((a, b) => b.achv - a.achv);
-
-                // Render ke Tabel
-                tbody.innerHTML = '';
-                processedData.forEach((row, index) => {
-                    const rank = index + 1;
-                    let badgeClass = 'rank-other';
-                    if (rank === 1) badgeClass = 'rank-1';
-                    else if (rank === 2) badgeClass = 'rank-2';
-                    else if (rank === 3) badgeClass = 'rank-3';
-
-                    const achvColorClass = row.achv >= 0 ? 'ach-positive' : 'ach-negative';
-                    const formattedAchv = row.achv.toFixed(2) + '%';
-
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><span class="rank-badge ${badgeClass}">${rank}</span></td>
-                        <td>${row.co}</td>
-                        <td><strong>${row.br}</strong><br><small style="color:#777">${row.tp}</small></td>
-                        <td class="${achvColorClass}" style="text-align: right;">${formattedAchv}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-
-            } catch (error) {
-                console.error(error);
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red; padding:20px;">❌ Gagal memuat data: ${error.message}<br><small>Pastikan file data_juni.json berada di folder yang sama.</small></td></tr>`;
+            if (data.length === 0) {
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px;">Tidak ada data untuk filter ini.</div>';
+                return;
             }
+
+            // Agregasi data untuk tampilan dashboard (Sum dari semua branch yang difilter)
+            const agg = {};
+            metrics.forEach(m => {
+                agg[m.key + '_mtd'] = 0;
+                agg[m.key + '_tgt'] = 0;
+            });
+
+            data.forEach(row => {
+                metrics.forEach(m => {
+                    agg[m.key + '_mtd'] += parseFloat(row[m.key + '_mtd'] || 0);
+                    agg[m.key + '_tgt'] += parseFloat(row[m.key + '_tgt'] || 0);
+                });
+            });
+
+            // Render 10 Kartu
+            metrics.forEach(m => {
+                const mtd = agg[m.key + '_mtd'];
+                const tgt = agg[m.key + '_tgt'];
+                const achv = tgt !== 0 ? (mtd / tgt * 100) : 0;
+                
+                const isNeg = achv < 0;
+                const colorClass = isNeg ? 'red' : 'green';
+                const valClass = (mtd < 0 && (m.key === 'ca' || m.key === 'sa' || m.key === 'fu')) ? 'neg' : 'pos';
+                
+                const formattedMtd = (mtd > 0 ? '+' : '') + mtd.toFixed(1) + (m.unit ? ' ' + m.unit : '');
+                const formattedAchv = achv.toFixed(1) + '%';
+
+                const cardHTML = `
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">${m.label}</span>
+                            <span class="badge-mtd">MTD</span>
+                        </div>
+                        <div class="metric-row">
+                            <span>${m.type}</span>
+                            <span class="metric-val ${valClass}">${formattedMtd}</span>
+                        </div>
+                        <div class="achievement-box">
+                            <div class="achv-label">Achievement</div>
+                            <div class="achv-val ${colorClass}">${formattedAchv}</div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
         }
 
-        // Menutup Modal
+        // --- LOGIKA RANKING PERFORMANCE ---
+        function openRankingModal() {
+            document.getElementById('rankingModal').style.display = 'flex';
+            renderRanking();
+        }
+
         function closeRankingModal() {
             document.getElementById('rankingModal').style.display = 'none';
         }
 
-        // Tutup modal jika klik di area gelap (overlay)
-        window.onclick = function(event) {
-            const modal = document.getElementById('rankingModal');
-            if (event.target == modal) {
-                closeRankingModal();
-            }
+        function setRankingTab(mode, btn) {
+            currentRankingMode = mode;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderRanking();
         }
 
-        // Inisialisasi awal (Opsional: Load data dashboard utama)
-        // fetch('data_juni.json').then(...) -> Render cards
+        function renderRanking() {
+            const tbody = document.getElementById('rankingTableBody');
+            const colName = document.getElementById('rankColName');
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Memproses...</td></tr>';
+
+            let groupedData = [];
+
+            if (currentRankingMode === 'all') {
+                // Ranking per Branch Individual
+                colName.innerText = 'Branch';
+                groupedData = rawData.map(d => ({
+                    name: d['br'],
+                    sub: d['co'],
+                    data: d
+                }));
+            } else if (currentRankingMode === 'co') {
+                // Ranking per Co-Branch (Agregasi)
+                colName.innerText = 'Co-Branch';
+                const coMap = {};
+                rawData.forEach(d => {
+                    if (!coMap[d['co']]) coMap[d['co']] = { mtd: {}, tgt: {} };
+                    metrics.forEach(m => {
+                        coMap[d['co']].mtd[m.key] = (coMap[d['co']].mtd[m.key] || 0) + parseFloat(d[m.key+'_mtd']||0);
+                        coMap[d['co']].tgt[m.key] = (coMap[d['co']].tgt[m.key] || 0) + parseFloat(d[m.key+'_tgt']||0);
+                    });
+                });
+                groupedData = Object.keys(coMap).map(co => ({
+                    name: co,
+                    sub: '',
+                    data: { mtd: coMap[co].mtd, tgt: coMap[co].tgt }
+                }));
+            } else if (currentRankingMode === 'br') {
+                // Ranking per Branch (Agregasi jika nama branch sama di beda co)
+                colName.innerText = 'Branch';
+                const brMap = {};
+                rawData.forEach(d => {
+                    if (!brMap[d['br']]) brMap[d['br']] = { mtd: {}, tgt: {} };
+                    metrics.forEach(m => {
+                        brMap[d['br']].mtd[m.key] = (brMap[d['br']].mtd[m.key] || 0) + parseFloat(d[m.key+'_mtd']||0);
+                        brMap[d['br']].tgt[m.key] = (brMap[d['br']].tgt[m.key] || 0) + parseFloat(d[m.key+'_tgt']||0);
+                    });
+                });
+                groupedData = Object.keys(brMap).map(br => ({
+                    name: br,
+                    sub: '',
+                    data: { mtd: brMap[br].mtd, tgt: brMap[br].tgt }
+                }));
+            }
+
+            // Hitung Achievement & Sort
+            const ranked = groupedData.map(g => {
+                let totalMtd = 0, totalTgt = 0;
+                metrics.forEach(m => {
+                    // Handle struktur data yang berbeda antara 'all' dan agregasi
+                    const mtdVal = currentRankingMode === 'all' ? parseFloat(g.data[m.key+'_mtd']||0) : (g.data.mtd[m.key] || 0);
+                    const tgtVal = currentRankingMode === 'all' ? parseFloat(g.data[m.key+'_tgt']||0) : (g.data.tgt[m.key] || 0);
+                    totalMtd += mtdVal;
+                    totalTgt += tgtVal;
+                });
+                return { ...g, totalMtd, totalTgt, achv: totalTgt !== 0 ? (totalMtd/totalTgt*100) : 0 };
+            }).sort((a,b) => b.achv - a.achv);
+
+            // Render Table
+            tbody.innerHTML = '';
+            ranked.forEach((r, i) => {
+                const rank = i + 1;
+                let badgeClass = 'rank-badge';
+                if(rank===1) badgeClass += ' rank-1';
+                else if(rank===2) badgeClass += ' rank-2';
+                else if(rank===3) badgeClass += ' rank-3';
+
+                const achvColor = r.achv >= 0 ? '#28a745' : '#dc3545';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span class="${badgeClass}">${rank}</span></td>
+                        <td><strong>${r.name}</strong> ${r.sub ? `<br><small style="color:#888">${r.sub}</small>` : ''}</td>
+                        <td style="text-align:right; color:${achvColor}; font-weight:bold;">${r.achv.toFixed(2)}%</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Tutup modal saat klik luar area konten
+        window.onclick = function(e) {
+            const modal = document.getElementById('rankingModal');
+            if (e.target == modal) closeRankingModal();
+        }
     </script>
 </body>
 </html>
