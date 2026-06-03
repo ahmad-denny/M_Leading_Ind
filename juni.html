@@ -95,30 +95,37 @@
         .rank-2 { background: #c0c0c0; color: #333; }
         .rank-3 { background: #cd7f32; color: white; }
 
-        /* --- TABLE STICKY COLUMNS --- */
+        /* --- TABLE STICKY COLUMNS & HEADER FIX --- */
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         
         .ranking-table { 
             width: 100%; border-collapse: separate; border-spacing: 0;
             font-size: 0.8rem; min-width: 800px; 
         }
+        
+        /* PERBAIKAN UTAMA: Header Tabel Sticky dengan Background Solid */
         .ranking-table th { 
-            /* PERBAIKAN 1: Background disamakan dengan Branch (--bg) */
-            background: var(--bg); 
-            padding: 10px 6px; text-align: center; 
-            border-bottom: 2px solid var(--border); position: sticky; top: 0; 
-            color: var(--text); white-space: nowrap; z-index: 5;
+            background: var(--bg); /* Warna solid agar tidak tembus pandang */
+            padding: 8px 4px; 
+            text-align: center; 
+            border-bottom: 2px solid var(--border); 
+            position: sticky; 
+            top: 0; /* Menempel di atas container scroll */
+            z-index: 25; /* Z-index lebih tinggi dari kolom sticky kiri */
+            color: var(--text); 
+            white-space: normal; /* Agar text bisa wrap jika perlu */
             
-            /* PERBAIKAN 2: Layout Flex untuk Icon + Prefix */
+            /* Layout Icon + Prefix Vertikal */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 2px;
-            height: 50px; /* Tinggi header disesuaikan */
+            gap: 3px;
+            height: 55px;
         }
+
         .ranking-table td { 
-            padding: 10px 6px; border-bottom: 1px solid var(--border); 
+            padding: 10px 4px; border-bottom: 1px solid var(--border); 
             color: var(--text); text-align: center; white-space: nowrap;
             background: var(--card-bg); 
         }
@@ -126,10 +133,11 @@
         /* Style khusus untuk prefix indikator di header */
         .indicator-prefix {
             font-size: 0.6rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            line-height: 1;
         }
 
         /* 1. Rank Column */
@@ -194,15 +202,15 @@
             /* Perkecil lebar kolom indikator non-sticky di mobile */
             .ranking-table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)),
             .ranking-table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
-                min-width: 38px !important;
-                max-width: 42px !important;
+                min-width: 40px !important;
+                max-width: 45px !important;
                 padding: 8px 2px !important;
                 font-size: 0.65rem !important;
             }
             
             /* Penyesuaian ukuran prefix di mobile */
             .indicator-prefix { font-size: 0.5rem; }
-            .ranking-table th { height: 45px; padding: 6px 2px; }
+            .ranking-table th { height: 48px; padding: 4px 2px; gap: 2px; }
         }
     </style>
 </head>
@@ -528,9 +536,9 @@
                 <th>Total %</th>`;
             
             metrics.forEach(m => { 
-                // PERBAIKAN 2: Menambahkan prefix di bawah icon
+                // PERBAIKAN: Menambahkan prefix di bawah icon dengan layout flex
                 headerHTML += `<th title="${m.label}">
-                    <i class="fas ${m.icon}"></i>
+                    <i class="fas ${m.icon}" style="font-size: 0.9rem;"></i>
                     <span class="indicator-prefix">${m.key.toUpperCase()}</span>
                 </th>`; 
             });
