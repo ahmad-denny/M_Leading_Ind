@@ -95,7 +95,7 @@
         .rank-2 { background: #c0c0c0; color: #333; }
         .rank-3 { background: #cd7f32; color: white; }
 
-                /* --- PERBAIKAN CSS TABEL RANKING --- */
+        /* --- TABLE STICKY COLUMNS & HEADER FIX --- */
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         
         .ranking-table { 
@@ -103,7 +103,7 @@
             font-size: 0.8rem; min-width: 800px; 
         }
         
-        /* PERBAIKAN UTAMA: Header Sticky dengan Background Solid & Layout Div */
+        /* PERBAIKAN UTAMA: Header Tabel Sticky dengan Background Solid */
         .ranking-table th { 
             background: var(--bg); /* Warna solid agar tidak tembus pandang */
             padding: 0; /* Padding diatur di dalam div */
@@ -111,7 +111,7 @@
             border-bottom: 2px solid var(--border); 
             position: sticky; 
             top: 0; 
-            z-index: 25; /* Z-index lebih tinggi dari kolom sticky kiri */
+            z-index: 5; /* Z-index dasar untuk header non-sticky */
             color: var(--text); 
             vertical-align: middle;
             height: 55px;
@@ -144,19 +144,19 @@
             background: var(--card-bg); 
         }
 
-        /* 1. Rank Column */
+        /* 1. Rank Column - Z-Index Tertinggi */
         .ranking-table th:first-child, 
         .ranking-table td:first-child { 
-            position: sticky; left: 0; z-index: 20; 
+            position: sticky; left: 0; z-index: 30; 
             width: var(--col-rank-w); min-width: var(--col-rank-w); max-width: var(--col-rank-w);
             border-right: 1px solid var(--border);
             background: var(--card-bg); 
         }
         
-        /* 2. Branch Name Column */
+        /* 2. Branch Name Column - Z-Index Menengah */
         .ranking-table th:nth-child(2), 
         .ranking-table td:nth-child(2) { 
-            position: sticky; left: var(--col-rank-w); z-index: 15; 
+            position: sticky; left: var(--col-rank-w); z-index: 25; 
             width: var(--col-name-w); min-width: var(--col-name-w); max-width: var(--col-name-w);
             text-align: left !important;
             border-right: 1px solid var(--border);
@@ -164,12 +164,12 @@
             background: var(--card-bg); 
         }
         
-        /* 3. Total Achv % Column */
+        /* 3. Total Achv % Column - Z-Index Terendah di antara sticky */
         .ranking-table th:nth-child(3), 
         .ranking-table td:nth-child(3) {
             position: sticky; 
             left: calc(var(--col-rank-w) + var(--col-name-w)); 
-            z-index: 10;
+            z-index: 20;
             font-weight: bold;
             background: var(--card-bg); 
             border-right: 2px solid var(--primary); 
@@ -181,6 +181,13 @@
         
         /* Responsive Mobile */
         @media (max-width: 600px) {
+            /* PERBAIKAN 1: Filter Muncul di Mobile */
+            .controls { flex-wrap: wrap; flex-direction: column; align-items: stretch; }
+            .filter-group { flex-basis: 100%; flex-direction: column; }
+            .btn { flex: 1; justify-content: center; }
+            
+            .dashboard-grid { grid-template-columns: 1fr; }
+            
             :root {
                 --col-name-w: 100px; 
                 --col-total-w: 45px; 
@@ -198,17 +205,17 @@
                 font-size: 0.65rem;
             }
 
-            /* Perkecil lebar kolom indikator non-sticky di mobile */
+            /* PERBAIKAN 3: Perkecil lebar kolom indikator non-sticky di mobile */
             .ranking-table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)),
             .ranking-table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
-                min-width: 40px !important;
-                max-width: 45px !important;
+                min-width: 36px !important;
+                max-width: 40px !important;
                 padding: 8px 2px !important;
-                font-size: 0.65rem !important;
+                font-size: 0.6rem !important;
             }
             
             /* Penyesuaian ukuran prefix di mobile */
-            .indicator-prefix { font-size: 0.5rem; }
+            .indicator-prefix { font-size: 0.45rem; }
             .ranking-table th { height: 48px; }
             .th-content { padding: 4px 2px; gap: 2px; }
         }
@@ -529,7 +536,7 @@
                 return { ...g, metricVals: mv, totalAchv: totalTgt !== 0 ? (totalMtd/totalTgt*100) : 0 };
             }).sort((a,b) => b.totalAchv - a.totalAchv);
 
-                        // Build Header Dinamis dengan Prefix
+            // Build Header Dinamis dengan Prefix
             let headerHTML = `<tr>
                 <th><div class="th-content">#</div></th>
                 <th><div class="th-content">${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</div></th>
