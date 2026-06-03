@@ -39,7 +39,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; transition: background-color 0.3s, color 0.3s; }
         body { background-color: var(--bg); color: var(--text); padding-bottom: 40px; min-height: 100vh; }
 
-        /* HEADER & CONTROLS (Tetap sama seperti sebelumnya) */
+        /* HEADER & CONTROLS */
         .header { background: linear-gradient(135deg, var(--primary), #2d1b50); color: white; padding: 20px; text-align: center; position: relative; border-radius: 0 0 var(--radius) var(--radius); }
         .header h1 { font-size: 1.4rem; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .header p { font-size: 0.85rem; opacity: 0.9; margin: 2px 0; }
@@ -95,7 +95,7 @@
         .rank-2 { background: #c0c0c0; color: #333; }
         .rank-3 { background: #cd7f32; color: white; }
 
-        /* --- PERBAIKAN UTAMA: TABLE STICKY COLUMNS --- */
+        /* --- TABLE STICKY COLUMNS --- */
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         
         .ranking-table { 
@@ -119,7 +119,7 @@
             position: sticky; left: 0; z-index: 20; 
             width: var(--col-rank-w); min-width: var(--col-rank-w); max-width: var(--col-rank-w);
             border-right: 1px solid var(--border);
-            background: var(--card-bg); /* Wajib solid */
+            background: var(--card-bg); 
         }
         
         /* 2. Branch Name Column */
@@ -130,30 +130,27 @@
             text-align: left !important;
             border-right: 1px solid var(--border);
             overflow: hidden; text-overflow: ellipsis;
-            background: var(--card-bg); /* Wajib solid */
+            background: var(--card-bg); 
         }
         
-        /* 3. Total Achv % Column - PERBAIKAN CLIPPING */
+        /* 3. Total Achv % Column */
         .ranking-table th:nth-child(3), 
         .ranking-table td:nth-child(3) {
             position: sticky; 
-            /* Kalkulasi left berdasarkan dua kolom sebelumnya */
             left: calc(var(--col-rank-w) + var(--col-name-w)); 
             z-index: 10;
             font-weight: bold;
-            background: var(--card-bg); /* Solid background mencegah tembus pandang */
+            background: var(--card-bg); 
             border-right: 2px solid var(--primary); 
             width: var(--col-total-w); min-width: var(--col-total-w); max-width: var(--col-total-w);
             font-size: 0.75rem;
-            /* Box shadow kecil di kanan untuk menegaskan batas sticky */
             box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); 
-            padding-right: 4px !important; /* Padding minimal agar angka muat */
+            padding-right: 4px !important; 
         }
         
-        /* Highlight header Total % */
         .ranking-table th:nth-child(3) { background: rgba(75, 46, 131, 0.08); }
 
-        /* RESPONSIVE MOBILE - PERKECIL LEBAR TOTAL % */
+        /* RESPONSIVE MOBILE - PERKECIL LEBAR INDIKATOR & TOTAL % */
         @media (max-width: 600px) {
             .controls { flex-wrap: wrap; }
             .filter-group { flex-basis: 100%; }
@@ -161,14 +158,13 @@
             .dashboard-grid { grid-template-columns: 1fr; }
             
             :root {
-                --col-name-w: 100px; /* Nama branch lebih pendek di HP */
-                --col-total-w: 45px; /* Total % sangat ringkas di HP */
+                --col-name-w: 100px; 
+                --col-total-w: 45px; 
             }
 
             .ranking-table { font-size: 0.7rem; }
-            .ranking-table th, .ranking-table td { padding: 8px 4px; }
             
-            /* Penyesuaian ulang posisi sticky di mobile via variabel CSS */
+            /* Penyesuaian posisi sticky di mobile */
             .ranking-table th:nth-child(2), .ranking-table td:nth-child(2) { 
                 left: var(--col-rank-w); 
                 width: var(--col-name-w); min-width: var(--col-name-w); max-width: var(--col-name-w);
@@ -177,6 +173,15 @@
                 left: calc(var(--col-rank-w) + var(--col-name-w));
                 width: var(--col-total-w); min-width: var(--col-total-w); max-width: var(--col-total-w);
                 font-size: 0.65rem;
+            }
+
+            /* PERBAIKAN UTAMA: Mengecilkan lebar kolom indikator non-sticky di mobile */
+            .ranking-table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)),
+            .ranking-table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
+                min-width: 38px !important;
+                max-width: 42px !important;
+                padding: 8px 2px !important;
+                font-size: 0.65rem !important;
             }
         }
     </style>
