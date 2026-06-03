@@ -18,6 +18,8 @@
             --success: #28a745;
             --danger: #dc3545;
             --warning: #ffc107;
+            /* Warna khusus untuk Dark Mode Card Title */
+            --card-title-light: #d4c4f0; 
         }
 
         [data-theme="dark"] {
@@ -119,6 +121,7 @@
             align-items: center; 
             margin-bottom: 12px; 
         }
+        /* PERBAIKAN DARK THEME: Menggunakan warna terang untuk judul card */
         .card-title { 
             font-size: 0.95rem; 
             font-weight: bold; 
@@ -127,6 +130,10 @@
             align-items: center; 
             gap: 6px; 
         }
+        [data-theme="dark"] .card-title {
+            color: var(--card-title-light);
+        }
+
         .badge-mtd { 
             font-size: 0.65rem; 
             background: var(--border); 
@@ -221,7 +228,7 @@
         }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* TABLE WRAPPER & STYLING - PERBAIKAN MOBILE */
+        /* TABLE WRAPPER & STYLING - PERBAIKAN MOBILE STICKY */
         .table-wrapper { 
             overflow-x: auto; 
             -webkit-overflow-scrolling: touch; 
@@ -256,7 +263,7 @@
         }
         
         /* Sticky Columns Logic - Mencegah Overlapping */
-        /* Kolom 1: Rank */
+        /* Kolom 1: Rank (#) */
         .ranking-table th:first-child, 
         .ranking-table td:first-child { 
             position: sticky; 
@@ -279,17 +286,18 @@
             border-right: 1px solid var(--border);
         }
         
-        /* Kolom 3: Total Achv % */
+        /* Kolom 3: Total Achv % - Diperkecil Font & Width */
         .ranking-table th:nth-child(3), 
         .ranking-table td:nth-child(3) {
             position: sticky; 
             left: 160px; /* 40px (Rank) + 120px (Branch Max) */
             z-index: 18;
             font-weight: bold;
-            background: rgba(75, 46, 131, 0.08); /* Sedikit lebih gelap untuk penanda */
-            border-right: 2px solid var(--primary); /* Garis pemisah tegas */
+            background: rgba(75, 46, 131, 0.08); 
+            border-right: 2px solid var(--primary); 
             width: 70px;
             min-width: 70px;
+            font-size: 0.75rem; /* Font lebih kecil */
         }
 
         .rank-badge { 
@@ -324,7 +332,7 @@
                 left: 140px; /* 40 + 100 */
                 width: 60px;
                 min-width: 60px;
-                font-size: 0.75rem;
+                font-size: 0.65rem; /* Font jauh lebih kecil di HP */
             }
             
             /* Font lebih kecil di mobile */
@@ -669,7 +677,7 @@
                 let rowHTML = `<tr>
                     <td><span class="${badgeClass}">${rank}</span></td>
                     <td><strong>${r.name}</strong><br><small style="color:var(--text-muted)">${r.sub}</small></td>
-                    <td style="color:${totalColor}; font-size:0.85rem;">${r.totalAchv.toFixed(1)}%</td>`;
+                    <td style="color:${totalColor}; font-size:0.75rem;">${r.totalAchv.toFixed(1)}%</td>`;
                 
                 metrics.forEach(m => {
                     const v = r.metricVals[m.key];
