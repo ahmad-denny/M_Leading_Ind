@@ -19,6 +19,11 @@
             --danger: #dc3545;
             --warning: #ffc107;
             --card-title-light: #d4c4f0; 
+            
+            /* Variabel Lebar Kolom Sticky untuk Perhitungan Presisi */
+            --col-rank-w: 40px;
+            --col-name-w: 120px; /* Desktop default */
+            --col-total-w: 60px; /* Desktop default */
         }
 
         [data-theme="dark"] {
@@ -34,122 +39,63 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; transition: background-color 0.3s, color 0.3s; }
         body { background-color: var(--bg); color: var(--text); padding-bottom: 40px; min-height: 100vh; }
 
-        /* HEADER */
-        .header { 
-            background: linear-gradient(135deg, var(--primary), #2d1b50); 
-            color: white; 
-            padding: 20px; 
-            text-align: center; 
-            position: relative;
-            border-radius: 0 0 var(--radius) var(--radius); 
-        }
+        /* HEADER & CONTROLS (Tetap sama seperti sebelumnya) */
+        .header { background: linear-gradient(135deg, var(--primary), #2d1b50); color: white; padding: 20px; text-align: center; position: relative; border-radius: 0 0 var(--radius) var(--radius); }
         .header h1 { font-size: 1.4rem; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .header p { font-size: 0.85rem; opacity: 0.9; margin: 2px 0; }
-        
-        .theme-toggle {
-            position: absolute; top: 15px; right: 15px;
-            background: rgba(255,255,255,0.2); border: none; color: white;
-            width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 1rem;
-        }
+        .theme-toggle { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
         .theme-toggle:hover { background: rgba(255,255,255,0.3); }
-
-        /* CONTROLS */
-        .controls { 
-            display: flex; 
-            align-items: center; 
-            padding: 15px 20px; 
-            background: var(--card-bg); 
-            margin: 15px 20px; 
-            border-radius: var(--radius); 
-            box-shadow: var(--shadow); 
-            gap: 10px; 
-        }
-        .filter-group { display: flex; gap: 10px; flex: 1; min-width: 0; }
-        select { 
-            padding: 8px 12px; border: 1px solid var(--border); 
-            border-radius: 4px; flex: 1; background: var(--card-bg); 
-            color: var(--text); min-width: 0;
-        }
         
-        .btn { 
-            padding: 8px 16px; border: none; border-radius: 4px; 
-            cursor: pointer; font-weight: 600; font-size: 0.85rem; 
-            display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; 
-        }
+        .controls { display: flex; align-items: center; padding: 15px 20px; background: var(--card-bg); margin: 15px 20px; border-radius: var(--radius); box-shadow: var(--shadow); gap: 10px; }
+        .filter-group { display: flex; gap: 10px; flex: 1; min-width: 0; }
+        select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; flex: 1; background: var(--card-bg); color: var(--text); min-width: 0; }
+        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
         .btn-reset { background: var(--text-muted); color: white; }
         .btn-ranking { background: var(--warning); color: #333; }
         .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        /* DASHBOARD GRID */
-        .dashboard-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
-            gap: 15px; padding: 0 20px; 
-        }
-
-        .card { 
-            background: var(--card-bg); padding: 16px; 
-            border-radius: var(--radius); box-shadow: var(--shadow); 
-            border-top: 4px solid var(--primary); display: flex; flex-direction: column;
-        }
+        /* DASHBOARD GRID & CARDS */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; padding: 0 20px; }
+        .card { background: var(--card-bg); padding: 16px; border-radius: var(--radius); box-shadow: var(--shadow); border-top: 4px solid var(--primary); display: flex; flex-direction: column; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        
-        /* PERBAIKAN DARK THEME CARD TITLE */
-        .card-title { 
-            font-size: 0.95rem; font-weight: bold; 
-            color: var(--primary); display: flex; align-items: center; gap: 6px; 
-        }
+        .card-title { font-size: 0.95rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 6px; }
         [data-theme="dark"] .card-title { color: var(--card-title-light); }
-
         .badge-mtd { font-size: 0.65rem; background: var(--border); padding: 2px 6px; border-radius: 4px; color: var(--text-muted); }
-        
         .metric-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px; color: var(--text-muted); }
         .metric-val { font-weight: 600; color: var(--text); }
         .metric-val.neg { color: var(--danger); }
         .metric-val.pos { color: var(--success); }
-
         .achievement-box { margin-top: auto; text-align: center; padding-top: 10px; border-top: 1px dashed var(--border); }
         .achv-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 3px; }
         .achv-val { font-size: 1.3rem; font-weight: bold; margin-bottom: 6px; }
         .achv-val.red { color: var(--danger); }
         .achv-val.green { color: var(--success); }
-        
         .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; width: 100%; }
         .progress-fill { height: 100%; background: var(--primary); transition: width 0.5s ease; }
         .progress-fill.over { background: var(--success); }
         .progress-fill.under { background: var(--danger); }
+        .footer { text-align: center; padding: 20px; font-size: 0.75rem; color: var(--text-muted); margin-top: 20px; }
 
         /* MODAL RANKING */
-        .modal-overlay { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; 
-        }
-        .modal-content { 
-            background: var(--card-bg); width: 95%; max-width: 950px; 
-            max-height: 90vh; border-radius: var(--radius); overflow: hidden; 
-            display: flex; flex-direction: column; animation: slideUp 0.3s ease; color: var(--text);
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: var(--card-bg); width: 95%; max-width: 950px; max-height: 90vh; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; animation: slideUp 0.3s ease; color: var(--text); }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
         .modal-header { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
         .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
-
         .ranking-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; align-items: center; }
         .tab-btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        
-        /* Tombol Kembali Drill-down */
-        .btn-back-drill { 
-            padding: 6px 12px; border: 1px solid var(--primary); 
-            background: transparent; color: var(--primary); 
-            border-radius: 4px; cursor: pointer; font-size: 0.8rem; 
-            margin-left: auto; display: none; align-items: center; gap: 5px;
-        }
-        .btn-back-drill:hover { background: rgba(75, 46, 131, 0.1); }
+        .btn-back-drill { padding: 6px 12px; border: 1px solid var(--primary); background: transparent; color: var(--primary); border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-left: auto; display: none; align-items: center; gap: 5px; }
+        .clickable-co { color: var(--primary); text-decoration: underline dotted; cursor: pointer; transition: 0.2s; }
+        .clickable-co:hover { color: var(--warning); background: rgba(255, 193, 7, 0.1); }
+        [data-theme="dark"] .clickable-co { color: var(--card-title-light); }
+        .rank-badge { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%; font-weight: bold; font-size: 0.7rem; background: var(--border); }
+        .rank-1 { background: #ffd700; color: #333; }
+        .rank-2 { background: #c0c0c0; color: #333; }
+        .rank-3 { background: #cd7f32; color: white; }
 
-        /* TABLE WRAPPER & STYLING - PERBAIKAN CLIPPING & WIDTH */
+        /* --- PERBAIKAN UTAMA: TABLE STICKY COLUMNS --- */
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         
         .ranking-table { 
@@ -159,93 +105,79 @@
         .ranking-table th { 
             background: var(--bg); padding: 10px 6px; text-align: center; 
             border-bottom: 2px solid var(--border); position: sticky; top: 0; 
-            color: var(--text); white-space: nowrap; z-index: 10;
+            color: var(--text); white-space: nowrap; z-index: 5;
         }
         .ranking-table td { 
             padding: 10px 6px; border-bottom: 1px solid var(--border); 
             color: var(--text); text-align: center; white-space: nowrap;
             background: var(--card-bg); 
         }
-        
-        /* Sticky Columns Logic - STACKED LEFT:0 DENGAN PADDING AMAN */
-        
-        /* 1. Rank (#) - Z-Index Tertinggi */
+
+        /* 1. Rank Column */
         .ranking-table th:first-child, 
         .ranking-table td:first-child { 
-            position: sticky; left: 0; z-index: 30; 
-            width: 40px; min-width: 40px; max-width: 40px;
+            position: sticky; left: 0; z-index: 20; 
+            width: var(--col-rank-w); min-width: var(--col-rank-w); max-width: var(--col-rank-w);
             border-right: 1px solid var(--border);
+            background: var(--card-bg); /* Wajib solid */
         }
         
-        /* 2. Branch Name - Z-Index Menengah */
+        /* 2. Branch Name Column */
         .ranking-table th:nth-child(2), 
         .ranking-table td:nth-child(2) { 
-            position: sticky; left: 0; z-index: 20; 
-            min-width: 120px; max-width: 150px;
+            position: sticky; left: var(--col-rank-w); z-index: 15; 
+            width: var(--col-name-w); min-width: var(--col-name-w); max-width: var(--col-name-w);
             text-align: left !important;
             border-right: 1px solid var(--border);
             overflow: hidden; text-overflow: ellipsis;
+            background: var(--card-bg); /* Wajib solid */
         }
         
-        /* 3. Total Achv % - Z-Index Terendah di antara sticky */
-        /* PERBAIKAN: Padding kanan diperbesar agar teks tidak mepet garis batas */
+        /* 3. Total Achv % Column - PERBAIKAN CLIPPING */
         .ranking-table th:nth-child(3), 
         .ranking-table td:nth-child(3) {
-            position: sticky; left: 0; z-index: 10;
+            position: sticky; 
+            /* Kalkulasi left berdasarkan dua kolom sebelumnya */
+            left: calc(var(--col-rank-w) + var(--col-name-w)); 
+            z-index: 10;
             font-weight: bold;
-            /* Background solid wajib agar konten scroll tidak terlihat tembus */
-            background: var(--card-bg); 
+            background: var(--card-bg); /* Solid background mencegah tembus pandang */
             border-right: 2px solid var(--primary); 
-            /* Lebar diperkecil sesuai request */
-            min-width: 60px; max-width: 70px;
+            width: var(--col-total-w); min-width: var(--col-total-w); max-width: var(--col-total-w);
             font-size: 0.75rem;
-            /* Padding kanan ekstra mencegah clipping visual */
-            padding-right: 12px !important; 
+            /* Box shadow kecil di kanan untuk menegaskan batas sticky */
+            box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); 
+            padding-right: 4px !important; /* Padding minimal agar angka muat */
         }
         
-        /* Highlight background khusus header Total % */
-        .ranking-table th:nth-child(3) {
-            background: rgba(75, 46, 131, 0.08);
-        }
+        /* Highlight header Total % */
+        .ranking-table th:nth-child(3) { background: rgba(75, 46, 131, 0.08); }
 
-        /* Style khusus untuk nama Co-Branch yang bisa diklik */
-        .clickable-co { 
-            color: var(--primary); 
-            text-decoration: underline dotted; 
-            cursor: pointer; 
-            transition: 0.2s;
-        }
-        .clickable-co:hover { color: var(--warning); background: rgba(255, 193, 7, 0.1); }
-        [data-theme="dark"] .clickable-co { color: var(--card-title-light); }
-
-        .rank-badge { 
-            display: inline-block; width: 22px; height: 22px; 
-            line-height: 22px; text-align: center; border-radius: 50%; 
-            font-weight: bold; font-size: 0.7rem; background: var(--border); 
-        }
-        .rank-1 { background: #ffd700; color: #333; }
-        .rank-2 { background: #c0c0c0; color: #333; }
-        .rank-3 { background: #cd7f32; color: white; }
-
-        .footer { text-align: center; padding: 20px; font-size: 0.75rem; color: var(--text-muted); margin-top: 20px; }
-
+        /* RESPONSIVE MOBILE - PERKECIL LEBAR TOTAL % */
         @media (max-width: 600px) {
             .controls { flex-wrap: wrap; }
             .filter-group { flex-basis: 100%; }
             .btn { flex: 1; justify-content: center; }
             .dashboard-grid { grid-template-columns: 1fr; }
             
-            .ranking-table th:nth-child(2), .ranking-table td:nth-child(2) { 
-                min-width: 100px; max-width: 120px;
+            :root {
+                --col-name-w: 100px; /* Nama branch lebih pendek di HP */
+                --col-total-w: 45px; /* Total % sangat ringkas di HP */
             }
-            .ranking-table th:nth-child(3), .ranking-table td:nth-child(3) {
-                min-width: 50px; max-width: 55px;
-                font-size: 0.65rem;
-                padding-right: 8px !important; /* Penyesuaian padding di HP */
-            }
-            
+
             .ranking-table { font-size: 0.7rem; }
             .ranking-table th, .ranking-table td { padding: 8px 4px; }
+            
+            /* Penyesuaian ulang posisi sticky di mobile via variabel CSS */
+            .ranking-table th:nth-child(2), .ranking-table td:nth-child(2) { 
+                left: var(--col-rank-w); 
+                width: var(--col-name-w); min-width: var(--col-name-w); max-width: var(--col-name-w);
+            }
+            .ranking-table th:nth-child(3), .ranking-table td:nth-child(3) {
+                left: calc(var(--col-rank-w) + var(--col-name-w));
+                width: var(--col-total-w); min-width: var(--col-total-w); max-width: var(--col-total-w);
+                font-size: 0.65rem;
+            }
         }
     </style>
 </head>
@@ -284,7 +216,7 @@
 
     <!-- FOOTER -->
     <div class="footer">
-         Update data di bagian script HTML | 📱 Optimized for Mobile & Web | Theme: Light/Dark | Made by Love - RBPM
+         Update data di bagian script HTML |  Optimized for Mobile & Web | Theme: Light/Dark | Made by Love - RBPM
     </div>
 
     <!-- MODAL RANKING -->
@@ -330,7 +262,7 @@
 
         let rawData = [];
         let currentRankingMode = 'all';
-        let drillDownCo = null; // Menyimpan Co-Branch yang sedang di-drill down
+        let drillDownCo = null; 
 
         window.onload = async function() {
             initTheme();
@@ -467,8 +399,8 @@
         // --- LOGIKA RANKING & DRILL-DOWN ---
         function openRankingModal() {
             document.getElementById('rankingModal').style.display = 'flex';
-            drillDownCo = null; // Reset drill down saat modal dibuka ulang
-            setRankingTab('all', document.getElementById('tabAll')); // Default ke Semua Branch
+            drillDownCo = null; 
+            setRankingTab('all', document.getElementById('tabAll')); 
         }
         
         function closeRankingModal() { 
@@ -478,7 +410,7 @@
 
         function setRankingTab(mode, btn) {
             currentRankingMode = mode;
-            drillDownCo = null; // Reset drill down jika ganti tab utama
+            drillDownCo = null; 
             
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
@@ -494,12 +426,10 @@
             if (drillDownCo) {
                 btnBack.style.display = 'inline-flex';
                 title.innerHTML = `<i class="fas fa-chart-bar"></i> Ranking: ${drillDownCo}`;
-                // Nonaktifkan tab visual karena kita dalam mode drill-down
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             } else {
                 btnBack.style.display = 'none';
                 title.innerHTML = `<i class="fas fa-chart-bar"></i> Ranking Performance Detail`;
-                // Aktifkan tab yang sesuai
                 if(currentRankingMode === 'all') document.getElementById('tabAll').classList.add('active');
                 else document.getElementById('tabCo').classList.add('active');
             }
@@ -542,16 +472,12 @@
             let groupedData = [];
             let isDrillDown = !!drillDownCo;
 
-            // Logika Pengelompokan Data
             if (isDrillDown) {
-                // Mode Drill Down: Tampilkan branch di bawah Co-Branch terpilih
                 const filteredRaw = rawData.filter(d => d['co'] === drillDownCo);
                 groupedData = filteredRaw.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
             } else if (currentRankingMode === 'all') {
-                // Mode Semua Branch
                 groupedData = rawData.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
             } else if (currentRankingMode === 'co') {
-                // Mode Per Co-Branch (Agregasi)
                 const coMap = {};
                 rawData.forEach(d => {
                     if (!coMap[d['co']]) coMap[d['co']] = { mtd: {}, tgt: {} };
@@ -563,7 +489,6 @@
                 groupedData = Object.keys(coMap).map(co => ({ name: co, sub: '', data: coMap[co], isAgg: true }));
             }
 
-            // Hitung Total Achievement & Sort
             const ranked = groupedData.map(g => {
                 const mv = getMetricValues(g.data, g.isAgg);
                 let totalMtd = 0, totalTgt = 0;
@@ -571,7 +496,6 @@
                 return { ...g, metricVals: mv, totalAchv: totalTgt !== 0 ? (totalMtd/totalTgt*100) : 0 };
             }).sort((a,b) => b.totalAchv - a.totalAchv);
 
-            // Build Header Dinamis
             let headerHTML = `<tr>
                 <th>#</th>
                 <th>${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</th>
@@ -580,7 +504,6 @@
             headerHTML += `</tr>`;
             thead.innerHTML = headerHTML;
 
-            // Build Body
             tbody.innerHTML = '';
             ranked.forEach((r, i) => {
                 const rank = i + 1;
@@ -591,7 +514,6 @@
 
                 const totalColor = r.totalAchv >= 100 ? 'var(--success)' : 'var(--danger)';
                 
-                // Cek apakah nama harus bisa diklik (hanya di mode Per Co-Branch)
                 let nameHtml = `<strong>${r.name}</strong>`;
                 if (!isDrillDown && currentRankingMode === 'co') {
                     nameHtml = `<span class="clickable-co" onclick="triggerDrillDown('${r.name}')"><strong>${r.name}</strong></span>`;
