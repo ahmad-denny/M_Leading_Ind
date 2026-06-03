@@ -136,11 +136,20 @@
         .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
         .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
 
-        .ranking-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .ranking-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; align-items: center; }
         .tab-btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        /* Tombol Kembali Drill-down */
+        .btn-back-drill { 
+            padding: 6px 12px; border: 1px solid var(--primary); 
+            background: transparent; color: var(--primary); 
+            border-radius: 4px; cursor: pointer; font-size: 0.8rem; 
+            margin-left: auto; display: none; align-items: center; gap: 5px;
+        }
+        .btn-back-drill:hover { background: rgba(75, 46, 131, 0.1); }
 
-        /* TABLE WRAPPER & STYLING - PERBAIKAN TOTAL % FREEZE */
+        /* TABLE WRAPPER & STYLING - PERBAIKAN STICKY TANPA OVERLAP */
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         
         .ranking-table { 
@@ -158,36 +167,46 @@
             background: var(--card-bg); 
         }
         
-        /* Sticky Columns Logic - FIXED WIDTH UNTUK AKURASI POSISI */
+        /* Sticky Columns Logic - STACKED LEFT:0 */
         
-        /* 1. Rank (#) - Lebar Tetap 40px */
+        /* 1. Rank (#) - Z-Index Tertinggi */
         .ranking-table th:first-child, 
         .ranking-table td:first-child { 
-            position: sticky; left: 0; z-index: 20; 
+            position: sticky; left: 0; z-index: 30; 
             width: 40px; min-width: 40px; max-width: 40px;
             border-right: 1px solid var(--border);
         }
         
-        /* 2. Branch Name - Lebar Tetap 120px (Desktop) / 100px (Mobile) */
+        /* 2. Branch Name - Z-Index Menengah */
         .ranking-table th:nth-child(2), 
         .ranking-table td:nth-child(2) { 
-            position: sticky; left: 40px; z-index: 19; 
-            width: 120px; min-width: 120px; max-width: 120px;
+            position: sticky; left: 0; z-index: 20; 
+            min-width: 120px; max-width: 150px;
             text-align: left !important;
             border-right: 1px solid var(--border);
             overflow: hidden; text-overflow: ellipsis;
         }
         
-        /* 3. Total Achv % - Sticky di 160px (40+120) Desktop / 140px Mobile */
+        /* 3. Total Achv % - Z-Index Terendah di antara sticky */
         .ranking-table th:nth-child(3), 
         .ranking-table td:nth-child(3) {
-            position: sticky; left: 160px; z-index: 18;
+            position: sticky; left: 0; z-index: 10;
             font-weight: bold;
             background: rgba(75, 46, 131, 0.08); 
             border-right: 2px solid var(--primary); 
-            width: 70px; min-width: 70px; max-width: 70px;
+            min-width: 55px; max-width: 65px;
             font-size: 0.75rem;
         }
+
+        /* Style khusus untuk nama Co-Branch yang bisa diklik */
+        .clickable-co { 
+            color: var(--primary); 
+            text-decoration: underline dotted; 
+            cursor: pointer; 
+            transition: 0.2s;
+        }
+        .clickable-co:hover { color: var(--warning); background: rgba(255, 193, 7, 0.1); }
+        [data-theme="dark"] .clickable-co { color: var(--card-title-light); }
 
         .rank-badge { 
             display: inline-block; width: 22px; height: 22px; 
@@ -206,13 +225,11 @@
             .btn { flex: 1; justify-content: center; }
             .dashboard-grid { grid-template-columns: 1fr; }
             
-            /* Penyesuaian Mobile Sticky Left */
             .ranking-table th:nth-child(2), .ranking-table td:nth-child(2) { 
-                left: 40px; width: 100px; min-width: 100px; max-width: 100px;
+                min-width: 100px; max-width: 120px;
             }
             .ranking-table th:nth-child(3), .ranking-table td:nth-child(3) {
-                left: 140px; /* 40 + 100 */
-                width: 60px; min-width: 60px; max-width: 60px;
+                min-width: 50px; max-width: 55px;
                 font-size: 0.65rem;
             }
             
@@ -229,8 +246,8 @@
             <i class="fas fa-moon" id="themeIcon"></i>
         </button>
         <h1><i class="fas fa-university"></i> Bank Muamalat</h1>
-        <p>Leading Indicator Dashboard 📍 Region Sumatera</p>
-        <p>📅 Per: Juni 2026 | 📆 Hari Kerja: 20</p>
+        <p>Leading Indicator Dashboard  Region Sumatera</p>
+        <p> Per: Juni 2026 |  Hari Kerja: 20</p>
     </div>
 
     <!-- CONTROLS -->
@@ -263,13 +280,16 @@
     <div id="rankingModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-chart-bar"></i> Ranking Performance Detail</h3>
+                <h3 id="modalTitle"><i class="fas fa-chart-bar"></i> Ranking Performance Detail</h3>
                 <button class="close-btn" onclick="closeRankingModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="ranking-tabs">
-                    <button class="tab-btn active" onclick="setRankingTab('all', this)">Semua Branch</button>
-                    <button class="tab-btn" onclick="setRankingTab('co', this)">Per Co-Branch</button>
+                    <button class="tab-btn active" id="tabAll" onclick="setRankingTab('all', this)">Semua Branch</button>
+                    <button class="tab-btn" id="tabCo" onclick="setRankingTab('co', this)">Per Co-Branch</button>
+                    <button class="btn-back-drill" id="btnBackDrill" onclick="backToCoList()">
+                        <i class="fas fa-arrow-left"></i> Kembali ke Co-Branch
+                    </button>
                 </div>
                 <div class="table-wrapper">
                     <table class="ranking-table" id="rankingTable">
@@ -299,6 +319,7 @@
 
         let rawData = [];
         let currentRankingMode = 'all';
+        let drillDownCo = null; // Menyimpan Co-Branch yang sedang di-drill down
 
         window.onload = async function() {
             initTheme();
@@ -432,15 +453,57 @@
             });
         }
 
+        // --- LOGIKA RANKING & DRILL-DOWN ---
         function openRankingModal() {
             document.getElementById('rankingModal').style.display = 'flex';
-            renderRanking();
+            drillDownCo = null; // Reset drill down saat modal dibuka ulang
+            setRankingTab('all', document.getElementById('tabAll')); // Default ke Semua Branch
         }
-        function closeRankingModal() { document.getElementById('rankingModal').style.display = 'none'; }
+        
+        function closeRankingModal() { 
+            document.getElementById('rankingModal').style.display = 'none'; 
+            drillDownCo = null;
+        }
+
         function setRankingTab(mode, btn) {
             currentRankingMode = mode;
+            drillDownCo = null; // Reset drill down jika ganti tab utama
+            
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if(btn) btn.classList.add('active');
+            
+            updateDrillDownUI();
+            renderRanking();
+        }
+
+        function updateDrillDownUI() {
+            const btnBack = document.getElementById('btnBackDrill');
+            const title = document.getElementById('modalTitle');
+            
+            if (drillDownCo) {
+                btnBack.style.display = 'inline-flex';
+                title.innerHTML = `<i class="fas fa-chart-bar"></i> Ranking: ${drillDownCo}`;
+                // Nonaktifkan tab visual karena kita dalam mode drill-down
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            } else {
+                btnBack.style.display = 'none';
+                title.innerHTML = `<i class="fas fa-chart-bar"></i> Ranking Performance Detail`;
+                // Aktifkan tab yang sesuai
+                if(currentRankingMode === 'all') document.getElementById('tabAll').classList.add('active');
+                else document.getElementById('tabCo').classList.add('active');
+            }
+        }
+
+        function backToCoList() {
+            drillDownCo = null;
+            currentRankingMode = 'co';
+            updateDrillDownUI();
+            renderRanking();
+        }
+
+        function triggerDrillDown(coName) {
+            drillDownCo = coName;
+            updateDrillDownUI();
             renderRanking();
         }
 
@@ -466,9 +529,18 @@
             tbody.innerHTML = '<tr><td colspan="100%" style="text-align:center;">Memproses...</td></tr>';
 
             let groupedData = [];
-            if (currentRankingMode === 'all') {
+            let isDrillDown = !!drillDownCo;
+
+            // Logika Pengelompokan Data
+            if (isDrillDown) {
+                // Mode Drill Down: Tampilkan branch di bawah Co-Branch terpilih
+                const filteredRaw = rawData.filter(d => d['co'] === drillDownCo);
+                groupedData = filteredRaw.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
+            } else if (currentRankingMode === 'all') {
+                // Mode Semua Branch
                 groupedData = rawData.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
             } else if (currentRankingMode === 'co') {
+                // Mode Per Co-Branch (Agregasi)
                 const coMap = {};
                 rawData.forEach(d => {
                     if (!coMap[d['co']]) coMap[d['co']] = { mtd: {}, tgt: {} };
@@ -480,6 +552,7 @@
                 groupedData = Object.keys(coMap).map(co => ({ name: co, sub: '', data: coMap[co], isAgg: true }));
             }
 
+            // Hitung Total Achievement & Sort
             const ranked = groupedData.map(g => {
                 const mv = getMetricValues(g.data, g.isAgg);
                 let totalMtd = 0, totalTgt = 0;
@@ -487,14 +560,16 @@
                 return { ...g, metricVals: mv, totalAchv: totalTgt !== 0 ? (totalMtd/totalTgt*100) : 0 };
             }).sort((a,b) => b.totalAchv - a.totalAchv);
 
+            // Build Header Dinamis
             let headerHTML = `<tr>
                 <th>#</th>
-                <th>${currentRankingMode === 'co' ? 'Co-Branch' : 'Branch'}</th>
+                <th>${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</th>
                 <th>Total %</th>`;
             metrics.forEach(m => { headerHTML += `<th title="${m.label}"><i class="fas ${m.icon}"></i></th>`; });
             headerHTML += `</tr>`;
             thead.innerHTML = headerHTML;
 
+            // Build Body
             tbody.innerHTML = '';
             ranked.forEach((r, i) => {
                 const rank = i + 1;
@@ -505,9 +580,15 @@
 
                 const totalColor = r.totalAchv >= 100 ? 'var(--success)' : 'var(--danger)';
                 
+                // Cek apakah nama harus bisa diklik (hanya di mode Per Co-Branch)
+                let nameHtml = `<strong>${r.name}</strong>`;
+                if (!isDrillDown && currentRankingMode === 'co') {
+                    nameHtml = `<span class="clickable-co" onclick="triggerDrillDown('${r.name}')"><strong>${r.name}</strong></span>`;
+                }
+
                 let rowHTML = `<tr>
                     <td><span class="${badgeClass}">${rank}</span></td>
-                    <td><strong>${r.name}</strong><br><small style="color:var(--text-muted)">${r.sub}</small></td>
+                    <td>${nameHtml}<br><small style="color:var(--text-muted)">${r.sub}</small></td>
                     <td style="color:${totalColor}; font-size:0.75rem;">${r.totalAchv.toFixed(1)}%</td>`;
                 
                 metrics.forEach(m => {
