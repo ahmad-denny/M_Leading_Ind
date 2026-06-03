@@ -18,7 +18,6 @@
             --success: #28a745;
             --danger: #dc3545;
             --warning: #ffc107;
-            /* Warna khusus untuk Dark Mode Card Title */
             --card-title-light: #d4c4f0; 
         }
 
@@ -66,33 +65,17 @@
             box-shadow: var(--shadow); 
             gap: 10px; 
         }
-        .filter-group { 
-            display: flex; 
-            gap: 10px; 
-            flex: 1; 
-            min-width: 0; 
-        }
+        .filter-group { display: flex; gap: 10px; flex: 1; min-width: 0; }
         select { 
-            padding: 8px 12px; 
-            border: 1px solid var(--border); 
-            border-radius: 4px; 
-            flex: 1; 
-            background: var(--card-bg); 
-            color: var(--text);
-            min-width: 0;
+            padding: 8px 12px; border: 1px solid var(--border); 
+            border-radius: 4px; flex: 1; background: var(--card-bg); 
+            color: var(--text); min-width: 0;
         }
         
         .btn { 
-            padding: 8px 16px; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-weight: 600; 
-            font-size: 0.85rem; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px;
-            white-space: nowrap; 
+            padding: 8px 16px; border: none; border-radius: 4px; 
+            cursor: pointer; font-weight: 600; font-size: 0.85rem; 
+            display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; 
         }
         .btn-reset { background: var(--text-muted); color: white; }
         .btn-ranking { background: var(--warning); color: #333; }
@@ -102,213 +85,114 @@
         .dashboard-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
-            gap: 15px; 
-            padding: 0 20px; 
+            gap: 15px; padding: 0 20px; 
         }
 
         .card { 
-            background: var(--card-bg); 
-            padding: 16px; 
-            border-radius: var(--radius); 
-            box-shadow: var(--shadow); 
-            border-top: 4px solid var(--primary); 
-            display: flex; 
-            flex-direction: column;
+            background: var(--card-bg); padding: 16px; 
+            border-radius: var(--radius); box-shadow: var(--shadow); 
+            border-top: 4px solid var(--primary); display: flex; flex-direction: column;
         }
-        .card-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 12px; 
-        }
-        /* PERBAIKAN DARK THEME: Menggunakan warna terang untuk judul card */
-        .card-title { 
-            font-size: 0.95rem; 
-            font-weight: bold; 
-            color: var(--primary); 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-        }
-        [data-theme="dark"] .card-title {
-            color: var(--card-title-light);
-        }
-
-        .badge-mtd { 
-            font-size: 0.65rem; 
-            background: var(--border); 
-            padding: 2px 6px; 
-            border-radius: 4px; 
-            color: var(--text-muted); 
-        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         
-        .metric-row { 
-            display: flex; 
-            justify-content: space-between; 
-            font-size: 0.8rem; 
-            margin-bottom: 6px; 
-            color: var(--text-muted); 
+        /* PERBAIKAN DARK THEME CARD TITLE */
+        .card-title { 
+            font-size: 0.95rem; font-weight: bold; 
+            color: var(--primary); display: flex; align-items: center; gap: 6px; 
         }
+        [data-theme="dark"] .card-title { color: var(--card-title-light); }
+
+        .badge-mtd { font-size: 0.65rem; background: var(--border); padding: 2px 6px; border-radius: 4px; color: var(--text-muted); }
+        
+        .metric-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px; color: var(--text-muted); }
         .metric-val { font-weight: 600; color: var(--text); }
         .metric-val.neg { color: var(--danger); }
         .metric-val.pos { color: var(--success); }
 
-        .achievement-box { 
-            margin-top: auto; 
-            text-align: center; 
-            padding-top: 10px; 
-            border-top: 1px dashed var(--border); 
-        }
+        .achievement-box { margin-top: auto; text-align: center; padding-top: 10px; border-top: 1px dashed var(--border); }
         .achv-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 3px; }
         .achv-val { font-size: 1.3rem; font-weight: bold; margin-bottom: 6px; }
         .achv-val.red { color: var(--danger); }
         .achv-val.green { color: var(--success); }
         
-        .progress-bar { 
-            height: 6px; 
-            background: var(--border); 
-            border-radius: 3px; 
-            overflow: hidden; 
-            width: 100%; 
-        }
+        .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; width: 100%; }
         .progress-fill { height: 100%; background: var(--primary); transition: width 0.5s ease; }
         .progress-fill.over { background: var(--success); }
         .progress-fill.under { background: var(--danger); }
 
         /* MODAL RANKING */
         .modal-overlay { 
-            display: none; 
-            position: fixed; 
-            top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.6); 
-            z-index: 1000; 
-            justify-content: center; 
-            align-items: center; 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; 
         }
         .modal-content { 
-            background: var(--card-bg); 
-            width: 95%; 
-            max-width: 950px; 
-            max-height: 90vh; 
-            border-radius: var(--radius); 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-            animation: slideUp 0.3s ease; 
-            color: var(--text);
+            background: var(--card-bg); width: 95%; max-width: 950px; 
+            max-height: 90vh; border-radius: var(--radius); overflow: hidden; 
+            display: flex; flex-direction: column; animation: slideUp 0.3s ease; color: var(--text);
         }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        .modal-header { 
-            background: var(--primary); 
-            color: white; 
-            padding: 15px 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-        }
+        .modal-header { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
         .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
 
-        .ranking-tabs { 
-            display: flex; 
-            gap: 10px; 
-            margin-bottom: 15px; 
-            border-bottom: 1px solid var(--border); 
-            padding-bottom: 10px; 
-        }
-        .tab-btn { 
-            padding: 6px 12px; 
-            border: 1px solid var(--border); 
-            background: var(--card-bg); 
-            color: var(--text); 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-size: 0.8rem; 
-        }
+        .ranking-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .tab-btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* TABLE WRAPPER & STYLING - PERBAIKAN MOBILE STICKY */
-        .table-wrapper { 
-            overflow-x: auto; 
-            -webkit-overflow-scrolling: touch; 
-            width: 100%;
-        }
+        /* TABLE WRAPPER & STYLING - PERBAIKAN TOTAL % FREEZE */
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         
         .ranking-table { 
-            width: 100%; 
-            border-collapse: separate; /* Penting untuk sticky border */
-            border-spacing: 0;
-            font-size: 0.8rem; 
-            min-width: 800px; 
+            width: 100%; border-collapse: separate; border-spacing: 0;
+            font-size: 0.8rem; min-width: 800px; 
         }
         .ranking-table th { 
-            background: var(--bg); 
-            padding: 10px 6px; 
-            text-align: center; 
-            border-bottom: 2px solid var(--border); 
-            position: sticky; 
-            top: 0; 
-            color: var(--text);
-            white-space: nowrap;
-            z-index: 10;
+            background: var(--bg); padding: 10px 6px; text-align: center; 
+            border-bottom: 2px solid var(--border); position: sticky; top: 0; 
+            color: var(--text); white-space: nowrap; z-index: 10;
         }
         .ranking-table td { 
-            padding: 10px 6px; 
-            border-bottom: 1px solid var(--border); 
-            color: var(--text); 
-            text-align: center;
-            white-space: nowrap;
-            background: var(--card-bg); /* Wajib agar tidak transparan saat scroll */
+            padding: 10px 6px; border-bottom: 1px solid var(--border); 
+            color: var(--text); text-align: center; white-space: nowrap;
+            background: var(--card-bg); 
         }
         
-        /* Sticky Columns Logic - Mencegah Overlapping */
-        /* Kolom 1: Rank (#) */
+        /* Sticky Columns Logic - FIXED WIDTH UNTUK AKURASI POSISI */
+        
+        /* 1. Rank (#) - Lebar Tetap 40px */
         .ranking-table th:first-child, 
         .ranking-table td:first-child { 
-            position: sticky; 
-            left: 0; 
-            z-index: 20; 
-            width: 40px; 
-            min-width: 40px;
+            position: sticky; left: 0; z-index: 20; 
+            width: 40px; min-width: 40px; max-width: 40px;
             border-right: 1px solid var(--border);
         }
         
-        /* Kolom 2: Branch Name */
+        /* 2. Branch Name - Lebar Tetap 120px (Desktop) / 100px (Mobile) */
         .ranking-table th:nth-child(2), 
         .ranking-table td:nth-child(2) { 
-            position: sticky; 
-            left: 40px; /* Sesuai lebar kolom Rank */
-            z-index: 19; 
-            max-width: 120px; 
-            min-width: 100px;
+            position: sticky; left: 40px; z-index: 19; 
+            width: 120px; min-width: 120px; max-width: 120px;
             text-align: left !important;
             border-right: 1px solid var(--border);
+            overflow: hidden; text-overflow: ellipsis;
         }
         
-        /* Kolom 3: Total Achv % - Diperkecil Font & Width */
+        /* 3. Total Achv % - Sticky di 160px (40+120) Desktop / 140px Mobile */
         .ranking-table th:nth-child(3), 
         .ranking-table td:nth-child(3) {
-            position: sticky; 
-            left: 160px; /* 40px (Rank) + 120px (Branch Max) */
-            z-index: 18;
+            position: sticky; left: 160px; z-index: 18;
             font-weight: bold;
             background: rgba(75, 46, 131, 0.08); 
             border-right: 2px solid var(--primary); 
-            width: 70px;
-            min-width: 70px;
-            font-size: 0.75rem; /* Font lebih kecil */
+            width: 70px; min-width: 70px; max-width: 70px;
+            font-size: 0.75rem;
         }
 
         .rank-badge { 
-            display: inline-block; 
-            width: 22px; height: 22px; 
-            line-height: 22px; 
-            text-align: center; 
-            border-radius: 50%; 
-            font-weight: bold; 
-            font-size: 0.7rem; 
-            background: var(--border); 
+            display: inline-block; width: 22px; height: 22px; 
+            line-height: 22px; text-align: center; border-radius: 50%; 
+            font-weight: bold; font-size: 0.7rem; background: var(--border); 
         }
         .rank-1 { background: #ffd700; color: #333; }
         .rank-2 { background: #c0c0c0; color: #333; }
@@ -322,20 +206,16 @@
             .btn { flex: 1; justify-content: center; }
             .dashboard-grid { grid-template-columns: 1fr; }
             
-            /* Penyesuaian Mobile untuk Sticky Left */
+            /* Penyesuaian Mobile Sticky Left */
             .ranking-table th:nth-child(2), .ranking-table td:nth-child(2) { 
-                left: 40px; 
-                max-width: 100px; /* Lebih kecil di HP */
-                min-width: 90px;
+                left: 40px; width: 100px; min-width: 100px; max-width: 100px;
             }
             .ranking-table th:nth-child(3), .ranking-table td:nth-child(3) {
                 left: 140px; /* 40 + 100 */
-                width: 60px;
-                min-width: 60px;
-                font-size: 0.65rem; /* Font jauh lebih kecil di HP */
+                width: 60px; min-width: 60px; max-width: 60px;
+                font-size: 0.65rem;
             }
             
-            /* Font lebih kecil di mobile */
             .ranking-table { font-size: 0.7rem; }
             .ranking-table th, .ranking-table td { padding: 8px 4px; }
         }
@@ -404,7 +284,6 @@
     </div>
 
     <script>
-        // --- KONFIGURASI METRIK DENGAN ICON ---
         const metrics = [
             { key: 'ca', label: 'Current Account', icon: 'fa-wallet', type: 'Growth MTD', unit: 'M' },
             { key: 'sa', label: 'Saving Account', icon: 'fa-sack-dollar', type: 'Growth MTD', unit: 'M' },
@@ -421,7 +300,6 @@
         let rawData = [];
         let currentRankingMode = 'all';
 
-        // --- INISIALISASI & TEMA ---
         window.onload = async function() {
             initTheme();
             try {
@@ -429,7 +307,6 @@
                 if (!res.ok) throw new Error('File data_juni.json tidak ditemukan');
                 rawData = await res.json();
                 
-                // Bersihkan data dari spasi di key dan value
                 rawData = rawData.map(item => {
                     const clean = {};
                     Object.keys(item).forEach(k => {
@@ -468,7 +345,6 @@
             }
         }
 
-        // --- FILTER BERTINGKAT ---
         function populateCoBranchFilter() {
             const coSet = new Set(rawData.map(d => d['co']).filter(Boolean));
             const coSelect = document.getElementById('coBranchFilter');
@@ -480,29 +356,20 @@
         function handleCoBranchChange() {
             const coVal = document.getElementById('coBranchFilter').value;
             const brSelect = document.getElementById('branchFilter');
-            
             brSelect.innerHTML = '<option value="">Semua Branch</option>';
-            
             if (coVal) {
-                const brSet = new Set(
-                    rawData.filter(d => d['co'] === coVal).map(d => d['br']).filter(Boolean)
-                );
-                [...brSet].sort().forEach(br => {
-                    brSelect.innerHTML += `<option value="${br}">${br}</option>`;
-                });
+                const brSet = new Set(rawData.filter(d => d['co'] === coVal).map(d => d['br']).filter(Boolean));
+                [...brSet].sort().forEach(br => { brSelect.innerHTML += `<option value="${br}">${br}</option>`; });
             }
-            
             applyFilters();
         }
 
         function applyFilters() {
             const coVal = document.getElementById('coBranchFilter').value;
             const brVal = document.getElementById('branchFilter').value;
-
             let filtered = rawData;
             if (coVal) filtered = filtered.filter(d => d['co'] === coVal);
             if (brVal) filtered = filtered.filter(d => d['br'] === brVal);
-
             renderDashboard(filtered);
         }
 
@@ -512,22 +379,16 @@
             renderDashboard(rawData);
         }
 
-        // --- RENDER DASHBOARD ---
         function renderDashboard(data) {
             const container = document.getElementById('dashboardContainer');
             container.innerHTML = '';
-
             if (data.length === 0) {
-                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--text-muted);">Tidak ada data untuk filter ini.</div>';
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--text-muted);">Tidak ada data.</div>';
                 return;
             }
 
             const agg = {};
-            metrics.forEach(m => {
-                agg[m.key + '_mtd'] = 0;
-                agg[m.key + '_tgt'] = 0;
-            });
-
+            metrics.forEach(m => { agg[m.key + '_mtd'] = 0; agg[m.key + '_tgt'] = 0; });
             data.forEach(row => {
                 metrics.forEach(m => {
                     agg[m.key + '_mtd'] += parseFloat(row[m.key + '_mtd'] || 0);
@@ -553,47 +414,29 @@
                 const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
                                  m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
 
-                const cardHTML = `
+                container.innerHTML += `
                     <div class="card">
                         <div class="card-header">
                             <span class="card-title"><i class="fas ${m.icon}"></i> ${m.label}</span>
                             <span class="badge-mtd">MTD</span>
                         </div>
-                        <div class="metric-row">
-                            <span>${m.type}</span>
-                            <span class="metric-val ${growthClass}">${formattedMtd}</span>
-                        </div>
-                        <div class="metric-row">
-                            <span>Target MTD</span>
-                            <span class="metric-val">+${tgt.toFixed(1)}${m.unit ? ' '+m.unit : ''}</span>
-                        </div>
-                        <div class="metric-row">
-                            <span>${gapLabel}</span>
-                            <span class="metric-val ${gap >= 0 ? 'pos' : 'neg'}">${formattedGap}</span>
-                        </div>
+                        <div class="metric-row"><span>${m.type}</span><span class="metric-val ${growthClass}">${formattedMtd}</span></div>
+                        <div class="metric-row"><span>Target MTD</span><span class="metric-val">+${tgt.toFixed(1)}${m.unit ? ' '+m.unit : ''}</span></div>
+                        <div class="metric-row"><span>${gapLabel}</span><span class="metric-val ${gap >= 0 ? 'pos' : 'neg'}">${formattedGap}</span></div>
                         <div class="achievement-box">
                             <div class="achv-label">Achievement</div>
                             <div class="achv-val ${achvColor}">${achv.toFixed(1)}%</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill ${barColor}" style="width: ${barWidth}%"></div>
-                            </div>
+                            <div class="progress-bar"><div class="progress-fill ${barColor}" style="width: ${barWidth}%"></div></div>
                         </div>
-                    </div>
-                `;
-                container.innerHTML += cardHTML;
+                    </div>`;
             });
         }
 
-        // --- RANKING PERFORMANCE DETAIL ---
         function openRankingModal() {
             document.getElementById('rankingModal').style.display = 'flex';
             renderRanking();
         }
-
-        function closeRankingModal() {
-            document.getElementById('rankingModal').style.display = 'none';
-        }
-
+        function closeRankingModal() { document.getElementById('rankingModal').style.display = 'none'; }
         function setRankingTab(mode, btn) {
             currentRankingMode = mode;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -623,11 +466,8 @@
             tbody.innerHTML = '<tr><td colspan="100%" style="text-align:center;">Memproses...</td></tr>';
 
             let groupedData = [];
-
             if (currentRankingMode === 'all') {
-                groupedData = rawData.map(d => ({
-                    name: d['br'], sub: d['co'], data: d, isAgg: false
-                }));
+                groupedData = rawData.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
             } else if (currentRankingMode === 'co') {
                 const coMap = {};
                 rawData.forEach(d => {
@@ -637,12 +477,9 @@
                         coMap[d['co']].tgt[m.key] = (coMap[d['co']].tgt[m.key] || 0) + parseFloat(d[m.key+'_tgt']||0);
                     });
                 });
-                groupedData = Object.keys(coMap).map(co => ({
-                    name: co, sub: '', data: coMap[co], isAgg: true
-                }));
+                groupedData = Object.keys(coMap).map(co => ({ name: co, sub: '', data: coMap[co], isAgg: true }));
             }
 
-            // Hitung Total Achievement & Sort
             const ranked = groupedData.map(g => {
                 const mv = getMetricValues(g.data, g.isAgg);
                 let totalMtd = 0, totalTgt = 0;
@@ -650,19 +487,14 @@
                 return { ...g, metricVals: mv, totalAchv: totalTgt !== 0 ? (totalMtd/totalTgt*100) : 0 };
             }).sort((a,b) => b.totalAchv - a.totalAchv);
 
-            // Build Header Dinamis: Rank -> Name -> TOTAL ACHV -> Detail Indicators
             let headerHTML = `<tr>
                 <th>#</th>
                 <th>${currentRankingMode === 'co' ? 'Co-Branch' : 'Branch'}</th>
                 <th>Total %</th>`;
-            
-            metrics.forEach(m => {
-                headerHTML += `<th title="${m.label}"><i class="fas ${m.icon}"></i></th>`;
-            });
+            metrics.forEach(m => { headerHTML += `<th title="${m.label}"><i class="fas ${m.icon}"></i></th>`; });
             headerHTML += `</tr>`;
             thead.innerHTML = headerHTML;
 
-            // Build Body
             tbody.innerHTML = '';
             ranked.forEach((r, i) => {
                 const rank = i + 1;
@@ -673,7 +505,6 @@
 
                 const totalColor = r.totalAchv >= 100 ? 'var(--success)' : 'var(--danger)';
                 
-                // Urutan kolom: Rank | Name | Total Achv | CA% | SA% | ... | CIF%
                 let rowHTML = `<tr>
                     <td><span class="${badgeClass}">${rank}</span></td>
                     <td><strong>${r.name}</strong><br><small style="color:var(--text-muted)">${r.sub}</small></td>
@@ -684,7 +515,6 @@
                     const color = v.achv >= 100 ? 'var(--success)' : 'var(--danger)';
                     rowHTML += `<td style="color:${color}; font-size:0.7rem;">${v.achv.toFixed(0)}%</td>`;
                 });
-
                 rowHTML += `</tr>`;
                 tbody.innerHTML += rowHTML;
             });
