@@ -20,10 +20,10 @@
             --warning: #ffc107;
             --card-title-light: #d4c4f0; 
             
-            /* Variabel Lebar Kolom Sticky untuk Perhitungan Presisi */
+            /* Variabel Lebar Kolom Sticky */
             --col-rank-w: 40px;
-            --col-name-w: 120px; /* Desktop default */
-            --col-total-w: 60px; /* Desktop default */
+            --col-name-w: 120px;
+            --col-total-w: 60px;
         }
 
         [data-theme="dark"] {
@@ -103,14 +103,33 @@
             font-size: 0.8rem; min-width: 800px; 
         }
         .ranking-table th { 
-            background: var(--bg); padding: 10px 6px; text-align: center; 
+            /* PERBAIKAN 1: Background disamakan dengan Branch (--bg) */
+            background: var(--bg); 
+            padding: 10px 6px; text-align: center; 
             border-bottom: 2px solid var(--border); position: sticky; top: 0; 
             color: var(--text); white-space: nowrap; z-index: 5;
+            
+            /* PERBAIKAN 2: Layout Flex untuk Icon + Prefix */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            height: 50px; /* Tinggi header disesuaikan */
         }
         .ranking-table td { 
             padding: 10px 6px; border-bottom: 1px solid var(--border); 
             color: var(--text); text-align: center; white-space: nowrap;
             background: var(--card-bg); 
+        }
+
+        /* Style khusus untuk prefix indikator di header */
+        .indicator-prefix {
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         /* 1. Rank Column */
@@ -148,9 +167,7 @@
             padding-right: 4px !important; 
         }
         
-        .ranking-table th:nth-child(3) { background: rgba(75, 46, 131, 0.08); }
-
-        /* RESPONSIVE MOBILE - PERKECIL LEBAR INDIKATOR & TOTAL % */
+        /* Responsive Mobile */
         @media (max-width: 600px) {
             .controls { flex-wrap: wrap; }
             .filter-group { flex-basis: 100%; }
@@ -164,7 +181,6 @@
 
             .ranking-table { font-size: 0.7rem; }
             
-            /* Penyesuaian posisi sticky di mobile */
             .ranking-table th:nth-child(2), .ranking-table td:nth-child(2) { 
                 left: var(--col-rank-w); 
                 width: var(--col-name-w); min-width: var(--col-name-w); max-width: var(--col-name-w);
@@ -175,7 +191,7 @@
                 font-size: 0.65rem;
             }
 
-            /* PERBAIKAN UTAMA: Mengecilkan lebar kolom indikator non-sticky di mobile */
+            /* Perkecil lebar kolom indikator non-sticky di mobile */
             .ranking-table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)),
             .ranking-table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
                 min-width: 38px !important;
@@ -183,6 +199,10 @@
                 padding: 8px 2px !important;
                 font-size: 0.65rem !important;
             }
+            
+            /* Penyesuaian ukuran prefix di mobile */
+            .indicator-prefix { font-size: 0.5rem; }
+            .ranking-table th { height: 45px; padding: 6px 2px; }
         }
     </style>
 </head>
@@ -236,7 +256,7 @@
                     <button class="tab-btn active" id="tabAll" onclick="setRankingTab('all', this)">Semua Branch</button>
                     <button class="tab-btn" id="tabCo" onclick="setRankingTab('co', this)">Per Co-Branch</button>
                     <button class="btn-back-drill" id="btnBackDrill" onclick="backToCoList()">
-                        <i class="fas fa-arrow-left"></i>
+                        <i class="fas fa-arrow-left"></i> Kembali ke Co-Branch
                     </button>
                 </div>
                 <div class="table-wrapper">
@@ -501,11 +521,19 @@
                 return { ...g, metricVals: mv, totalAchv: totalTgt !== 0 ? (totalMtd/totalTgt*100) : 0 };
             }).sort((a,b) => b.totalAchv - a.totalAchv);
 
+            // Build Header Dinamis dengan Prefix
             let headerHTML = `<tr>
                 <th>#</th>
                 <th>${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</th>
                 <th>Total %</th>`;
-            metrics.forEach(m => { headerHTML += `<th title="${m.label}"><i class="fas ${m.icon}"></i></th>`; });
+            
+            metrics.forEach(m => { 
+                // PERBAIKAN 2: Menambahkan prefix di bawah icon
+                headerHTML += `<th title="${m.label}">
+                    <i class="fas ${m.icon}"></i>
+                    <span class="indicator-prefix">${m.key.toUpperCase()}</span>
+                </th>`; 
+            });
             headerHTML += `</tr>`;
             thead.innerHTML = headerHTML;
 
