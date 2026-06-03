@@ -95,7 +95,7 @@
         .rank-2 { background: #c0c0c0; color: #333; }
         .rank-3 { background: #cd7f32; color: white; }
 
-        /* --- TABLE STICKY COLUMNS & HEADER FIX --- */
+                /* --- PERBAIKAN CSS TABEL RANKING --- */
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         
         .ranking-table { 
@@ -103,34 +103,32 @@
             font-size: 0.8rem; min-width: 800px; 
         }
         
-        /* PERBAIKAN UTAMA: Header Tabel Sticky dengan Background Solid */
+        /* PERBAIKAN UTAMA: Header Sticky dengan Background Solid & Layout Div */
         .ranking-table th { 
             background: var(--bg); /* Warna solid agar tidak tembus pandang */
-            padding: 8px 4px; 
+            padding: 0; /* Padding diatur di dalam div */
             text-align: center; 
             border-bottom: 2px solid var(--border); 
             position: sticky; 
-            top: 0; /* Menempel di atas container scroll */
+            top: 0; 
             z-index: 25; /* Z-index lebih tinggi dari kolom sticky kiri */
             color: var(--text); 
-            white-space: normal; /* Agar text bisa wrap jika perlu */
-            
-            /* Layout Icon + Prefix Vertikal */
+            vertical-align: middle;
+            height: 55px;
+        }
+
+        /* Wrapper di dalam TH untuk Icon + Prefix */
+        .th-content {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 3px;
-            height: 55px;
+            padding: 8px 4px;
+            height: 100%;
+            box-sizing: border-box;
         }
 
-        .ranking-table td { 
-            padding: 10px 4px; border-bottom: 1px solid var(--border); 
-            color: var(--text); text-align: center; white-space: nowrap;
-            background: var(--card-bg); 
-        }
-
-        /* Style khusus untuk prefix indikator di header */
         .indicator-prefix {
             font-size: 0.6rem;
             font-weight: 700;
@@ -138,6 +136,12 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             line-height: 1;
+        }
+
+        .ranking-table td { 
+            padding: 10px 4px; border-bottom: 1px solid var(--border); 
+            color: var(--text); text-align: center; white-space: nowrap;
+            background: var(--card-bg); 
         }
 
         /* 1. Rank Column */
@@ -177,11 +181,6 @@
         
         /* Responsive Mobile */
         @media (max-width: 600px) {
-            .controls { flex-wrap: wrap; }
-            .filter-group { flex-basis: 100%; }
-            .btn { flex: 1; justify-content: center; }
-            .dashboard-grid { grid-template-columns: 1fr; }
-            
             :root {
                 --col-name-w: 100px; 
                 --col-total-w: 45px; 
@@ -210,7 +209,8 @@
             
             /* Penyesuaian ukuran prefix di mobile */
             .indicator-prefix { font-size: 0.5rem; }
-            .ranking-table th { height: 48px; padding: 4px 2px; gap: 2px; }
+            .ranking-table th { height: 48px; }
+            .th-content { padding: 4px 2px; gap: 2px; }
         }
     </style>
 </head>
@@ -529,17 +529,18 @@
                 return { ...g, metricVals: mv, totalAchv: totalTgt !== 0 ? (totalMtd/totalTgt*100) : 0 };
             }).sort((a,b) => b.totalAchv - a.totalAchv);
 
-            // Build Header Dinamis dengan Prefix
+                        // Build Header Dinamis dengan Prefix
             let headerHTML = `<tr>
-                <th>#</th>
-                <th>${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</th>
-                <th>Total %</th>`;
+                <th><div class="th-content">#</div></th>
+                <th><div class="th-content">${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</div></th>
+                <th><div class="th-content">Total %</div></th>`;
             
             metrics.forEach(m => { 
-                // PERBAIKAN: Menambahkan prefix di bawah icon dengan layout flex
                 headerHTML += `<th title="${m.label}">
-                    <i class="fas ${m.icon}" style="font-size: 0.9rem;"></i>
-                    <span class="indicator-prefix">${m.key.toUpperCase()}</span>
+                    <div class="th-content">
+                        <i class="fas ${m.icon}" style="font-size: 0.9rem;"></i>
+                        <span class="indicator-prefix">${m.key.toUpperCase()}</span>
+                    </div>
                 </th>`; 
             });
             headerHTML += `</tr>`;
