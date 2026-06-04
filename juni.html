@@ -184,7 +184,7 @@
         .btn-cancel { background: var(--text-muted); color: white; }
         .btn-apply { background: var(--primary); color: white; }
 
-        /* Responsive Mobile */
+        /* Responsive Mobile - PERBAIKAN LAYOUT COMPACT */
         @media (max-width: 600px) {
             .controls { flex-wrap: wrap; flex-direction: column; align-items: stretch; }
             .filter-group { flex-basis: 100%; flex-direction: column; }
@@ -199,7 +199,21 @@
             .indicator-prefix { font-size: 0.45rem; }
             .ranking-table th { height: 48px; }
             .th-content { padding: 4px 2px; gap: 2px; }
-            .ranking-controls { flex-direction: column; align-items: stretch; }
+            
+            /* Layout Controls Ranking Lebih Compact di Mobile */
+            .ranking-controls { 
+                flex-wrap: wrap; 
+                gap: 6px; 
+                justify-content: space-between;
+            }
+            .tab-btn { flex: 1; text-align: center; padding: 6px 4px; font-size: 0.75rem; }
+            .btn-sort-trigger, .btn-export { 
+                flex: 1; 
+                justify-content: center; 
+                font-size: 0.75rem; 
+                padding: 6px 4px;
+            }
+            .btn-back-drill { flex-basis: 100%; margin-left: 0; margin-top: 5px; justify-content: center; }
         }
     </style>
 </head>
@@ -246,15 +260,15 @@
                         
                         <!-- TOMBOL SORT BY -->
                         <button class="btn-sort-trigger" onclick="openSortModal()">
-                            <i class="fas fa-sort-amount-down"></i> Sort By (<span id="sortCountBadge">1</span>)
+                            <i class="fas fa-sort-amount-down"></i> Sort (<span id="sortCountBadge">1</span>)
                         </button>
 
                         <!-- TOMBOL EXPORT EXCEL -->
                         <button class="btn-export" onclick="exportToExcel()">
-                            <i class="fas fa-file-excel"></i> Export Excel
+                            <i class="fas fa-file-excel"></i> Export
                         </button>
 
-                        <button class="btn-back-drill" id="btnBackDrill" onclick="backToCoList()"><i class="fas fa-arrow-left"></i> Kembali ke Co-Branch</button>
+                        <button class="btn-back-drill" id="btnBackDrill" onclick="backToCoList()"><i class="fas fa-arrow-left"></i> Kembali</button>
                     </div>
                 </div>
                 
@@ -272,14 +286,15 @@
     <div id="sortModal" class="sort-modal-overlay">
         <div class="sort-modal-content">
             <div class="sort-modal-header">
-                Pilih Kriteria Sortir (Prioritas Atas ke Bawah)
+                Pilih Kriteria Sortir
                 <i class="fas fa-times" style="cursor:pointer;" onclick="closeSortModal()"></i>
             </div>
             <div class="sort-checkbox-list" id="sortCheckboxList">
                 <!-- Checkbox diisi via JS -->
             </div>
             <div class="sort-actions">
-                <button class="btn btn-cancel" onclick="closeSortModal()">Batal</button>
+                <!-- PERBAIKAN: Tombol Batal diganti Reset -->
+                <button class="btn btn-cancel" onclick="resetSortSelection()">Reset</button>
                 <button class="btn btn-apply" onclick="applySortSelection()">Terapkan</button>
             </div>
         </div>
@@ -566,6 +581,14 @@
             document.getElementById('sortModal').style.display = 'none';
         }
 
+        // PERBAIKAN: Fungsi Reset Sort
+        function resetSortSelection() {
+            activeRankingMetrics = ['total'];
+            document.getElementById('sortCountBadge').textContent = '1';
+            closeSortModal();
+            renderRanking();
+        }
+
         function applySortSelection() {
             const checkboxes = document.querySelectorAll('#sortCheckboxList input[type="checkbox"]:checked');
             const selected = Array.from(checkboxes).map(cb => cb.value);
@@ -585,8 +608,35 @@
         function exportToExcel() {
             // Ambil data yang sedang ditampilkan di tabel
             const table = document.getElementById('rankingTable');
+            
+            // Buat workbook dari tabel HTML
             const wb = XLSX.utils.table_to_book(table, {sheet: "Ranking Performance"});
             
+            // PERBAIKAN: Modifikasi data sheet agar nama branch terpisah dengan " - "
+            const ws = wb.Sheets["Ranking Performance"];
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            
+            // Loop mulai dari baris ke-2 (karena baris 1 adalah header)
+            for(let R = range.s.r + 1; R <= range.e.r; ++R) {
+                // Kolom ke-2 (index B) biasanya berisi "Nama Branch\nCo-Branch" atau serupa
+                // Kita ambil cell address untuk kolom B
+                const cellAddr = XLSX.utils.encode_cell({r: R, c: 1}); 
+                if(ws[cellAddr] && ws[cellAddr].v) {
+                    let val = String(ws[cellAddr].v);
+                    // Ganti newline atau spasi ganda dengan " - "
+                    // Asumsi format asli mungkin pakai <br> atau \n
+                    val = val.replace(/\n/g, ' - ').replace(/\s+/g, ' ').trim();
+                    
+                    // Jika masih ada pola "NAMA CO-NAMA BRANCH" tanpa pemisah jelas, 
+                    // kita asumsikan user ingin memisahkan berdasarkan data JSON jika perlu,
+                    // tapi karena ini export dari tabel HTML yang sudah di-render, 
+                    // kita pastikan formatnya rapi.
+                    // Jika di HTML sudah pakai <br>, XLSX biasanya baca sebagai \n.
+                    
+                    ws[cellAddr].v = val;
+                }
+            }
+
             // Buat nama file dinamis berdasarkan sort yang aktif
             let fileName = "Ranking_Performance_Juni_2026";
             if (activeRankingMetrics.length > 0) {
@@ -709,9 +759,13 @@
                     nameHtml = `<span class="clickable-co" onclick="triggerDrillDown('${r.name}')"><strong>${r.name}</strong></span>`;
                 }
 
+                // PERBAIKAN: Format nama branch untuk tabel HTML agar konsisten dengan export
+                // Menggunakan <br> agar saat di-export ke Excel bisa diubah jadi " - "
+                let displayName = `${r.name}<br><small style="color:var(--text-muted)">${r.sub}</small>`;
+
                 let rowHTML = `<tr>
                     <td><span class="${badgeClass}">${rank}</span></td>
-                    <td>${nameHtml}<br><small style="color:var(--text-muted)">${r.sub}</small></td>
+                    <td>${displayName}</td>
                     <td class="${totalHighlight}" style="color:${totalColor}; font-size:0.75rem;">${r.totalAchv.toFixed(1)}%</td>`;
                 
                 metrics.forEach(m => {
