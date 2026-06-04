@@ -442,16 +442,23 @@
             const SME_TARGET_REGION = 50; 
             if (isRegionView) { agg['sme_tgt'] = SME_TARGET_REGION; }
 
-            // Fungsi helper untuk format angka
-            const formatNumber = (num, unit) => {
-                // Jika unit 'M', format jadi 1 desimal + spasi + M
+            // --- FUNGSI FORMAT ANGKA BARU ---
+            // Menggunakan Intl.NumberFormat untuk format Indonesia (Titik Ribuan, Koma Desimal)
+            const fmtID = new Intl.NumberFormat('id-ID');
+
+            const formatValue = (val, unit) => {
+                let prefix = val >= 0 ? '+' : '';
+                
                 if (unit === 'M') {
-                    return (num > 0 && !((m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && num < 0) ? '+' : '') + 
-                           num.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';
+                    // Untuk Jutaan: 1 desimal, contoh: +489,1 M
+                    return prefix + val.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';
+                } else {
+                    // Untuk Integer (Porsi Haji, MDIN, QRIS, CIF): Pemisah ribuan, tanpa desimal
+                    // Contoh: +1.184
+                    return prefix + Math.round(val).toLocaleString('id-ID');
                 }
-                // Jika unit kosong (Integer), format jadi pemisah ribuan tanpa desimal
-                return (num > 0 ? '+' : '') + Math.round(num).toLocaleString('id-ID');
             };
+            // -----------------------------
 
             metrics.forEach(m => {
                 const mtd = agg[m.key + '_mtd'];
@@ -484,10 +491,10 @@
                 const isNegGrowth = (m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && mtd < 0;
                 const growthClass = isNegGrowth ? 'neg' : 'pos';
                 
-                // PERBAIKAN FORMAT ANGKA DI SINI
-                const formattedMtd = formatNumber(mtd, m.unit);
-                const formattedTgt = formatNumber(tgt, m.unit);
-                const formattedGap = formatNumber(gap, m.unit);
+                // TERAPKAN FORMAT BARU DI SINI
+                const formattedMtd = formatValue(mtd, m.unit);
+                const formattedTgt = formatValue(tgt, m.unit);
+                const formattedGap = formatValue(gap, m.unit);
                 
                 const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
                                  m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
@@ -509,7 +516,6 @@
                     </div>`;
             });
         }
-
         // --- LOGIKA RANKING & DRILL-DOWN ---
         function openRankingModal() {
             document.getElementById('rankingModal').style.display = 'flex';
