@@ -418,7 +418,7 @@
             renderDashboard(rawData);
         }
 
-        function renderDashboard(data) {
+                function renderDashboard(data) {
             const container = document.getElementById('dashboardContainer');
             container.innerHTML = '';
             if (data.length === 0) {
@@ -443,18 +443,15 @@
             if (isRegionView) { agg['sme_tgt'] = SME_TARGET_REGION; }
 
             // --- FUNGSI FORMAT ANGKA BARU ---
-            // Menggunakan Intl.NumberFormat untuk format Indonesia (Titik Ribuan, Koma Desimal)
-            const fmtID = new Intl.NumberFormat('id-ID');
-
-            const formatValue = (val, unit) => {
-                let prefix = val >= 0 ? '+' : '';
+            const formatValue = (val, unit, showPlus = true) => {
+                // showPlus default true, tapi bisa dimatikan untuk Target
+                let prefix = (showPlus && val >= 0) ? '+' : '';
                 
                 if (unit === 'M') {
-                    // Untuk Jutaan: 1 desimal, contoh: +489,1 M
+                    // Untuk Jutaan: 1 desimal, contoh: +489,1 M atau 4480,0 M
                     return prefix + val.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';
                 } else {
-                    // Untuk Integer (Porsi Haji, MDIN, QRIS, CIF): Pemisah ribuan, tanpa desimal
-                    // Contoh: +1.184
+                    // Untuk Integer: Pemisah ribuan, tanpa desimal, contoh: +1.184 atau 4480
                     return prefix + Math.round(val).toLocaleString('id-ID');
                 }
             };
@@ -491,10 +488,12 @@
                 const isNegGrowth = (m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && mtd < 0;
                 const growthClass = isNegGrowth ? 'neg' : 'pos';
                 
-                // TERAPKAN FORMAT BARU DI SINI
-                const formattedMtd = formatValue(mtd, m.unit);
-                const formattedTgt = formatValue(tgt, m.unit);
-                const formattedGap = formatValue(gap, m.unit);
+                // PERBAIKAN: Terapkan format baru
+                // MTD & GAP tetap pakai tanda + (showPlus = true/default)
+                // Target TIDAK pakai tanda + (showPlus = false)
+                const formattedMtd = formatValue(mtd, m.unit, true);
+                const formattedTgt = formatValue(tgt, m.unit, false); 
+                const formattedGap = formatValue(gap, m.unit, true);
                 
                 const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
                                  m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
@@ -516,6 +515,7 @@
                     </div>`;
             });
         }
+
         // --- LOGIKA RANKING & DRILL-DOWN ---
         function openRankingModal() {
             document.getElementById('rankingModal').style.display = 'flex';
