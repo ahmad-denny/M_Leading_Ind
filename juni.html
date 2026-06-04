@@ -183,12 +183,24 @@
         .btn-cancel { background: var(--text-muted); color: white; }
         .btn-apply { background: var(--primary); color: white; }
 
-        /* Responsive Mobile - PERBAIKAN LAYOUT COMPACT 3 BARIS */
+        /* Responsive Mobile - PERBAIKAN LAYOUT 2 KOLOM */
         @media (max-width: 600px) {
             .controls { flex-wrap: wrap; flex-direction: column; align-items: stretch; }
             .filter-group { flex-basis: 100%; flex-direction: column; }
             .btn { flex: 1; justify-content: center; }
-            .dashboard-grid { grid-template-columns: 1fr; }
+            
+            /* PERUBAHAN DI SINI: Mengubah grid menjadi 2 kolom di mobile */
+            .dashboard-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 10px; /* Jarak antar kartu diperkecil agar muat */
+            }
+
+            /* Penyesuaian ukuran font dan padding agar muat di layar kecil */
+            .card { padding: 12px; }
+            .card-title { font-size: 0.8rem; }
+            .metric-row { font-size: 0.7rem; margin-bottom: 4px; }
+            .achv-val { font-size: 1rem; }
+            .badge-mtd { font-size: 0.55rem; }
             
             :root { --col-name-w: 100px; --col-total-w: 45px; }
             .ranking-table { font-size: 0.7rem; }
