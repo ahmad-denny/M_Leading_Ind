@@ -431,7 +431,7 @@
 
         metrics.forEach(m => {
             const mtd = agg[m.key + '_mtd'];
-            const tgt = agg[m.key + '_tgt'];
+            let tgt = agg[m.key + '_tgt'];
             const gap = mtd - tgt;
             
             let achvDisplay = '0.0%';
@@ -439,22 +439,26 @@
             let barWidth = 0;
             let barColor = 'under';
 
+            // LOGIKA PERHITUNGAN ACHIEVEMENT YANG DIPERBAIKI
             if (tgt > 0) {
-                // Logika Normal: Ada Target (baik Region 50M atau cabang lain yang punya target)
+                // 1. Logika Normal: Ada Target (Region atau Cabang lain)
                 const achv = (mtd / tgt) * 100;
                 achvDisplay = achv.toFixed(1) + '%';
                 achvColorClass = achv >= 100 ? 'green' : 'red';
                 barWidth = Math.min(Math.max(achv, 0), 100);
                 barColor = achv >= 100 ? 'over' : 'under';
             } else if (mtd > 0) {
-                // Logika Khusus: Target 0 tapi ada Booking/Akuisisi (Kasus SME Medan Baru)
-                achvDisplay = 'Exceed'; 
-                achvColorClass = 'green';
-                barWidth = 100;
+                // 2. Logika Khusus: Target 0 tapi ada Booking/Akuisisi (Kasus SME Medan Baru)
+                // Gunakan target semu = 1 agar persentase tetap terhitung untuk ranking
+                // Contoh: 1.8M / 1 = 180%
+                const achv = (mtd / 1) * 100; 
+                achvDisplay = achv.toFixed(1) + '%';
+                achvColorClass = 'green'; // Tetap hijau karena ada pencapaian positif
+                barWidth = 100; // Progress bar penuh
                 barColor = 'over';
             } else {
-                // Logika: Target 0 dan MTD juga 0
-                achvDisplay = 'N/A';
+                // 3. Logika: Target 0 dan MTD juga 0
+                achvDisplay = '0.0%'; // Sesuai permintaan: tampilkan 0%, jangan N/A
                 achvColorClass = 'red'; 
                 barWidth = 0;
             }
@@ -482,8 +486,8 @@
                         <div class="progress-bar"><div class="progress-fill ${barColor}" style="width: ${barWidth}%"></div></div>
                     </div>
                 </div>`;
-        });
-        }
+                });
+            }
 
         // --- LOGIKA RANKING & DRILL-DOWN ---
         function openRankingModal() {
