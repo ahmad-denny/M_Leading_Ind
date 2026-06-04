@@ -18,9 +18,9 @@
             --success: #28a745;
             --danger: #dc3545;
             --warning: #ffc107;
+            --highlight-bg: rgba(75, 46, 131, 0.08); /* Warna highlight kolom aktif */
             --card-title-light: #d4c4f0; 
             
-            /* Variabel Lebar Kolom Sticky */
             --col-rank-w: 40px;
             --col-name-w: 120px;
             --col-total-w: 60px;
@@ -34,12 +34,12 @@
             --text-muted: #a0a0a0;
             --border: #2a2a40;
             --shadow: 0 2px 8px rgba(0,0,0,0.3);
+            --highlight-bg: rgba(58, 34, 102, 0.3);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; transition: background-color 0.3s, color 0.3s; }
         body { background-color: var(--bg); color: var(--text); padding-bottom: 40px; min-height: 100vh; }
 
-        /* HEADER & CONTROLS */
         .header { background: linear-gradient(135deg, var(--primary), #2d1b50); color: white; padding: 20px; text-align: center; position: relative; border-radius: 0 0 var(--radius) var(--radius); }
         .header h1 { font-size: 1.4rem; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .header p { font-size: 0.85rem; opacity: 0.9; margin: 2px 0; }
@@ -54,7 +54,6 @@
         .btn-ranking { background: var(--warning); color: #333; }
         .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        /* DASHBOARD GRID & CARDS */
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; padding: 0 20px; }
         .card { background: var(--card-bg); padding: 16px; border-radius: var(--radius); box-shadow: var(--shadow); border-top: 4px solid var(--primary); display: flex; flex-direction: column; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -76,7 +75,7 @@
         .progress-fill.under { background: var(--danger); }
         .footer { text-align: center; padding: 20px; font-size: 0.75rem; color: var(--text-muted); margin-top: 20px; }
 
-        /* MODAL RANKING - PERBAIKAN TOTAL STICKY COLUMN */
+        /* MODAL STYLES */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { 
             background: var(--card-bg); width: 95%; max-width: 950px; 
@@ -88,30 +87,25 @@
         .modal-header { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
 
-        /* Area Body Modal: Hanya tabel yang discroll vertikal */
-        .modal-body { 
-            padding: 0; 
-            overflow-y: auto; 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column;
-            position: relative;
-        }
+        .modal-body { padding: 0; overflow-y: auto; flex: 1; display: flex; flex-direction: column; position: relative; }
 
-        /* Wrapper Tab yang ikut ter-freeze di atas saat scroll vertikal */
         .ranking-tabs-wrapper {
-            position: sticky;
-            top: 0;
-            z-index: 40; 
-            background: var(--card-bg);
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 40; background: var(--card-bg);
+            padding: 15px 20px; border-bottom: 1px solid var(--border);
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        .ranking-tabs { display: flex; gap: 10px; align-items: center; }
+        .ranking-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .tab-btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        /* Dropdown Indikator Baru */
+        .indicator-select {
+            padding: 6px 10px; border: 1px solid var(--primary); border-radius: 4px;
+            background: var(--card-bg); color: var(--text); font-size: 0.8rem;
+            min-width: 150px; outline: none;
+        }
+
         .btn-back-drill { padding: 6px 12px; border: 1px solid var(--primary); background: transparent; color: var(--primary); border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-left: auto; display: none; align-items: center; gap: 5px; }
         .clickable-co { color: var(--primary); text-decoration: underline dotted; cursor: pointer; transition: 0.2s; }
         .clickable-co:hover { color: var(--warning); background: rgba(255, 193, 7, 0.1); }
@@ -121,78 +115,47 @@
         .rank-2 { background: #c0c0c0; color: #333; }
         .rank-3 { background: #cd7f32; color: white; }
 
-        /* --- TABLE STICKY COLUMNS FIX --- */
-        /* Table wrapper HANYA overflow-x, TIDAK overflow-y agar sticky column bekerja */
+        /* TABLE STYLES */
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; flex: 1; }
         
-        .ranking-table { 
-            width: 100%; border-collapse: separate; border-spacing: 0;
-            font-size: 0.8rem; min-width: 800px; 
-        }
+        .ranking-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.8rem; min-width: 800px; }
         
-        /* Header Tabel Sticky Vertikal */
         .ranking-table th { 
-            background: var(--bg); 
-            padding: 0; 
-            text-align: center; 
-            border-bottom: 2px solid var(--border); 
-            position: sticky; 
-            top: 0; 
-            z-index: 5; 
-            color: var(--text); 
-            vertical-align: middle;
-            height: 55px;
+            background: var(--bg); padding: 0; text-align: center; border-bottom: 2px solid var(--border); 
+            position: sticky; top: 0; z-index: 5; color: var(--text); vertical-align: middle; height: 55px;
         }
 
-        .th-content {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 3px; padding: 8px 4px; height: 100%; box-sizing: border-box;
+        /* Highlight Header Kolom Aktif */
+        .ranking-table th.highlight-col {
+            background: var(--highlight-bg);
+            border-bottom: 2px solid var(--primary);
         }
 
-        .indicator-prefix {
-            font-size: 0.6rem; font-weight: 700; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.5px; line-height: 1;
-        }
+        .th-content { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 8px 4px; height: 100%; box-sizing: border-box; }
+        .indicator-prefix { font-size: 0.6rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; }
 
-        .ranking-table td { 
-            padding: 10px 4px; border-bottom: 1px solid var(--border); 
-            color: var(--text); text-align: center; white-space: nowrap;
-            background: var(--card-bg); 
-        }
-
-        /* 1. Rank Column - Z-Index Tertinggi */
-        .ranking-table th:first-child, 
-        .ranking-table td:first-child { 
-            position: sticky; left: 0; z-index: 30; 
-            width: var(--col-rank-w); min-width: var(--col-rank-w); max-width: var(--col-rank-w);
-            border-right: 1px solid var(--border);
-            background: var(--card-bg); 
-        }
+        .ranking-table td { padding: 10px 4px; border-bottom: 1px solid var(--border); color: var(--text); text-align: center; white-space: nowrap; background: var(--card-bg); }
         
-        /* 2. Branch Name Column - Z-Index Menengah */
-        .ranking-table th:nth-child(2), 
-        .ranking-table td:nth-child(2) { 
-            position: sticky; left: var(--col-rank-w); z-index: 25; 
-            width: var(--col-name-w); min-width: var(--col-name-w); max-width: var(--col-name-w);
-            text-align: left !important;
-            border-right: 1px solid var(--border);
-            overflow: hidden; text-overflow: ellipsis;
-            background: var(--card-bg); 
-        }
-        
-        /* 3. Total Achv % Column - Z-Index Terendah di antara sticky */
-        .ranking-table th:nth-child(3), 
-        .ranking-table td:nth-child(3) {
-            position: sticky; 
-            left: calc(var(--col-rank-w) + var(--col-name-w)); 
-            z-index: 20;
+        /* Highlight Body Kolom Aktif */
+        .ranking-table td.highlight-col {
+            background: var(--highlight-bg);
             font-weight: bold;
-            background: var(--card-bg); 
-            border-right: 2px solid var(--primary); 
+        }
+
+        /* Sticky Columns Logic */
+        .ranking-table th:first-child, .ranking-table td:first-child { 
+            position: sticky; left: 0; z-index: 30; width: var(--col-rank-w); min-width: var(--col-rank-w); max-width: var(--col-rank-w);
+            border-right: 1px solid var(--border); background: var(--card-bg); 
+        }
+        .ranking-table th:nth-child(2), .ranking-table td:nth-child(2) { 
+            position: sticky; left: var(--col-rank-w); z-index: 25; width: var(--col-name-w); min-width: var(--col-name-w); max-width: var(--col-name-w);
+            text-align: left !important; border-right: 1px solid var(--border); overflow: hidden; text-overflow: ellipsis; background: var(--card-bg); 
+        }
+        .ranking-table th:nth-child(3), .ranking-table td:nth-child(3) {
+            position: sticky; left: calc(var(--col-rank-w) + var(--col-name-w)); z-index: 20; font-weight: bold;
+            background: var(--card-bg); border-right: 2px solid var(--primary); 
             width: var(--col-total-w); min-width: var(--col-total-w); max-width: var(--col-total-w);
-            font-size: 0.75rem;
-            box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); 
-            padding-right: 4px !important; 
+            font-size: 0.75rem; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1); padding-right: 4px !important; 
         }
         
         /* Responsive Mobile */
@@ -202,34 +165,16 @@
             .btn { flex: 1; justify-content: center; }
             .dashboard-grid { grid-template-columns: 1fr; }
             
-            :root {
-                --col-name-w: 100px; 
-                --col-total-w: 45px; 
-            }
-
+            :root { --col-name-w: 100px; --col-total-w: 45px; }
             .ranking-table { font-size: 0.7rem; }
-            
-            .ranking-table th:nth-child(2), .ranking-table td:nth-child(2) { 
-                left: var(--col-rank-w); 
-                width: var(--col-name-w); min-width: var(--col-name-w); max-width: var(--col-name-w);
-            }
-            .ranking-table th:nth-child(3), .ranking-table td:nth-child(3) {
-                left: calc(var(--col-rank-w) + var(--col-name-w));
-                width: var(--col-total-w); min-width: var(--col-total-w); max-width: var(--col-total-w);
-                font-size: 0.65rem;
-            }
-
-            .ranking-table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)),
-            .ranking-table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)) {
-                min-width: 36px !important;
-                max-width: 40px !important;
-                padding: 8px 2px !important;
-                font-size: 0.6rem !important;
-            }
-            
+            .ranking-table th:nth-child(2), .ranking-table td:nth-child(2) { left: var(--col-rank-w); width: var(--col-name-w); min-width: var(--col-name-w); max-width: var(--col-name-w); }
+            .ranking-table th:nth-child(3), .ranking-table td:nth-child(3) { left: calc(var(--col-rank-w) + var(--col-name-w)); width: var(--col-total-w); min-width: var(--col-total-w); max-width: var(--col-total-w); font-size: 0.65rem; }
+            .ranking-table th:not(:first-child):not(:nth-child(2)):not(:nth-child(3)), .ranking-table td:not(:first-child):not(:nth-child(2)):not(:nth-child(3)) { min-width: 36px !important; max-width: 40px !important; padding: 8px 2px !important; font-size: 0.6rem !important; }
             .indicator-prefix { font-size: 0.45rem; }
             .ranking-table th { height: 48px; }
             .th-content { padding: 4px 2px; gap: 2px; }
+            .ranking-controls { flex-direction: column; align-items: stretch; }
+            .indicator-select { width: 100%; }
         }
     </style>
 </head>
@@ -237,9 +182,7 @@
 
     <!-- HEADER -->
     <div class="header">
-        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
-            <i class="fas fa-moon" id="themeIcon"></i>
-        </button>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode"><i class="fas fa-moon" id="themeIcon"></i></button>
         <h1><i class="fas fa-university"></i> Bank Muamalat</h1>
         <p>Leading Indicator Dashboard 📍 Region Sumatera</p>
         <p>📅 Per: Juni 2026 | 📆 Hari Kerja: 20</p>
@@ -248,12 +191,8 @@
     <!-- CONTROLS -->
     <div class="controls">
         <div class="filter-group">
-            <select id="coBranchFilter" onchange="handleCoBranchChange()">
-                <option value="">Semua Co-Branch</option>
-            </select>
-            <select id="branchFilter" onchange="applyFilters()">
-                <option value="">Semua Branch</option>
-            </select>
+            <select id="coBranchFilter" onchange="handleCoBranchChange()"><option value="">Semua Co-Branch</option></select>
+            <select id="branchFilter" onchange="applyFilters()"><option value="">Semua Branch</option></select>
         </div>
         <button class="btn btn-reset" onclick="resetFilters()"><i class="fas fa-sync-alt"></i> Reset Filter</button>
         <button class="btn btn-ranking" onclick="openRankingModal()"><i class="fas fa-trophy"></i> Ranking Performance</button>
@@ -261,15 +200,11 @@
 
     <!-- DASHBOARD CARDS -->
     <div class="dashboard-grid" id="dashboardContainer">
-        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">
-            <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Memuat data...
-        </div>
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Memuat data...</div>
     </div>
 
     <!-- FOOTER -->
-    <div class="footer">
-         Update data di bagian script HTML |  Optimized for Mobile & Web | Theme: Light/Dark | Made by Love - RBPM
-    </div>
+    <div class="footer">💡 Update data di bagian script HTML | 📱 Optimized for Mobile & Web | Theme: Light/Dark | Made by Love - RBPM</div>
 
     <!-- MODAL RANKING -->
     <div id="rankingModal" class="modal-overlay">
@@ -280,21 +215,24 @@
             </div>
             <div class="modal-body">
                 <div class="ranking-tabs-wrapper">
-                    <div class="ranking-tabs">
+                    <div class="ranking-controls">
                         <button class="tab-btn active" id="tabAll" onclick="setRankingTab('all', this)">Semua Branch</button>
                         <button class="tab-btn" id="tabCo" onclick="setRankingTab('co', this)">Per Co-Branch</button>
-                        <button class="btn-back-drill" id="btnBackDrill" onclick="backToCoList()">
-                            <i class="fas fa-arrow-left"></i> Kembali ke Co-Branch
-                        </button>
+                        
+                        <!-- DROPDOWN PILIH INDIKATOR -->
+                        <select id="rankingIndicatorSelect" class="indicator-select" onchange="changeRankingIndicator()">
+                            <option value="total">Total Achievement</option>
+                            <!-- Opsi lain akan diisi via JS -->
+                        </select>
+
+                        <button class="btn-back-drill" id="btnBackDrill" onclick="backToCoList()"><i class="fas fa-arrow-left"></i> Kembali ke Co-Branch</button>
                     </div>
                 </div>
                 
                 <div class="table-wrapper">
                     <table class="ranking-table" id="rankingTable">
                         <thead id="rankingThead"></thead>
-                        <tbody id="rankingTableBody">
-                            <tr><td colspan="100%" style="text-align:center; padding:20px;">Memuat data...</td></tr>
-                        </tbody>
+                        <tbody id="rankingTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -318,6 +256,7 @@
         let rawData = [];
         let currentRankingMode = 'all';
         let drillDownCo = null; 
+        let activeRankingMetric = 'total'; // Default sorting by Total Achievement
 
         window.onload = async function() {
             initTheme();
@@ -336,12 +275,27 @@
                 });
 
                 populateCoBranchFilter();
+                populateRankingIndicatorSelect();
                 renderDashboard(rawData);
             } catch (err) {
-                document.getElementById('dashboardContainer').innerHTML = 
-                    `<div style="color:var(--danger); text-align:center; padding:20px;">Error: ${err.message}</div>`;
+                document.getElementById('dashboardContainer').innerHTML = `<div style="color:var(--danger); text-align:center; padding:20px;">Error: ${err.message}</div>`;
             }
         };
+
+        function populateRankingIndicatorSelect() {
+            const select = document.getElementById('rankingIndicatorSelect');
+            metrics.forEach(m => {
+                const option = document.createElement('option');
+                option.value = m.key;
+                option.textContent = `${m.label} (${m.key.toUpperCase()})`;
+                select.appendChild(option);
+            });
+        }
+
+        function changeRankingIndicator() {
+            activeRankingMetric = document.getElementById('rankingIndicatorSelect').value;
+            renderRanking();
+        }
 
         function initTheme() {
             const saved = localStorage.getItem('bm_theme');
@@ -367,9 +321,7 @@
         function populateCoBranchFilter() {
             const coSet = new Set(rawData.map(d => d['co']).filter(Boolean));
             const coSelect = document.getElementById('coBranchFilter');
-            [...coSet].sort().forEach(co => {
-                coSelect.innerHTML += `<option value="${co}">${co}</option>`;
-            });
+            [...coSet].sort().forEach(co => { coSelect.innerHTML += `<option value="${co}">${co}</option>`; });
         }
 
         function handleCoBranchChange() {
@@ -399,95 +351,82 @@
         }
 
         function renderDashboard(data) {
-        const container = document.getElementById('dashboardContainer');
-        container.innerHTML = '';
-        if (data.length === 0) {
-            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--text-muted);">Tidak ada data.</div>';
-            return;
-        }
-
-        // Cek apakah sedang menampilkan agregat Region (Semua Co-Branch & Semua Branch)
-        const coVal = document.getElementById('coBranchFilter').value;
-        const brVal = document.getElementById('branchFilter').value;
-        const isRegionView = (coVal === "" && brVal === "");
-
-        const agg = {};
-        metrics.forEach(m => { agg[m.key + '_mtd'] = 0; agg[m.key + '_tgt'] = 0; });
-        
-        // Agregasi Data MTD dan TGT dari JSON
-        data.forEach(row => {
-            metrics.forEach(m => {
-                agg[m.key + '_mtd'] += parseFloat(row[m.key + '_mtd'] || 0);
-                agg[m.key + '_tgt'] += parseFloat(row[m.key + '_tgt'] || 0);
-            });
-        });
-
-        // PERBAIKAN: Override Target SME menjadi 50M HANYA jika view Region
-        const SME_TARGET_REGION = 50; 
-        if (isRegionView) {
-            agg['sme_tgt'] = SME_TARGET_REGION;
-        } 
-        // Jika bukan region (misal filter Medan Baru), biarkan agg['sme_tgt'] tetap 0 sesuai JSON
-
-        metrics.forEach(m => {
-            const mtd = agg[m.key + '_mtd'];
-            let tgt = agg[m.key + '_tgt'];
-            const gap = mtd - tgt;
-            
-            let achvDisplay = '0.0%';
-            let achvColorClass = 'red';
-            let barWidth = 0;
-            let barColor = 'under';
-
-            // LOGIKA PERHITUNGAN ACHIEVEMENT YANG DIPERBAIKI
-            if (tgt > 0) {
-                // 1. Logika Normal: Ada Target (Region atau Cabang lain)
-                const achv = (mtd / tgt) * 100;
-                achvDisplay = achv.toFixed(1) + '%';
-                achvColorClass = achv >= 100 ? 'green' : 'red';
-                barWidth = Math.min(Math.max(achv, 0), 100);
-                barColor = achv >= 100 ? 'over' : 'under';
-            } else if (mtd > 0) {
-                // 2. Logika Khusus: Target 0 tapi ada Booking/Akuisisi (Kasus SME Medan Baru)
-                // Gunakan target semu = 1 agar persentase tetap terhitung untuk ranking
-                // Contoh: 1.8M / 1 = 180%
-                const achv = (mtd / 1) * 100; 
-                achvDisplay = achv.toFixed(1) + '%';
-                achvColorClass = 'green'; // Tetap hijau karena ada pencapaian positif
-                barWidth = 100; // Progress bar penuh
-                barColor = 'over';
-            } else {
-                // 3. Logika: Target 0 dan MTD juga 0
-                achvDisplay = '0.0%'; // Sesuai permintaan: tampilkan 0%, jangan N/A
-                achvColorClass = 'red'; 
-                barWidth = 0;
+            const container = document.getElementById('dashboardContainer');
+            container.innerHTML = '';
+            if (data.length === 0) {
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--text-muted);">Tidak ada data.</div>';
+                return;
             }
-            
-            const isNegGrowth = (m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && mtd < 0;
-            const growthClass = isNegGrowth ? 'neg' : 'pos';
-            const formattedMtd = (mtd > 0 && !isNegGrowth ? '+' : '') + mtd.toFixed(1) + (m.unit ? ' ' + m.unit : '');
-            
-            const formattedGap = (gap > 0 ? '+' : '') + gap.toFixed(1) + (m.unit ? ' ' + m.unit : '');
-            const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
-                             m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
 
-            container.innerHTML += `
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title"><i class="fas ${m.icon}"></i> ${m.label}</span>
-                        <span class="badge-mtd">MTD</span>
-                    </div>
-                    <div class="metric-row"><span>${m.type}</span><span class="metric-val ${growthClass}">${formattedMtd}</span></div>
-                    <div class="metric-row"><span>Target MTD</span><span class="metric-val">+${tgt.toFixed(1)}${m.unit ? ' '+m.unit : ''}</span></div>
-                    <div class="metric-row"><span>${gapLabel}</span><span class="metric-val ${gap >= 0 ? 'pos' : 'neg'}">${formattedGap}</span></div>
-                    <div class="achievement-box">
-                        <div class="achv-label">Achievement</div>
-                        <div class="achv-val ${achvColorClass}">${achvDisplay}</div>
-                        <div class="progress-bar"><div class="progress-fill ${barColor}" style="width: ${barWidth}%"></div></div>
-                    </div>
-                </div>`;
+            const coVal = document.getElementById('coBranchFilter').value;
+            const brVal = document.getElementById('branchFilter').value;
+            const isRegionView = (coVal === "" && brVal === "");
+
+            const agg = {};
+            metrics.forEach(m => { agg[m.key + '_mtd'] = 0; agg[m.key + '_tgt'] = 0; });
+            data.forEach(row => {
+                metrics.forEach(m => {
+                    agg[m.key + '_mtd'] += parseFloat(row[m.key + '_mtd'] || 0);
+                    agg[m.key + '_tgt'] += parseFloat(row[m.key + '_tgt'] || 0);
                 });
-            }
+            });
+
+            const SME_TARGET_REGION = 50; 
+            if (isRegionView) { agg['sme_tgt'] = SME_TARGET_REGION; }
+
+            metrics.forEach(m => {
+                const mtd = agg[m.key + '_mtd'];
+                let tgt = agg[m.key + '_tgt'];
+                const gap = mtd - tgt;
+                
+                let achvDisplay = '0.0%';
+                let achvColorClass = 'red';
+                let barWidth = 0;
+                let barColor = 'under';
+
+                if (tgt > 0) {
+                    const achv = (mtd / tgt) * 100;
+                    achvDisplay = achv.toFixed(1) + '%';
+                    achvColorClass = achv >= 100 ? 'green' : 'red';
+                    barWidth = Math.min(Math.max(achv, 0), 100);
+                    barColor = achv >= 100 ? 'over' : 'under';
+                } else if (mtd > 0) {
+                    const achv = (mtd / 1) * 100; 
+                    achvDisplay = achv.toFixed(1) + '%';
+                    achvColorClass = 'green';
+                    barWidth = 100;
+                    barColor = 'over';
+                } else {
+                    achvDisplay = '0.0%';
+                    achvColorClass = 'red'; 
+                    barWidth = 0;
+                }
+                
+                const isNegGrowth = (m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && mtd < 0;
+                const growthClass = isNegGrowth ? 'neg' : 'pos';
+                const formattedMtd = (mtd > 0 && !isNegGrowth ? '+' : '') + mtd.toFixed(1) + (m.unit ? ' ' + m.unit : '');
+                
+                const formattedGap = (gap > 0 ? '+' : '') + gap.toFixed(1) + (m.unit ? ' ' + m.unit : '');
+                const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
+                                 m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
+
+                container.innerHTML += `
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fas ${m.icon}"></i> ${m.label}</span>
+                            <span class="badge-mtd">MTD</span>
+                        </div>
+                        <div class="metric-row"><span>${m.type}</span><span class="metric-val ${growthClass}">${formattedMtd}</span></div>
+                        <div class="metric-row"><span>Target MTD</span><span class="metric-val">+${tgt.toFixed(1)}${m.unit ? ' '+m.unit : ''}</span></div>
+                        <div class="metric-row"><span>${gapLabel}</span><span class="metric-val ${gap >= 0 ? 'pos' : 'neg'}">${formattedGap}</span></div>
+                        <div class="achievement-box">
+                            <div class="achv-label">Achievement</div>
+                            <div class="achv-val ${achvColorClass}">${achvDisplay}</div>
+                            <div class="progress-bar"><div class="progress-fill ${barColor}" style="width: ${barWidth}%"></div></div>
+                        </div>
+                    </div>`;
+            });
+        }
 
         // --- LOGIKA RANKING & DRILL-DOWN ---
         function openRankingModal() {
@@ -542,129 +481,123 @@
         }
 
         function getMetricValues(rowOrAgg, isAggregated) {
-        const vals = {};
-        metrics.forEach(m => {
-            let mtd, tgt;
-            
-            if (isAggregated) {
-                mtd = rowOrAgg.mtd[m.key] || 0;
-                tgt = rowOrAgg.tgt[m.key] || 0;
-            } else {
-                mtd = parseFloat(rowOrAgg[m.key+'_mtd'] || 0);
-                tgt = parseFloat(rowOrAgg[m.key+'_tgt'] || 0);
-            }
+            const vals = {};
+            metrics.forEach(m => {
+                let mtd, tgt;
+                if (isAggregated) {
+                    mtd = rowOrAgg.mtd[m.key] || 0;
+                    tgt = rowOrAgg.tgt[m.key] || 0;
+                } else {
+                    mtd = parseFloat(rowOrAgg[m.key+'_mtd'] || 0);
+                    tgt = parseFloat(rowOrAgg[m.key+'_tgt'] || 0);
+                }
 
-            // LOGIKA PERHITUNGAN ACHIEVEMENT YANG DIPERBAIKI
-            let achv = 0;
-            if (tgt > 0) {
-                // 1. Ada Target Normal
-                achv = (mtd / tgt) * 100;
-            } else if (mtd > 0) {
-                // 2. Target 0 tapi ada Realisasi (Kasus SME Medan Baru)
-                // Gunakan pembagi 1 agar persentase tetap terhitung untuk ranking
-                achv = (mtd / 1) * 100; 
-            } 
-            // Jika tgt 0 dan mtd 0, achv tetap 0
+                let achv = 0;
+                if (tgt > 0) {
+                    achv = (mtd / tgt) * 100;
+                } else if (mtd > 0) {
+                    achv = (mtd / 1) * 100; 
+                } 
 
-            vals[m.key] = { mtd, tgt, achv };
-        });
-        return vals;
-    }
-
-    function renderRanking() {
-        const thead = document.getElementById('rankingThead');
-        const tbody = document.getElementById('rankingTableBody');
-        tbody.innerHTML = '<tr><td colspan="100%" style="text-align:center;">Memproses...</td></tr>';
-
-        let groupedData = [];
-        let isDrillDown = !!drillDownCo;
-
-        if (isDrillDown) {
-            const filteredRaw = rawData.filter(d => d['co'] === drillDownCo);
-            groupedData = filteredRaw.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
-        } else if (currentRankingMode === 'all') {
-            groupedData = rawData.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
-        } else if (currentRankingMode === 'co') {
-            const coMap = {};
-            rawData.forEach(d => {
-                if (!coMap[d['co']]) coMap[d['co']] = { mtd: {}, tgt: {} };
-                metrics.forEach(m => {
-                    coMap[d['co']].mtd[m.key] = (coMap[d['co']].mtd[m.key] || 0) + parseFloat(d[m.key+'_mtd']||0);
-                    coMap[d['co']].tgt[m.key] = (coMap[d['co']].tgt[m.key] || 0) + parseFloat(d[m.key+'_tgt']||0);
-                });
+                vals[m.key] = { mtd, tgt, achv };
             });
-            groupedData = Object.keys(coMap).map(co => ({ name: co, sub: '', data: coMap[co], isAgg: true }));
+            return vals;
         }
 
-        const ranked = groupedData.map(g => {
-            const mv = getMetricValues(g.data, g.isAgg);
-            let totalMtd = 0, totalTgt = 0;
+        function renderRanking() {
+            const thead = document.getElementById('rankingThead');
+            const tbody = document.getElementById('rankingTableBody');
+            tbody.innerHTML = '<tr><td colspan="100%" style="text-align:center;">Memproses...</td></tr>';
+
+            let groupedData = [];
+            let isDrillDown = !!drillDownCo;
+
+            if (isDrillDown) {
+                const filteredRaw = rawData.filter(d => d['co'] === drillDownCo);
+                groupedData = filteredRaw.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
+            } else if (currentRankingMode === 'all') {
+                groupedData = rawData.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
+            } else if (currentRankingMode === 'co') {
+                const coMap = {};
+                rawData.forEach(d => {
+                    if (!coMap[d['co']]) coMap[d['co']] = { mtd: {}, tgt: {} };
+                    metrics.forEach(m => {
+                        coMap[d['co']].mtd[m.key] = (coMap[d['co']].mtd[m.key] || 0) + parseFloat(d[m.key+'_mtd']||0);
+                        coMap[d['co']].tgt[m.key] = (coMap[d['co']].tgt[m.key] || 0) + parseFloat(d[m.key+'_tgt']||0);
+                    });
+                });
+                groupedData = Object.keys(coMap).map(co => ({ name: co, sub: '', data: coMap[co], isAgg: true }));
+            }
+
+            const ranked = groupedData.map(g => {
+                const mv = getMetricValues(g.data, g.isAgg);
+                let totalMtd = 0, totalTgt = 0;
+                
+                metrics.forEach(m => { 
+                    totalMtd += mv[m.key].mtd; 
+                    totalTgt += mv[m.key].tgt; 
+                });
+
+                let sortValue = 0;
+                if (activeRankingMetric === 'total') {
+                    if (totalTgt > 0) sortValue = (totalMtd / totalTgt) * 100;
+                    else if (totalMtd > 0) sortValue = (totalMtd / 1) * 100;
+                } else {
+                    // Sort berdasarkan indikator spesifik yang dipilih
+                    sortValue = mv[activeRankingMetric].achv;
+                }
+
+                return { ...g, metricVals: mv, totalAchv: (totalTgt > 0 ? (totalMtd/totalTgt*100) : (totalMtd > 0 ? (totalMtd/1)*100 : 0)), sortValue };
+            }).sort((a,b) => b.sortValue - a.sortValue);
+
+            // Build Header Dinamis
+            let headerHTML = `<tr>
+                <th><div class="th-content">#</div></th>
+                <th><div class="th-content">${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</div></th>
+                <th class="${activeRankingMetric === 'total' ? 'highlight-col' : ''}"><div class="th-content">Total %</div></th>`;
             
-            // Hitung Total Achievement untuk Sorting Ranking
             metrics.forEach(m => { 
-                totalMtd += mv[m.key].mtd; 
-                totalTgt += mv[m.key].tgt; 
+                const isHighlight = activeRankingMetric === m.key ? 'highlight-col' : '';
+                headerHTML += `<th class="${isHighlight}" title="${m.label}">
+                    <div class="th-content">
+                        <i class="fas ${m.icon}" style="font-size: 0.9rem;"></i>
+                        <span class="indicator-prefix">${m.key.toUpperCase()}</span>
+                    </div>
+                </th>`; 
             });
+            headerHTML += `</tr>`;
+            thead.innerHTML = headerHTML;
 
-            // Penanganan khusus untuk Total Achievement jika semua target 0
-            let totalAchv = 0;
-            if (totalTgt > 0) {
-                totalAchv = (totalMtd / totalTgt) * 100;
-            } else if (totalMtd > 0) {
-                // Jika total target region 0 (misal filter spesifik tanpa target) tapi ada MTD
-                totalAchv = (totalMtd / 1) * 100;
-            }
+            tbody.innerHTML = '';
+            ranked.forEach((r, i) => {
+                const rank = i + 1;
+                let badgeClass = 'rank-badge';
+                if(rank===1) badgeClass += ' rank-1';
+                else if(rank===2) badgeClass += ' rank-2';
+                else if(rank===3) badgeClass += ' rank-3';
 
-            return { ...g, metricVals: mv, totalAchv };
-        }).sort((a,b) => b.totalAchv - a.totalAchv);
+                const totalColor = r.totalAchv >= 100 ? 'var(--success)' : 'var(--danger)';
+                
+                let nameHtml = `<strong>${r.name}</strong>`;
+                if (!isDrillDown && currentRankingMode === 'co') {
+                    nameHtml = `<span class="clickable-co" onclick="triggerDrillDown('${r.name}')"><strong>${r.name}</strong></span>`;
+                }
 
-        // Build Header Dinamis dengan Prefix
-        let headerHTML = `<tr>
-            <th><div class="th-content">#</div></th>
-            <th><div class="th-content">${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</div></th>
-            <th><div class="th-content">Total %</div></th>`;
-        
-        metrics.forEach(m => { 
-            headerHTML += `<th title="${m.label}">
-                <div class="th-content">
-                    <i class="fas ${m.icon}" style="font-size: 0.9rem;"></i>
-                    <span class="indicator-prefix">${m.key.toUpperCase()}</span>
-                </div>
-            </th>`; 
-        });
-        headerHTML += `</tr>`;
-        thead.innerHTML = headerHTML;
-
-        tbody.innerHTML = '';
-        ranked.forEach((r, i) => {
-            const rank = i + 1;
-            let badgeClass = 'rank-badge';
-            if(rank===1) badgeClass += ' rank-1';
-            else if(rank===2) badgeClass += ' rank-2';
-            else if(rank===3) badgeClass += ' rank-3';
-
-            const totalColor = r.totalAchv >= 100 ? 'var(--success)' : 'var(--danger)';
-            
-            let nameHtml = `<strong>${r.name}</strong>`;
-            if (!isDrillDown && currentRankingMode === 'co') {
-                nameHtml = `<span class="clickable-co" onclick="triggerDrillDown('${r.name}')"><strong>${r.name}</strong></span>`;
-            }
-
-            let rowHTML = `<tr>
-                <td><span class="${badgeClass}">${rank}</span></td>
-                <td>${nameHtml}<br><small style="color:var(--text-muted)">${r.sub}</small></td>
-                <td style="color:${totalColor}; font-size:0.75rem;">${r.totalAchv.toFixed(1)}%</td>`;
-            
-            metrics.forEach(m => {
-                const v = r.metricVals[m.key];
-                const color = v.achv >= 100 ? 'var(--success)' : 'var(--danger)';
-                // Tampilkan persentase murni hasil kalkulasi baru
-                rowHTML += `<td style="color:${color}; font-size:0.7rem;">${v.achv.toFixed(0)}%</td>`;
+                let rowHTML = `<tr>
+                    <td><span class="${badgeClass}">${rank}</span></td>
+                    <td>${nameHtml}<br><small style="color:var(--text-muted)">${r.sub}</small></td>
+                    <td class="${activeRankingMetric === 'total' ? 'highlight-col' : ''}" style="color:${totalColor}; font-size:0.75rem;">${r.totalAchv.toFixed(1)}%</td>`;
+                
+                metrics.forEach(m => {
+                    const v = r.metricVals[m.key];
+                    const color = v.achv >= 100 ? 'var(--success)' : 'var(--danger)';
+                    const isHighlight = activeRankingMetric === m.key ? 'highlight-col' : '';
+                    rowHTML += `<td class="${isHighlight}" style="color:${color}; font-size:0.7rem;">${v.achv.toFixed(0)}%</td>`;
+                });
+                rowHTML += `</tr>`;
+                tbody.innerHTML += rowHTML;
             });
-            rowHTML += `</tr>`;
-            tbody.innerHTML += rowHTML;
-        });
-    }
+        }
 
         window.onclick = function(e) {
             const modal = document.getElementById('rankingModal');
