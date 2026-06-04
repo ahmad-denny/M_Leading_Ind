@@ -542,98 +542,129 @@
         }
 
         function getMetricValues(rowOrAgg, isAggregated) {
-            const vals = {};
-            metrics.forEach(m => {
-                if (isAggregated) {
-                    const mtd = rowOrAgg.mtd[m.key] || 0;
-                    const tgt = rowOrAgg.tgt[m.key] || 0;
-                    vals[m.key] = { mtd, tgt, achv: tgt !== 0 ? (mtd/tgt*100) : 0 };
-                } else {
-                    const mtd = parseFloat(rowOrAgg[m.key+'_mtd'] || 0);
-                    const tgt = parseFloat(rowOrAgg[m.key+'_tgt'] || 0);
-                    vals[m.key] = { mtd, tgt, achv: tgt !== 0 ? (mtd/tgt*100) : 0 };
-                }
-            });
-            return vals;
-        }
-
-        function renderRanking() {
-            const thead = document.getElementById('rankingThead');
-            const tbody = document.getElementById('rankingTableBody');
-            tbody.innerHTML = '<tr><td colspan="100%" style="text-align:center;">Memproses...</td></tr>';
-
-            let groupedData = [];
-            let isDrillDown = !!drillDownCo;
-
-            if (isDrillDown) {
-                const filteredRaw = rawData.filter(d => d['co'] === drillDownCo);
-                groupedData = filteredRaw.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
-            } else if (currentRankingMode === 'all') {
-                groupedData = rawData.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
-            } else if (currentRankingMode === 'co') {
-                const coMap = {};
-                rawData.forEach(d => {
-                    if (!coMap[d['co']]) coMap[d['co']] = { mtd: {}, tgt: {} };
-                    metrics.forEach(m => {
-                        coMap[d['co']].mtd[m.key] = (coMap[d['co']].mtd[m.key] || 0) + parseFloat(d[m.key+'_mtd']||0);
-                        coMap[d['co']].tgt[m.key] = (coMap[d['co']].tgt[m.key] || 0) + parseFloat(d[m.key+'_tgt']||0);
-                    });
-                });
-                groupedData = Object.keys(coMap).map(co => ({ name: co, sub: '', data: coMap[co], isAgg: true }));
+        const vals = {};
+        metrics.forEach(m => {
+            let mtd, tgt;
+            
+            if (isAggregated) {
+                mtd = rowOrAgg.mtd[m.key] || 0;
+                tgt = rowOrAgg.tgt[m.key] || 0;
+            } else {
+                mtd = parseFloat(rowOrAgg[m.key+'_mtd'] || 0);
+                tgt = parseFloat(rowOrAgg[m.key+'_tgt'] || 0);
             }
 
-            const ranked = groupedData.map(g => {
-                const mv = getMetricValues(g.data, g.isAgg);
-                let totalMtd = 0, totalTgt = 0;
-                metrics.forEach(m => { totalMtd += mv[m.key].mtd; totalTgt += mv[m.key].tgt; });
-                return { ...g, metricVals: mv, totalAchv: totalTgt !== 0 ? (totalMtd/totalTgt*100) : 0 };
-            }).sort((a,b) => b.totalAchv - a.totalAchv);
+            // LOGIKA PERHITUNGAN ACHIEVEMENT YANG DIPERBAIKI
+            let achv = 0;
+            if (tgt > 0) {
+                // 1. Ada Target Normal
+                achv = (mtd / tgt) * 100;
+            } else if (mtd > 0) {
+                // 2. Target 0 tapi ada Realisasi (Kasus SME Medan Baru)
+                // Gunakan pembagi 1 agar persentase tetap terhitung untuk ranking
+                achv = (mtd / 1) * 100; 
+            } 
+            // Jika tgt 0 dan mtd 0, achv tetap 0
 
-            let headerHTML = `<tr>
-                <th><div class="th-content">#</div></th>
-                <th><div class="th-content">${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</div></th>
-                <th><div class="th-content">Total %</div></th>`;
-            
-            metrics.forEach(m => { 
-                headerHTML += `<th title="${m.label}">
-                    <div class="th-content">
-                        <i class="fas ${m.icon}" style="font-size: 0.9rem;"></i>
-                        <span class="indicator-prefix">${m.key.toUpperCase()}</span>
-                    </div>
-                </th>`; 
-            });
-            headerHTML += `</tr>`;
-            thead.innerHTML = headerHTML;
+            vals[m.key] = { mtd, tgt, achv };
+        });
+        return vals;
+    }
 
-            tbody.innerHTML = '';
-            ranked.forEach((r, i) => {
-                const rank = i + 1;
-                let badgeClass = 'rank-badge';
-                if(rank===1) badgeClass += ' rank-1';
-                else if(rank===2) badgeClass += ' rank-2';
-                else if(rank===3) badgeClass += ' rank-3';
+    function renderRanking() {
+        const thead = document.getElementById('rankingThead');
+        const tbody = document.getElementById('rankingTableBody');
+        tbody.innerHTML = '<tr><td colspan="100%" style="text-align:center;">Memproses...</td></tr>';
 
-                const totalColor = r.totalAchv >= 100 ? 'var(--success)' : 'var(--danger)';
-                
-                let nameHtml = `<strong>${r.name}</strong>`;
-                if (!isDrillDown && currentRankingMode === 'co') {
-                    nameHtml = `<span class="clickable-co" onclick="triggerDrillDown('${r.name}')"><strong>${r.name}</strong></span>`;
-                }
+        let groupedData = [];
+        let isDrillDown = !!drillDownCo;
 
-                let rowHTML = `<tr>
-                    <td><span class="${badgeClass}">${rank}</span></td>
-                    <td>${nameHtml}<br><small style="color:var(--text-muted)">${r.sub}</small></td>
-                    <td style="color:${totalColor}; font-size:0.75rem;">${r.totalAchv.toFixed(1)}%</td>`;
-                
+        if (isDrillDown) {
+            const filteredRaw = rawData.filter(d => d['co'] === drillDownCo);
+            groupedData = filteredRaw.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
+        } else if (currentRankingMode === 'all') {
+            groupedData = rawData.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
+        } else if (currentRankingMode === 'co') {
+            const coMap = {};
+            rawData.forEach(d => {
+                if (!coMap[d['co']]) coMap[d['co']] = { mtd: {}, tgt: {} };
                 metrics.forEach(m => {
-                    const v = r.metricVals[m.key];
-                    const color = v.achv >= 100 ? 'var(--success)' : 'var(--danger)';
-                    rowHTML += `<td style="color:${color}; font-size:0.7rem;">${v.achv.toFixed(0)}%</td>`;
+                    coMap[d['co']].mtd[m.key] = (coMap[d['co']].mtd[m.key] || 0) + parseFloat(d[m.key+'_mtd']||0);
+                    coMap[d['co']].tgt[m.key] = (coMap[d['co']].tgt[m.key] || 0) + parseFloat(d[m.key+'_tgt']||0);
                 });
-                rowHTML += `</tr>`;
-                tbody.innerHTML += rowHTML;
             });
+            groupedData = Object.keys(coMap).map(co => ({ name: co, sub: '', data: coMap[co], isAgg: true }));
         }
+
+        const ranked = groupedData.map(g => {
+            const mv = getMetricValues(g.data, g.isAgg);
+            let totalMtd = 0, totalTgt = 0;
+            
+            // Hitung Total Achievement untuk Sorting Ranking
+            metrics.forEach(m => { 
+                totalMtd += mv[m.key].mtd; 
+                totalTgt += mv[m.key].tgt; 
+            });
+
+            // Penanganan khusus untuk Total Achievement jika semua target 0
+            let totalAchv = 0;
+            if (totalTgt > 0) {
+                totalAchv = (totalMtd / totalTgt) * 100;
+            } else if (totalMtd > 0) {
+                // Jika total target region 0 (misal filter spesifik tanpa target) tapi ada MTD
+                totalAchv = (totalMtd / 1) * 100;
+            }
+
+            return { ...g, metricVals: mv, totalAchv };
+        }).sort((a,b) => b.totalAchv - a.totalAchv);
+
+        // Build Header Dinamis dengan Prefix
+        let headerHTML = `<tr>
+            <th><div class="th-content">#</div></th>
+            <th><div class="th-content">${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</div></th>
+            <th><div class="th-content">Total %</div></th>`;
+        
+        metrics.forEach(m => { 
+            headerHTML += `<th title="${m.label}">
+                <div class="th-content">
+                    <i class="fas ${m.icon}" style="font-size: 0.9rem;"></i>
+                    <span class="indicator-prefix">${m.key.toUpperCase()}</span>
+                </div>
+            </th>`; 
+        });
+        headerHTML += `</tr>`;
+        thead.innerHTML = headerHTML;
+
+        tbody.innerHTML = '';
+        ranked.forEach((r, i) => {
+            const rank = i + 1;
+            let badgeClass = 'rank-badge';
+            if(rank===1) badgeClass += ' rank-1';
+            else if(rank===2) badgeClass += ' rank-2';
+            else if(rank===3) badgeClass += ' rank-3';
+
+            const totalColor = r.totalAchv >= 100 ? 'var(--success)' : 'var(--danger)';
+            
+            let nameHtml = `<strong>${r.name}</strong>`;
+            if (!isDrillDown && currentRankingMode === 'co') {
+                nameHtml = `<span class="clickable-co" onclick="triggerDrillDown('${r.name}')"><strong>${r.name}</strong></span>`;
+            }
+
+            let rowHTML = `<tr>
+                <td><span class="${badgeClass}">${rank}</span></td>
+                <td>${nameHtml}<br><small style="color:var(--text-muted)">${r.sub}</small></td>
+                <td style="color:${totalColor}; font-size:0.75rem;">${r.totalAchv.toFixed(1)}%</td>`;
+            
+            metrics.forEach(m => {
+                const v = r.metricVals[m.key];
+                const color = v.achv >= 100 ? 'var(--success)' : 'var(--danger)';
+                // Tampilkan persentase murni hasil kalkulasi baru
+                rowHTML += `<td style="color:${color}; font-size:0.7rem;">${v.achv.toFixed(0)}%</td>`;
+            });
+            rowHTML += `</tr>`;
+            tbody.innerHTML += rowHTML;
+        });
+    }
 
         window.onclick = function(e) {
             const modal = document.getElementById('rankingModal');
