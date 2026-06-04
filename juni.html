@@ -615,22 +615,18 @@
             renderRanking();
         }
 
-        // --- EXPORT TO EXCEL FUNCTION (PERBAIKAN URUTAN DINAMIS TOTAL) ---
+        // --- EXPORT TO EXCEL FUNCTION (URUTAN KOLOM 100% DINAMIS) ---
         function exportToExcel() {
-            // 1. Tentukan Urutan Kolom Dinamis Berdasarkan Sort
-            // Ambil indikator yang dipilih user untuk sorting
-            let sortedKeys = [...activeRankingMetrics]; 
+            // 1. Tentukan Urutan Kolom Dinamis Berdasarkan Sort User
+            // Ambil semua key yang dipilih user sesuai urutan checkbox
+            let dynamicSortKeys = [...activeRankingMetrics]; 
             
-            // Jika 'total' ada di dalam sort, pindahkan ke posisi paling depan agar tetap menjadi acuan utama
-            if (sortedKeys.includes('total')) {
-                sortedKeys = ['total', ...sortedKeys.filter(k => k !== 'total')];
-            }
-
-            // Ambil sisa indikator metrik yang tidak masuk dalam sort
-            let remainingMetricsKeys = metrics.map(m => m.key).filter(k => !sortedKeys.includes(k));
+            // Ambil sisa indikator metrik yang TIDAK masuk dalam sort
+            let remainingMetricsKeys = metrics.map(m => m.key).filter(k => !dynamicSortKeys.includes(k));
             
-            // Gabungkan: [Sort Prioritas] + [Sisa Indikator]
-            let finalOrderKeys = [...sortedKeys, ...remainingMetricsKeys];
+            // Gabungkan: [Urutan Sort User] + [Sisa Indikator]
+            // Ini menjamin kolom Excel selalu dimulai dari pilihan user
+            let finalOrderKeys = [...dynamicSortKeys, ...remainingMetricsKeys];
             
             // Buat Header Manual sesuai urutan finalOrderKeys
             // Mapping key 'total' menjadi label 'Total %', sisanya uppercase
@@ -746,8 +742,7 @@
             else if (coVal) fileName += `_${coVal.replace(/\s+/g, '_')}`;
 
             XLSX.writeFile(wb, `${fileName}.xlsx`);
-        }
-        
+        }        
         function renderRanking() {
             const thead = document.getElementById('rankingThead');
             const tbody = document.getElementById('rankingTableBody');
