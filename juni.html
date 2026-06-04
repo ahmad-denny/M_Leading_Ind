@@ -18,7 +18,7 @@
             --success: #28a745;
             --danger: #dc3545;
             --warning: #ffc107;
-            --highlight-bg: rgba(75, 46, 131, 0.08); /* Warna highlight kolom aktif */
+            --highlight-bg: rgba(75, 46, 131, 0.08);
             --card-title-light: #d4c4f0; 
             
             --col-rank-w: 40px;
@@ -99,11 +99,12 @@
         .tab-btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         
-        /* Dropdown Indikator Baru */
+        /* Label & Multi-Select Styling */
+        .sort-label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
         .indicator-select {
             padding: 6px 10px; border: 1px solid var(--primary); border-radius: 4px;
             background: var(--card-bg); color: var(--text); font-size: 0.8rem;
-            min-width: 150px; outline: none;
+            min-width: 180px; outline: none; height: auto;
         }
 
         .btn-back-drill { padding: 6px 12px; border: 1px solid var(--primary); background: transparent; color: var(--primary); border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-left: auto; display: none; align-items: center; gap: 5px; }
@@ -125,18 +126,25 @@
             position: sticky; top: 0; z-index: 5; color: var(--text); vertical-align: middle; height: 55px;
         }
 
-        /* Highlight Header Kolom Aktif */
         .ranking-table th.highlight-col {
             background: var(--highlight-bg);
             border-bottom: 2px solid var(--primary);
         }
 
-        .th-content { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 8px 4px; height: 100%; box-sizing: border-box; }
+        .th-content { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 8px 4px; height: 100%; box-sizing: border-box; position: relative; }
         .indicator-prefix { font-size: 0.6rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1; }
+        
+        /* Badge Prioritas Sort di Header */
+        .sort-priority-badge {
+            position: absolute; top: 2px; right: 2px;
+            background: var(--primary); color: white;
+            font-size: 0.55rem; width: 14px; height: 14px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
 
         .ranking-table td { padding: 10px 4px; border-bottom: 1px solid var(--border); color: var(--text); text-align: center; white-space: nowrap; background: var(--card-bg); }
         
-        /* Highlight Body Kolom Aktif */
         .ranking-table td.highlight-col {
             background: var(--highlight-bg);
             font-weight: bold;
@@ -219,10 +227,11 @@
                         <button class="tab-btn active" id="tabAll" onclick="setRankingTab('all', this)">Semua Branch</button>
                         <button class="tab-btn" id="tabCo" onclick="setRankingTab('co', this)">Per Co-Branch</button>
                         
-                        <!-- DROPDOWN PILIH INDIKATOR -->
-                        <select id="rankingIndicatorSelect" class="indicator-select" onchange="changeRankingIndicator()">
-                            <option value="total">Total Achievement</option>
-                            <!-- Opsi lain akan diisi via JS -->
+                        <!-- LABEL DAN MULTI-SELECT SORT -->
+                        <span class="sort-label">Sort By:</span>
+                        <select id="rankingIndicatorSelect" class="indicator-select" multiple size="3" onchange="changeRankingIndicator()">
+                            <option value="total" selected>Total Achievement</option>
+                            <!-- Opsi lain diisi via JS -->
                         </select>
 
                         <button class="btn-back-drill" id="btnBackDrill" onclick="backToCoList()"><i class="fas fa-arrow-left"></i> Kembali ke Co-Branch</button>
@@ -256,7 +265,7 @@
         let rawData = [];
         let currentRankingMode = 'all';
         let drillDownCo = null; 
-        let activeRankingMetric = 'total'; // Default sorting by Total Achievement
+        let activeRankingMetrics = ['total']; // Array untuk menyimpan multiple sort keys
 
         window.onload = async function() {
             initTheme();
@@ -293,7 +302,11 @@
         }
 
         function changeRankingIndicator() {
-            activeRankingMetric = document.getElementById('rankingIndicatorSelect').value;
+            const select = document.getElementById('rankingIndicatorSelect');
+            // Ambil semua opsi yang dipilih sebagai array
+            activeRankingMetrics = Array.from(select.selectedOptions).map(opt => opt.value);
+            // Jika tidak ada yang dipilih, default kembali ke total
+            if (activeRankingMetrics.length === 0) activeRankingMetrics = ['total'];
             renderRanking();
         }
 
@@ -538,30 +551,53 @@
                     totalTgt += mv[m.key].tgt; 
                 });
 
-                let sortValue = 0;
-                if (activeRankingMetric === 'total') {
-                    if (totalTgt > 0) sortValue = (totalMtd / totalTgt) * 100;
-                    else if (totalMtd > 0) sortValue = (totalMtd / 1) * 100;
-                } else {
-                    // Sort berdasarkan indikator spesifik yang dipilih
-                    sortValue = mv[activeRankingMetric].achv;
+                let totalAchv = 0;
+                if (totalTgt > 0) totalAchv = (totalMtd / totalTgt) * 100;
+                else if (totalMtd > 0) totalAchv = (totalMtd / 1) * 100;
+
+                return { ...g, metricVals: mv, totalAchv };
+            });
+
+            // MULTI-SORT LOGIC
+            ranked.sort((a, b) => {
+                for (let key of activeRankingMetrics) {
+                    let valA, valB;
+                    if (key === 'total') {
+                        valA = a.totalAchv;
+                        valB = b.totalAchv;
+                    } else {
+                        valA = a.metricVals[key]?.achv || 0;
+                        valB = b.metricVals[key]?.achv || 0;
+                    }
+                    
+                    // Sort Descending
+                    if (valB !== valA) return valB - valA;
                 }
+                return 0;
+            });
 
-                return { ...g, metricVals: mv, totalAchv: (totalTgt > 0 ? (totalMtd/totalTgt*100) : (totalMtd > 0 ? (totalMtd/1)*100 : 0)), sortValue };
-            }).sort((a,b) => b.sortValue - a.sortValue);
-
-            // Build Header Dinamis
+            // Build Header Dinamis dengan Highlight & Priority Badge
             let headerHTML = `<tr>
                 <th><div class="th-content">#</div></th>
-                <th><div class="th-content">${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</div></th>
-                <th class="${activeRankingMetric === 'total' ? 'highlight-col' : ''}"><div class="th-content">Total %</div></th>`;
+                <th><div class="th-content">${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</div></th>`;
+            
+            // Cek apakah Total termasuk dalam sort
+            const totalSortIndex = activeRankingMetrics.indexOf('total');
+            const totalHighlight = totalSortIndex !== -1 ? 'highlight-col' : '';
+            const totalBadge = totalSortIndex !== -1 ? `<span class="sort-priority-badge">${totalSortIndex + 1}</span>` : '';
+            
+            headerHTML += `<th class="${totalHighlight}"><div class="th-content">Total %${totalBadge}</div></th>`;
             
             metrics.forEach(m => { 
-                const isHighlight = activeRankingMetric === m.key ? 'highlight-col' : '';
+                const sortIndex = activeRankingMetrics.indexOf(m.key);
+                const isHighlight = sortIndex !== -1 ? 'highlight-col' : '';
+                const badge = sortIndex !== -1 ? `<span class="sort-priority-badge">${sortIndex + 1}</span>` : '';
+                
                 headerHTML += `<th class="${isHighlight}" title="${m.label}">
                     <div class="th-content">
                         <i class="fas ${m.icon}" style="font-size: 0.9rem;"></i>
                         <span class="indicator-prefix">${m.key.toUpperCase()}</span>
+                        ${badge}
                     </div>
                 </th>`; 
             });
@@ -586,12 +622,12 @@
                 let rowHTML = `<tr>
                     <td><span class="${badgeClass}">${rank}</span></td>
                     <td>${nameHtml}<br><small style="color:var(--text-muted)">${r.sub}</small></td>
-                    <td class="${activeRankingMetric === 'total' ? 'highlight-col' : ''}" style="color:${totalColor}; font-size:0.75rem;">${r.totalAchv.toFixed(1)}%</td>`;
+                    <td class="${totalHighlight}" style="color:${totalColor}; font-size:0.75rem;">${r.totalAchv.toFixed(1)}%</td>`;
                 
                 metrics.forEach(m => {
                     const v = r.metricVals[m.key];
                     const color = v.achv >= 100 ? 'var(--success)' : 'var(--danger)';
-                    const isHighlight = activeRankingMetric === m.key ? 'highlight-col' : '';
+                    const isHighlight = activeRankingMetrics.includes(m.key) ? 'highlight-col' : '';
                     rowHTML += `<td class="${isHighlight}" style="color:${color}; font-size:0.7rem;">${v.achv.toFixed(0)}%</td>`;
                 });
                 rowHTML += `</tr>`;
