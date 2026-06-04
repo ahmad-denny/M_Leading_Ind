@@ -615,8 +615,7 @@
             renderRanking();
         }
 
-        // --- EXPORT TO EXCEL FUNCTION (PERBAIKAN TOTAL) ---
-        // --- EXPORT TO EXCEL FUNCTION (PERBAIKAN URUTAN KOLOM) ---
+               // --- EXPORT TO EXCEL FUNCTION (PERBAIKAN TOTAL % KEMBALI MUNCUL) ---
         function exportToExcel() {
             // 1. Tentukan Urutan Kolom Dinamis Berdasarkan Sort
             // Ambil indikator yang dipilih user untuk sorting (kecuali 'total')
@@ -626,12 +625,12 @@
             let remainingMetricsKeys = metrics.map(m => m.key).filter(k => !sortedMetricsKeys.includes(k));
             
             // Gabungkan: Indikator Sort + Sisa Indikator
-            // Perhatikan: "Total %" TIDAK dimasukkan ke header kecuali user memilihnya secara eksplisit
             let finalOrderKeys = [...sortedMetricsKeys, ...remainingMetricsKeys];
             
-            // Buat Header Manual
+            // PERBAIKAN: Tambahkan 'Total %' secara eksplisit di posisi ke-3
+            // Struktur Header: #, Branch, Total %, [Indikator Sesuai Sort], [Sisa Indikator]
             let ws_data = [
-                ['#', 'Branch', ...finalOrderKeys.map(k => k.toUpperCase())]
+                ['#', 'Branch', 'Total %', ...finalOrderKeys.map(k => k.toUpperCase())]
             ];
 
             // 2. Siapkan Data Ranking (Sama seperti renderRanking)
@@ -681,10 +680,11 @@
                 // Format Nama Branch: "Nama Branch\nCo-Branch" untuk cell wrap di Excel
                 let branchName = `${r.name}\n${r.sub}`;
                 
-                // Mulai构建 baris data: Rank, Branch, lalu indikator sesuai finalOrderKeys
+                // Mulai构建 baris data: Rank, Branch, Total %, lalu indikator sesuai finalOrderKeys
                 let row = [
                     i + 1, 
-                    branchName
+                    branchName,
+                    r.totalAchv / 100 // Total % dalam bentuk desimal
                 ];
 
                 // Tambahkan nilai indikator sesuai urutan dinamis (dalam bentuk desimal)
@@ -712,7 +712,7 @@
                     ws[cellAddrB].s = { alignment: { wrapText: true } };
                 }
 
-                // Format Persentase untuk Kolom C sampai Akhir (Semua Indikator)
+                // Format Persentase untuk Kolom C sampai Akhir (Total % + Semua Indikator)
                 for(let C = 2; C <= range.e.c; ++C) { 
                     const cellAddr = XLSX.utils.encode_cell({r: R, c: C});
                     if(ws[cellAddr]) {
