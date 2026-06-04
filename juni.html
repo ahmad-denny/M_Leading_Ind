@@ -442,6 +442,17 @@
             const SME_TARGET_REGION = 50; 
             if (isRegionView) { agg['sme_tgt'] = SME_TARGET_REGION; }
 
+            // Fungsi helper untuk format angka
+            const formatNumber = (num, unit) => {
+                // Jika unit 'M', format jadi 1 desimal + spasi + M
+                if (unit === 'M') {
+                    return (num > 0 && !((m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && num < 0) ? '+' : '') + 
+                           num.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';
+                }
+                // Jika unit kosong (Integer), format jadi pemisah ribuan tanpa desimal
+                return (num > 0 ? '+' : '') + Math.round(num).toLocaleString('id-ID');
+            };
+
             metrics.forEach(m => {
                 const mtd = agg[m.key + '_mtd'];
                 let tgt = agg[m.key + '_tgt'];
@@ -472,9 +483,12 @@
                 
                 const isNegGrowth = (m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && mtd < 0;
                 const growthClass = isNegGrowth ? 'neg' : 'pos';
-                const formattedMtd = (mtd > 0 && !isNegGrowth ? '+' : '') + mtd.toFixed(1) + (m.unit ? ' ' + m.unit : '');
                 
-                const formattedGap = (gap > 0 ? '+' : '') + gap.toFixed(1) + (m.unit ? ' ' + m.unit : '');
+                // PERBAIKAN FORMAT ANGKA DI SINI
+                const formattedMtd = formatNumber(mtd, m.unit);
+                const formattedTgt = formatNumber(tgt, m.unit);
+                const formattedGap = formatNumber(gap, m.unit);
+                
                 const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
                                  m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
 
@@ -485,7 +499,7 @@
                             <span class="badge-mtd">MTD</span>
                         </div>
                         <div class="metric-row"><span>${m.type}</span><span class="metric-val ${growthClass}">${formattedMtd}</span></div>
-                        <div class="metric-row"><span>Target MTD</span><span class="metric-val">+${tgt.toFixed(1)}${m.unit ? ' '+m.unit : ''}</span></div>
+                        <div class="metric-row"><span>Target MTD</span><span class="metric-val">${formattedTgt}</span></div>
                         <div class="metric-row"><span>${gapLabel}</span><span class="metric-val ${gap >= 0 ? 'pos' : 'neg'}">${formattedGap}</span></div>
                         <div class="achievement-box">
                             <div class="achv-label">Achievement</div>
