@@ -443,6 +443,44 @@
             const SME_TARGET_REGION = 50; 
             if (isRegionView) { agg['sme_tgt'] = SME_TARGET_REGION; }
 
+            // --- FUNGSI FORMAT ANGKA YANG DISESUAIKAN ---
+            const formatValue = (val, unit, forcePlus = false) => {
+                // forcePlus hanya true jika kita MEMAKSA tanda + (khusus GAP & Growth MTD)
+                let prefix = '';
+                
+                // Tambahkan '+' HANYA JIKA:
+                // 1. Dipaksa (forcePlus = true), ATAU
+                // 2. Nilainya positif DAN ini adalah metrik Growth (bisa negatif)
+                if (forcePlus || (val > 0 && (unit === 'M'))) {
+                     // Cek apakah ini metrik growth yang butuh penanda arah
+                     const isGrowthMetric = ['ca', 'sa', 'fu'].includes(
+                        Object.keys(metrics).find(key => metrics[key].unit === unit && metrics[key].type.includes('Growth'))
+                     );
+                     
+                     // Sederhananya: Hanya CA, SA, FU yang butuh tanda + saat positif
+                     // Metrik booking/akuisisi tidak pernah pakai +
+                }
+
+                // Logika sederhana berdasarkan tipe metrik dari konfigurasi
+                const metricObj = metrics.find(x => x.unit === unit && (x.type.includes('Growth') || x.type.includes('Booking') || x.type.includes('Akuisisi')));
+                // Karena unit 'M' dipakai oleh Growth dan Booking, kita cek label/type
+                // Cara paling aman: cek key metrik secara langsung
+                
+                if (formatValue.currentKey && ['ca', 'sa', 'fu'].includes(formatValue.currentKey)) {
+                    prefix = val >= 0 ? '+' : '';
+                } else if (forcePlus) {
+                    prefix = val >= 0 ? '+' : '';
+                }
+                // Sisanya (Booking/Akuisisi) prefix tetap kosong
+                
+                if (unit === 'M') {
+                    return prefix + val.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';
+                } else {
+                    return prefix + Math.round(val).toLocaleString('id-ID');
+                }
+            };
+            // -----------------------------
+
             metrics.forEach(m => {
                 const mtd = agg[m.key + '_mtd'];
                 let tgt = agg[m.key + '_tgt'];
@@ -473,9 +511,19 @@
                 
                 const isNegGrowth = (m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && mtd < 0;
                 const growthClass = isNegGrowth ? 'neg' : 'pos';
-                const formattedMtd = (mtd > 0 && !isNegGrowth ? '+' : '') + mtd.toFixed(1) + (m.unit ? ' ' + m.unit : '');
                 
-                const formattedGap = (gap > 0 ? '+' : '') + gap.toFixed(1) + (m.unit ? ' ' + m.unit : '');
+                // Tentukan apakah baris ini butuh tanda +
+                // 1. Growth MTD (CA, SA, FU): Butuh tanda + karena bisa negatif
+                // 2. Target: Tidak pernah pakai +
+                // 3. GAP: Selalu butuh tanda + untuk menunjukkan arah selisih
+                // 4. Booking/Akuisisi MTD: Tidak pernah pakai +
+                
+                const isGrowthType = ['ca', 'sa', 'fu'].includes(m.key);
+                
+                const formattedMtd = formatValue(mtd, m.unit, isGrowthType); // Growth pakai +, Booking tidak
+                const formattedTgt = formatValue(tgt, m.unit, false);         // Target tidak pernah pakai +
+                const formattedGap = formatValue(gap, m.unit, true);          // GAP selalu pakai +
+                
                 const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
                                  m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
 
@@ -486,7 +534,7 @@
                             <span class="badge-mtd">MTD</span>
                         </div>
                         <div class="metric-row"><span>${m.type}</span><span class="metric-val ${growthClass}">${formattedMtd}</span></div>
-                        <div class="metric-row"><span>Target MTD</span><span class="metric-val">+${tgt.toFixed(1)}${m.unit ? ' '+m.unit : ''}</span></div>
+                        <div class="metric-row"><span>Target MTD</span><span class="metric-val">${formattedTgt}</span></div>
                         <div class="metric-row"><span>${gapLabel}</span><span class="metric-val ${gap >= 0 ? 'pos' : 'neg'}">${formattedGap}</span></div>
                         <div class="achievement-box">
                             <div class="achv-label">Achievement</div>
@@ -496,7 +544,6 @@
                     </div>`;
             });
         }
-
         // --- LOGIKA RANKING & DRILL-DOWN ---
         function openRankingModal() {
             document.getElementById('rankingModal').style.display = 'flex';
