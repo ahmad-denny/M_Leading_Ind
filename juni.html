@@ -406,6 +406,11 @@
             return;
         }
 
+        // Cek apakah sedang menampilkan agregat Region (Semua Co-Branch & Semua Branch)
+        const coVal = document.getElementById('coBranchFilter').value;
+        const brVal = document.getElementById('branchFilter').value;
+        const isRegionView = (coVal === "" && brVal === "");
+
         const agg = {};
         metrics.forEach(m => { agg[m.key + '_mtd'] = 0; agg[m.key + '_tgt'] = 0; });
         
@@ -417,10 +422,12 @@
             });
         });
 
-        // PERBAIKAN: Override Target SME menjadi 50M sesuai aturan Region Sumatera
-        // Karena di JSON target SME per cabang adalah 0, kita paksa target agregatnya jadi 50
+        // PERBAIKAN: Override Target SME menjadi 50M HANYA jika view Region
         const SME_TARGET_REGION = 50; 
-        agg['sme_tgt'] = SME_TARGET_REGION;
+        if (isRegionView) {
+            agg['sme_tgt'] = SME_TARGET_REGION;
+        } 
+        // Jika bukan region (misal filter Medan Baru), biarkan agg['sme_tgt'] tetap 0 sesuai JSON
 
         metrics.forEach(m => {
             const mtd = agg[m.key + '_mtd'];
@@ -433,19 +440,22 @@
             let barColor = 'under';
 
             if (tgt > 0) {
+                // Logika Normal: Ada Target (baik Region 50M atau cabang lain yang punya target)
                 const achv = (mtd / tgt) * 100;
                 achvDisplay = achv.toFixed(1) + '%';
                 achvColorClass = achv >= 100 ? 'green' : 'red';
                 barWidth = Math.min(Math.max(achv, 0), 100);
                 barColor = achv >= 100 ? 'over' : 'under';
             } else if (mtd > 0) {
+                // Logika Khusus: Target 0 tapi ada Booking/Akuisisi (Kasus SME Medan Baru)
                 achvDisplay = 'Exceed'; 
                 achvColorClass = 'green';
                 barWidth = 100;
                 barColor = 'over';
             } else {
+                // Logika: Target 0 dan MTD juga 0
                 achvDisplay = 'N/A';
-                achvColorClass = 'red';
+                achvColorClass = 'red'; 
                 barWidth = 0;
             }
             
@@ -472,7 +482,7 @@
                         <div class="progress-bar"><div class="progress-fill ${barColor}" style="width: ${barWidth}%"></div></div>
                     </div>
                 </div>`;
-            });
+        });
         }
 
         // --- LOGIKA RANKING & DRILL-DOWN ---
