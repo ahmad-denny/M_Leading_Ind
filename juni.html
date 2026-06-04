@@ -615,22 +615,27 @@
             renderRanking();
         }
 
-               // --- EXPORT TO EXCEL FUNCTION (PERBAIKAN TOTAL % KEMBALI MUNCUL) ---
+        // --- EXPORT TO EXCEL FUNCTION (PERBAIKAN URUTAN DINAMIS TOTAL) ---
         function exportToExcel() {
             // 1. Tentukan Urutan Kolom Dinamis Berdasarkan Sort
-            // Ambil indikator yang dipilih user untuk sorting (kecuali 'total')
-            let sortedMetricsKeys = activeRankingMetrics.filter(k => k !== 'total');
+            // Ambil indikator yang dipilih user untuk sorting
+            let sortedKeys = [...activeRankingMetrics]; 
             
-            // Ambil sisa indikator yang tidak masuk dalam sort
-            let remainingMetricsKeys = metrics.map(m => m.key).filter(k => !sortedMetricsKeys.includes(k));
+            // Jika 'total' ada di dalam sort, pindahkan ke posisi paling depan agar tetap menjadi acuan utama
+            if (sortedKeys.includes('total')) {
+                sortedKeys = ['total', ...sortedKeys.filter(k => k !== 'total')];
+            }
+
+            // Ambil sisa indikator metrik yang tidak masuk dalam sort
+            let remainingMetricsKeys = metrics.map(m => m.key).filter(k => !sortedKeys.includes(k));
             
-            // Gabungkan: Indikator Sort + Sisa Indikator
-            let finalOrderKeys = [...sortedMetricsKeys, ...remainingMetricsKeys];
+            // Gabungkan: [Sort Prioritas] + [Sisa Indikator]
+            let finalOrderKeys = [...sortedKeys, ...remainingMetricsKeys];
             
-            // PERBAIKAN: Tambahkan 'Total %' secara eksplisit di posisi ke-3
-            // Struktur Header: #, Branch, Total %, [Indikator Sesuai Sort], [Sisa Indikator]
+            // Buat Header Manual sesuai urutan finalOrderKeys
+            // Mapping key 'total' menjadi label 'Total %', sisanya uppercase
             let ws_data = [
-                ['#', 'Branch', 'Total %', ...finalOrderKeys.map(k => k.toUpperCase())]
+                ['#', 'Branch', ...finalOrderKeys.map(k => k === 'total' ? 'Total %' : k.toUpperCase())]
             ];
 
             // 2. Siapkan Data Ranking (Sama seperti renderRanking)
@@ -680,16 +685,16 @@
                 // Format Nama Branch: "Nama Branch\nCo-Branch" untuk cell wrap di Excel
                 let branchName = `${r.name}\n${r.sub}`;
                 
-                // Mulai构建 baris data: Rank, Branch, Total %, lalu indikator sesuai finalOrderKeys
-                let row = [
-                    i + 1, 
-                    branchName,
-                    r.totalAchv / 100 // Total % dalam bentuk desimal
-                ];
+                // Mulai构建 baris data: Rank, Branch
+                let row = [i + 1, branchName];
 
-                // Tambahkan nilai indikator sesuai urutan dinamis (dalam bentuk desimal)
+                // Tambahkan nilai sesuai urutan finalOrderKeys (dalam bentuk desimal)
                 finalOrderKeys.forEach(key => {
-                    row.push(r.metricVals[key].achv / 100);
+                    if (key === 'total') {
+                        row.push(r.totalAchv / 100);
+                    } else {
+                        row.push(r.metricVals[key].achv / 100);
+                    }
                 });
 
                 ws_data.push(row);
@@ -712,7 +717,7 @@
                     ws[cellAddrB].s = { alignment: { wrapText: true } };
                 }
 
-                // Format Persentase untuk Kolom C sampai Akhir (Total % + Semua Indikator)
+                // Format Persentase untuk Kolom C sampai Akhir (Semua Indikator + Total %)
                 for(let C = 2; C <= range.e.c; ++C) { 
                     const cellAddr = XLSX.utils.encode_cell({r: R, c: C});
                     if(ws[cellAddr]) {
