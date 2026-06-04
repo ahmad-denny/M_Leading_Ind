@@ -28,15 +28,69 @@
             --col-total-w: 60px;
         }
 
-        [data-theme="dark"] {
-            --primary: #3a2266;
-            --bg: #1a1a2e;
-            --card-bg: #16213e;
-            --text: #e0e0e0;
-            --text-muted: #a0a0a0;
-            --border: #2a2a40;
-            --shadow: 0 2px 8px rgba(0,0,0,0.3);
-            --highlight-bg: rgba(58, 34, 102, 0.3);
+                [data-theme="dark"] {
+            /* ... variabel dark mode lainnya tetap sama ... */
+            
+            /* PERBAIKAN KHUSUS MODAL SORTING DI DARK MODE */
+            --sort-modal-bg: #1e293b; /* Background modal sort lebih terang sedikit */
+            --sort-item-border: #334155; /* Border item sort lebih terlihat */
+            --sort-text-color: #e2e8f0; /* Teks kriteria sort terang */
+            --sort-icon-color: #a78bfa; /* Icon indikator ungu terang agar kontras */
+        }
+
+        /* Style spesifik untuk Modal Sortir agar terbaca jelas di Dark Mode */
+        [data-theme="dark"] .sort-modal-content {
+            background: var(--sort-modal-bg);
+            border: 1px solid var(--border);
+        }
+
+        [data-theme="dark"] .sort-modal-header {
+            color: #ffffff; /* Judul "Pilih Kriteria Sortir" putih penuh */
+        }
+
+        [data-theme="dark"] .sort-item {
+            background: transparent;
+            border-color: var(--sort-item-border);
+            color: var(--sort-text-color);
+        }
+
+        [data-theme="dark"] .sort-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="dark"] .sort-item label {
+            color: var(--sort-text-color);
+        }
+
+        /* Memperjelas Icon Indikator di dalam list sort */
+        [data-theme="dark"] .sort-item i {
+            color: var(--sort-icon-color) !important; 
+            opacity: 1;
+        }
+
+        /* Memperjelas Tombol Reset & Terapkan di Dark Mode */
+        [data-theme="dark"] .btn-cancel {
+            background: #475569; /* Abu-abu slate yang lebih terang */
+            color: white;
+            border: none;
+        }
+        
+        [data-theme="dark"] .btn-apply {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        /* Memperjelas Tombol Sort Trigger di Header Modal (yang ungu tua tadi) */
+        [data-theme="dark"] .btn-sort-trigger {
+            border-color: #6d28d9; /* Ungu terang */
+            color: #c4b5fd; /* Teks ungu muda */
+            background: rgba(109, 40, 217, 0.1);
+        }
+        
+        [data-theme="dark"] .btn-sort-trigger:hover {
+            background: rgba(109, 40, 217, 0.2);
+            color: white;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; transition: background-color 0.3s, color 0.3s; }
