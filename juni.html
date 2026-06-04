@@ -615,23 +615,22 @@
             renderRanking();
         }
 
-        // --- EXPORT TO EXCEL FUNCTION (URUTAN KOLOM 100% DINAMIS) ---
+        // --- EXPORT TO EXCEL FUNCTION (FIX: TOTAL % PASTI MUNCUL DI POSISI 3) ---
         function exportToExcel() {
-            // 1. Tentukan Urutan Kolom Dinamis Berdasarkan Sort User
-            // Ambil semua key yang dipilih user sesuai urutan checkbox
-            let dynamicSortKeys = [...activeRankingMetrics]; 
+            // 1. Tentukan Urutan Kolom Dinamis Berdasarkan Sort
+            // Ambil indikator metrik yang dipilih user untuk sorting (KECUALI 'total')
+            let sortedMetricsKeys = activeRankingMetrics.filter(k => k !== 'total');
             
-            // Ambil sisa indikator metrik yang TIDAK masuk dalam sort
-            let remainingMetricsKeys = metrics.map(m => m.key).filter(k => !dynamicSortKeys.includes(k));
+            // Ambil sisa indikator metrik yang tidak masuk dalam sort
+            let remainingMetricsKeys = metrics.map(m => m.key).filter(k => !sortedMetricsKeys.includes(k));
             
-            // Gabungkan: [Urutan Sort User] + [Sisa Indikator]
-            // Ini menjamin kolom Excel selalu dimulai dari pilihan user
-            let finalOrderKeys = [...dynamicSortKeys, ...remainingMetricsKeys];
+            // Gabungkan: [Indikator Sort] + [Sisa Indikator]
+            let finalOrderKeys = [...sortedMetricsKeys, ...remainingMetricsKeys];
             
-            // Buat Header Manual sesuai urutan finalOrderKeys
-            // Mapping key 'total' menjadi label 'Total %', sisanya uppercase
+            // PERBAIKAN KRUSIAL: Bangun Header Manual dengan 'Total %' DIPOSISIKAN SECARA EKSPLISIT
+            // Struktur Header: #, Branch, Total %, [Indikator Sesuai Sort], [Sisa Indikator]
             let ws_data = [
-                ['#', 'Branch', ...finalOrderKeys.map(k => k === 'total' ? 'Total %' : k.toUpperCase())]
+                ['#', 'Branch', 'Total %', ...finalOrderKeys.map(k => k.toUpperCase())]
             ];
 
             // 2. Siapkan Data Ranking (Sama seperti renderRanking)
@@ -681,16 +680,16 @@
                 // Format Nama Branch: "Nama Branch\nCo-Branch" untuk cell wrap di Excel
                 let branchName = `${r.name}\n${r.sub}`;
                 
-                // Mulai构建 baris data: Rank, Branch
-                let row = [i + 1, branchName];
+                // Mulai构建 baris data: Rank, Branch, Total %, lalu indikator sesuai finalOrderKeys
+                let row = [
+                    i + 1, 
+                    branchName,
+                    r.totalAchv / 100 // Total % dalam bentuk desimal agar bisa diformat persen
+                ];
 
-                // Tambahkan nilai sesuai urutan finalOrderKeys (dalam bentuk desimal)
+                // Tambahkan nilai indikator sesuai urutan dinamis (dalam bentuk desimal)
                 finalOrderKeys.forEach(key => {
-                    if (key === 'total') {
-                        row.push(r.totalAchv / 100);
-                    } else {
-                        row.push(r.metricVals[key].achv / 100);
-                    }
+                    row.push(r.metricVals[key].achv / 100);
                 });
 
                 ws_data.push(row);
@@ -713,7 +712,8 @@
                     ws[cellAddrB].s = { alignment: { wrapText: true } };
                 }
 
-                // Format Persentase untuk Kolom C sampai Akhir (Semua Indikator + Total %)
+                // Format Persentase untuk Kolom C sampai Akhir (Total % + Semua Indikator)
+                // Karena Total % sudah ada di indeks 2 (Kolom C), loop ini akan otomatis memformatnya
                 for(let C = 2; C <= range.e.c; ++C) { 
                     const cellAddr = XLSX.utils.encode_cell({r: R, c: C});
                     if(ws[cellAddr]) {
@@ -742,7 +742,9 @@
             else if (coVal) fileName += `_${coVal.replace(/\s+/g, '_')}`;
 
             XLSX.writeFile(wb, `${fileName}.xlsx`);
-        }        
+        }
+        
+        
         function renderRanking() {
             const thead = document.getElementById('rankingThead');
             const tbody = document.getElementById('rankingTableBody');
