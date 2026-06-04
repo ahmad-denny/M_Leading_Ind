@@ -184,7 +184,7 @@
         .btn-cancel { background: var(--text-muted); color: white; }
         .btn-apply { background: var(--primary); color: white; }
 
-        /* Responsive Mobile - PERBAIKAN LAYOUT COMPACT */
+        /* Responsive Mobile - PERBAIKAN LAYOUT COMPACT 3 BARIS */
         @media (max-width: 600px) {
             .controls { flex-wrap: wrap; flex-direction: column; align-items: stretch; }
             .filter-group { flex-basis: 100%; flex-direction: column; }
@@ -200,20 +200,31 @@
             .ranking-table th { height: 48px; }
             .th-content { padding: 4px 2px; gap: 2px; }
             
-            /* Layout Controls Ranking Lebih Compact di Mobile */
+            /* Layout Controls Ranking 3 Baris Vertikal di Mobile */
             .ranking-controls { 
-                flex-wrap: wrap; 
-                gap: 6px; 
-                justify-content: space-between;
+                display: flex; 
+                flex-direction: column; 
+                gap: 8px; 
+                width: 100%;
             }
-            .tab-btn { flex: 1; text-align: center; padding: 6px 4px; font-size: 0.75rem; }
+            .tab-btn { 
+                width: 100%; 
+                text-align: center; 
+                padding: 8px; 
+                font-size: 0.8rem; 
+            }
+            .action-row {
+                display: flex;
+                gap: 8px;
+                width: 100%;
+            }
             .btn-sort-trigger, .btn-export { 
                 flex: 1; 
                 justify-content: center; 
                 font-size: 0.75rem; 
-                padding: 6px 4px;
+                padding: 8px 4px;
             }
-            .btn-back-drill { flex-basis: 100%; margin-left: 0; margin-top: 5px; justify-content: center; }
+            .btn-back-drill { width: 100%; justify-content: center; margin-top: 5px; }
         }
     </style>
 </head>
@@ -258,15 +269,17 @@
                         <button class="tab-btn active" id="tabAll" onclick="setRankingTab('all', this)">Semua Branch</button>
                         <button class="tab-btn" id="tabCo" onclick="setRankingTab('co', this)">Per Co-Branch</button>
                         
-                        <!-- TOMBOL SORT BY -->
-                        <button class="btn-sort-trigger" onclick="openSortModal()">
-                            <i class="fas fa-sort-amount-down"></i> Sort (<span id="sortCountBadge">1</span>)
-                        </button>
+                        <div class="action-row">
+                            <!-- TOMBOL SORT BY -->
+                            <button class="btn-sort-trigger" onclick="openSortModal()">
+                                <i class="fas fa-sort-amount-down"></i> Sort (<span id="sortCountBadge">1</span>)
+                            </button>
 
-                        <!-- TOMBOL EXPORT EXCEL -->
-                        <button class="btn-export" onclick="exportToExcel()">
-                            <i class="fas fa-file-excel"></i> Export
-                        </button>
+                            <!-- TOMBOL EXPORT EXCEL -->
+                            <button class="btn-export" onclick="exportToExcel()">
+                                <i class="fas fa-file-excel"></i> Export
+                            </button>
+                        </div>
 
                         <button class="btn-back-drill" id="btnBackDrill" onclick="backToCoList()"><i class="fas fa-arrow-left"></i> Kembali</button>
                     </div>
@@ -293,7 +306,6 @@
                 <!-- Checkbox diisi via JS -->
             </div>
             <div class="sort-actions">
-                <!-- PERBAIKAN: Tombol Batal diganti Reset -->
                 <button class="btn btn-cancel" onclick="resetSortSelection()">Reset</button>
                 <button class="btn btn-apply" onclick="applySortSelection()">Terapkan</button>
             </div>
@@ -581,7 +593,6 @@
             document.getElementById('sortModal').style.display = 'none';
         }
 
-        // PERBAIKAN: Fungsi Reset Sort
         function resetSortSelection() {
             activeRankingMetrics = ['total'];
             document.getElementById('sortCountBadge').textContent = '1';
@@ -604,40 +615,95 @@
             renderRanking();
         }
 
-        // --- EXPORT TO EXCEL FUNCTION ---
+        // --- EXPORT TO EXCEL FUNCTION (PERBAIKAN TOTAL) ---
         function exportToExcel() {
-            // Ambil data yang sedang ditampilkan di tabel
-            const table = document.getElementById('rankingTable');
-            
-            // Buat workbook dari tabel HTML
-            const wb = XLSX.utils.table_to_book(table, {sheet: "Ranking Performance"});
-            
-            // PERBAIKAN: Modifikasi data sheet agar nama branch terpisah dengan " - "
-            const ws = wb.Sheets["Ranking Performance"];
+            // 1. Siapkan Header Manual agar "Total %" tidak berubah jadi "Total %1"
+            let ws_data = [
+                ['#', 'Branch', 'Total %', ...metrics.map(m => m.key.toUpperCase())]
+            ];
+
+            // 2. Ambil data dari variabel ranked yang sudah diurutkan
+            // Kita perlu mereplikasi logika sorting/rendering sebentar untuk mendapatkan data yang benar
+            let groupedData = [];
+            let isDrillDown = !!drillDownCo;
+
+            if (isDrillDown) {
+                const filteredRaw = rawData.filter(d => d['co'] === drillDownCo);
+                groupedData = filteredRaw.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
+            } else if (currentRankingMode === 'all') {
+                groupedData = rawData.map(d => ({ name: d['br'], sub: d['co'], data: d, isAgg: false }));
+            } else if (currentRankingMode === 'co') {
+                const coMap = {};
+                rawData.forEach(d => {
+                    if (!coMap[d['co']]) coMap[d['co']] = { mtd: {}, tgt: {} };
+                    metrics.forEach(m => {
+                        coMap[d['co']].mtd[m.key] = (coMap[d['co']].mtd[m.key] || 0) + parseFloat(d[m.key+'_mtd']||0);
+                        coMap[d['co']].tgt[m.key] = (coMap[d['co']].tgt[m.key] || 0) + parseFloat(d[m.key+'_tgt']||0);
+                    });
+                });
+                groupedData = Object.keys(coMap).map(co => ({ name: co, sub: '', data: coMap[co], isAgg: true }));
+            }
+
+            let ranked = groupedData.map(g => {
+                const mv = getMetricValues(g.data, g.isAgg);
+                let totalMtd = 0, totalTgt = 0;
+                metrics.forEach(m => { totalMtd += mv[m.key].mtd; totalTgt += mv[m.key].tgt; });
+                let totalAchv = 0;
+                if (totalTgt > 0) totalAchv = (totalMtd / totalTgt) * 100;
+                else if (totalMtd > 0) totalAchv = (totalMtd / 1) * 100;
+                return { ...g, metricVals: mv, totalAchv };
+            });
+
+            // Terapkan sorting yang sama dengan tampilan
+            ranked.sort((a, b) => {
+                for (let key of activeRankingMetrics) {
+                    let valA, valB;
+                    if (key === 'total') { valA = a.totalAchv; valB = b.totalAchv; } 
+                    else { valA = a.metricVals[key]?.achv || 0; valB = b.metricVals[key]?.achv || 0; }
+                    if (valB !== valA) return valB - valA;
+                }
+                return 0;
+            });
+
+            // 3. Isi Data Row demi Row
+            ranked.forEach((r, i) => {
+                // Format Nama Branch: "Nama Branch - Co-Branch"
+                let branchName = `${r.name} - ${r.sub}`;
+                
+                // Mulai构建 baris data
+                let row = [
+                    i + 1, 
+                    branchName, 
+                    r.totalAchv / 100 // Simpan sebagai desimal agar bisa diformat persen di Excel
+                ];
+
+                // Tambahkan nilai indikator (juga dalam bentuk desimal)
+                metrics.forEach(m => {
+                    row.push(r.metricVals[m.key].achv / 100);
+                });
+
+                ws_data.push(row);
+            });
+
+            // 4. Buat Worksheet dari Array Data
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+            // 5. Terapkan Format Persentase ke Kolom C sampai Akhir
+            // Kolom A (#) dan B (Branch) tidak diformat persen
             const range = XLSX.utils.decode_range(ws['!ref']);
-            
-            // Loop mulai dari baris ke-2 (karena baris 1 adalah header)
-            for(let R = range.s.r + 1; R <= range.e.r; ++R) {
-                // Kolom ke-2 (index B) biasanya berisi "Nama Branch\nCo-Branch" atau serupa
-                // Kita ambil cell address untuk kolom B
-                const cellAddr = XLSX.utils.encode_cell({r: R, c: 1}); 
-                if(ws[cellAddr] && ws[cellAddr].v) {
-                    let val = String(ws[cellAddr].v);
-                    // Ganti newline atau spasi ganda dengan " - "
-                    // Asumsi format asli mungkin pakai <br> atau \n
-                    val = val.replace(/\n/g, ' - ').replace(/\s+/g, ' ').trim();
-                    
-                    // Jika masih ada pola "NAMA CO-NAMA BRANCH" tanpa pemisah jelas, 
-                    // kita asumsikan user ingin memisahkan berdasarkan data JSON jika perlu,
-                    // tapi karena ini export dari tabel HTML yang sudah di-render, 
-                    // kita pastikan formatnya rapi.
-                    // Jika di HTML sudah pakai <br>, XLSX biasanya baca sebagai \n.
-                    
-                    ws[cellAddr].v = val;
+            for(let R = range.s.r + 1; R <= range.e.r; ++R) { // Mulai dari baris ke-2 (index 1)
+                for(let C = 2; C <= range.e.c; ++C) { // Mulai dari kolom ke-3 (index 2, yaitu Total %)
+                    const cellAddr = XLSX.utils.encode_cell({r: R, c: C});
+                    if(ws[cellAddr]) {
+                        ws[cellAddr].z = '0%'; // Format Excel Persentase
+                    }
                 }
             }
 
-            // Buat nama file dinamis berdasarkan sort yang aktif
+            // 6. Generate File
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Ranking Performance");
+            
             let fileName = "Ranking_Performance_Juni_2026";
             if (activeRankingMetrics.length > 0) {
                 const sortNames = activeRankingMetrics.map(key => {
@@ -648,7 +714,6 @@
                 fileName += `_Sorted_By_${sortNames.join('_')}`;
             }
             
-            // Tambahkan info filter jika ada
             const coVal = document.getElementById('coBranchFilter').value;
             const brVal = document.getElementById('branchFilter').value;
             if(drillDownCo) fileName += `_${drillDownCo.replace(/\s+/g, '_')}`;
@@ -759,9 +824,8 @@
                     nameHtml = `<span class="clickable-co" onclick="triggerDrillDown('${r.name}')"><strong>${r.name}</strong></span>`;
                 }
 
-                // PERBAIKAN: Format nama branch untuk tabel HTML agar konsisten dengan export
-                // Menggunakan <br> agar saat di-export ke Excel bisa diubah jadi " - "
-                let displayName = `${r.name}<br><small style="color:var(--text-muted)">${r.sub}</small>`;
+                // Gunakan <br> untuk pemisahan visual di web, tapi data mentah tetap terpisah untuk export
+                let displayName = `${nameHtml}<br><small style="color:var(--text-muted)">${r.sub}</small>`;
 
                 let rowHTML = `<tr>
                     <td><span class="${badgeClass}">${rank}</span></td>
