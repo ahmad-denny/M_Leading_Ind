@@ -399,55 +399,77 @@
         }
 
         function renderDashboard(data) {
-            const container = document.getElementById('dashboardContainer');
-            container.innerHTML = '';
-            if (data.length === 0) {
-                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--text-muted);">Tidak ada data.</div>';
-                return;
-            }
+        const container = document.getElementById('dashboardContainer');
+        container.innerHTML = '';
+        if (data.length === 0) {
+            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--text-muted);">Tidak ada data.</div>';
+            return;
+        }
 
-            const agg = {};
-            metrics.forEach(m => { agg[m.key + '_mtd'] = 0; agg[m.key + '_tgt'] = 0; });
-            data.forEach(row => {
-                metrics.forEach(m => {
-                    agg[m.key + '_mtd'] += parseFloat(row[m.key + '_mtd'] || 0);
-                    agg[m.key + '_tgt'] += parseFloat(row[m.key + '_tgt'] || 0);
-                });
-            });
-
+        const agg = {};
+        metrics.forEach(m => { agg[m.key + '_mtd'] = 0; agg[m.key + '_tgt'] = 0; });
+        data.forEach(row => {
             metrics.forEach(m => {
-                const mtd = agg[m.key + '_mtd'];
-                const tgt = agg[m.key + '_tgt'];
-                const gap = mtd - tgt;
-                const achv = tgt !== 0 ? (mtd / tgt * 100) : 0;
-                
-                const isNegGrowth = (m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && mtd < 0;
-                const growthClass = isNegGrowth ? 'neg' : 'pos';
-                const formattedMtd = (mtd > 0 && !isNegGrowth ? '+' : '') + mtd.toFixed(1) + (m.unit ? ' ' + m.unit : '');
-                
-                const achvColor = achv >= 100 ? 'green' : 'red';
-                const barColor = achv >= 100 ? 'over' : 'under';
-                const barWidth = Math.min(Math.max(achv, 0), 100);
-                
-                const formattedGap = (gap > 0 ? '+' : '') + gap.toFixed(1) + (m.unit ? ' ' + m.unit : '');
-                const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
-                                 m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
+                agg[m.key + '_mtd'] += parseFloat(row[m.key + '_mtd'] || 0);
+                agg[m.key + '_tgt'] += parseFloat(row[m.key + '_tgt'] || 0);
+            });
+        });
 
-                container.innerHTML += `
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="card-title"><i class="fas ${m.icon}"></i> ${m.label}</span>
-                            <span class="badge-mtd">MTD</span>
-                        </div>
-                        <div class="metric-row"><span>${m.type}</span><span class="metric-val ${growthClass}">${formattedMtd}</span></div>
-                        <div class="metric-row"><span>Target MTD</span><span class="metric-val">+${tgt.toFixed(1)}${m.unit ? ' '+m.unit : ''}</span></div>
-                        <div class="metric-row"><span>${gapLabel}</span><span class="metric-val ${gap >= 0 ? 'pos' : 'neg'}">${formattedGap}</span></div>
-                        <div class="achievement-box">
-                            <div class="achv-label">Achievement</div>
-                            <div class="achv-val ${achvColor}">${achv.toFixed(1)}%</div>
-                            <div class="progress-bar"><div class="progress-fill ${barColor}" style="width: ${barWidth}%"></div></div>
-                        </div>
-                    </div>`;
+        metrics.forEach(m => {
+            const mtd = agg[m.key + '_mtd'];
+            const tgt = agg[m.key + '_tgt'];
+            const gap = mtd - tgt;
+            
+            // PERBAIKAN LOGIKA ACHIEVEMENT DI SINI
+            let achvDisplay = '0.0%';
+            let achvColorClass = 'red';
+            let barWidth = 0;
+            let barColor = 'under';
+
+            if (tgt > 0) {
+                // Logika Normal: Ada Target
+                const achv = (mtd / tgt) * 100;
+                achvDisplay = achv.toFixed(1) + '%';
+                achvColorClass = achv >= 100 ? 'green' : 'red';
+                barWidth = Math.min(Math.max(achv, 0), 100);
+                barColor = achv >= 100 ? 'over' : 'under';
+            } else if (mtd > 0) {
+                // Logika Khusus: Target 0 tapi ada Booking/Akuisisi
+                // Menampilkan "Exceed" atau "N/A" alih-alih 0%
+                achvDisplay = 'Exceed'; 
+                achvColorClass = 'green';
+                barWidth = 100;
+                barColor = 'over';
+            } else {
+                // Logika: Target 0 dan MTD juga 0
+                achvDisplay = 'N/A';
+                achvColorClass = 'red'; // Atau bisa abu-abu jika ingin netral
+                barWidth = 0;
+            }
+            
+            const isNegGrowth = (m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && mtd < 0;
+            const growthClass = isNegGrowth ? 'neg' : 'pos';
+            const formattedMtd = (mtd > 0 && !isNegGrowth ? '+' : '') + mtd.toFixed(1) + (m.unit ? ' ' + m.unit : '');
+            
+            const formattedGap = (gap > 0 ? '+' : '') + gap.toFixed(1) + (m.unit ? ' ' + m.unit : '');
+            const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
+                             m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
+
+            container.innerHTML += `
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas ${m.icon}"></i> ${m.label}</span>
+                        <span class="badge-mtd">MTD</span>
+                    </div>
+                    <div class="metric-row"><span>${m.type}</span><span class="metric-val ${growthClass}">${formattedMtd}</span></div>
+                    <div class="metric-row"><span>Target MTD</span><span class="metric-val">+${tgt.toFixed(1)}${m.unit ? ' '+m.unit : ''}</span></div>
+                    <div class="metric-row"><span>${gapLabel}</span><span class="metric-val ${gap >= 0 ? 'pos' : 'neg'}">${formattedGap}</span></div>
+                    <div class="achievement-box">
+                        <div class="achv-label">Achievement</div>
+                        <div class="achv-val ${achvColorClass}">${achvDisplay}</div>
+                        <div class="progress-bar"><div class="progress-fill ${barColor}" style="width: ${barWidth}%"></div></div>
+                    </div>
+                </div>`;
             });
         }
 
