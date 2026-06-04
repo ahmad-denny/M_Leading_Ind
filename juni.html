@@ -408,6 +408,8 @@
 
         const agg = {};
         metrics.forEach(m => { agg[m.key + '_mtd'] = 0; agg[m.key + '_tgt'] = 0; });
+        
+        // Agregasi Data MTD dan TGT dari JSON
         data.forEach(row => {
             metrics.forEach(m => {
                 agg[m.key + '_mtd'] += parseFloat(row[m.key + '_mtd'] || 0);
@@ -415,35 +417,35 @@
             });
         });
 
+        // PERBAIKAN: Override Target SME menjadi 50M sesuai aturan Region Sumatera
+        // Karena di JSON target SME per cabang adalah 0, kita paksa target agregatnya jadi 50
+        const SME_TARGET_REGION = 50; 
+        agg['sme_tgt'] = SME_TARGET_REGION;
+
         metrics.forEach(m => {
             const mtd = agg[m.key + '_mtd'];
             const tgt = agg[m.key + '_tgt'];
             const gap = mtd - tgt;
             
-            // PERBAIKAN LOGIKA ACHIEVEMENT DI SINI
             let achvDisplay = '0.0%';
             let achvColorClass = 'red';
             let barWidth = 0;
             let barColor = 'under';
 
             if (tgt > 0) {
-                // Logika Normal: Ada Target
                 const achv = (mtd / tgt) * 100;
                 achvDisplay = achv.toFixed(1) + '%';
                 achvColorClass = achv >= 100 ? 'green' : 'red';
                 barWidth = Math.min(Math.max(achv, 0), 100);
                 barColor = achv >= 100 ? 'over' : 'under';
             } else if (mtd > 0) {
-                // Logika Khusus: Target 0 tapi ada Booking/Akuisisi
-                // Menampilkan "Exceed" atau "N/A" alih-alih 0%
                 achvDisplay = 'Exceed'; 
                 achvColorClass = 'green';
                 barWidth = 100;
                 barColor = 'over';
             } else {
-                // Logika: Target 0 dan MTD juga 0
                 achvDisplay = 'N/A';
-                achvColorClass = 'red'; // Atau bisa abu-abu jika ingin netral
+                achvColorClass = 'red';
                 barWidth = 0;
             }
             
