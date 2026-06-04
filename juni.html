@@ -616,18 +616,25 @@
         }
 
         // --- EXPORT TO EXCEL FUNCTION (PERBAIKAN TOTAL) ---
+        // --- EXPORT TO EXCEL FUNCTION (PERBAIKAN URUTAN KOLOM) ---
         function exportToExcel() {
-            // 1. Siapkan Header Manual agar "Total %" tidak berubah jadi "Total %1"
-            // Urutan: #, Branch, Total %, [Indikator Sesuai Sort], [Sisa Indikator]
+            // 1. Tentukan Urutan Kolom Dinamis Berdasarkan Sort
+            // Ambil indikator yang dipilih user untuk sorting (kecuali 'total')
             let sortedMetricsKeys = activeRankingMetrics.filter(k => k !== 'total');
+            
+            // Ambil sisa indikator yang tidak masuk dalam sort
             let remainingMetricsKeys = metrics.map(m => m.key).filter(k => !sortedMetricsKeys.includes(k));
+            
+            // Gabungkan: Indikator Sort + Sisa Indikator
+            // Perhatikan: "Total %" TIDAK dimasukkan ke header kecuali user memilihnya secara eksplisit
             let finalOrderKeys = [...sortedMetricsKeys, ...remainingMetricsKeys];
             
+            // Buat Header Manual
             let ws_data = [
-                ['#', 'Branch', 'Total %', ...finalOrderKeys.map(k => k.toUpperCase())]
+                ['#', 'Branch', ...finalOrderKeys.map(k => k.toUpperCase())]
             ];
 
-            // 2. Ambil data dari variabel ranked yang sudah diurutkan
+            // 2. Siapkan Data Ranking (Sama seperti renderRanking)
             let groupedData = [];
             let isDrillDown = !!drillDownCo;
 
@@ -674,14 +681,13 @@
                 // Format Nama Branch: "Nama Branch\nCo-Branch" untuk cell wrap di Excel
                 let branchName = `${r.name}\n${r.sub}`;
                 
-                // Mulai构建 baris data
+                // Mulai构建 baris data: Rank, Branch, lalu indikator sesuai finalOrderKeys
                 let row = [
                     i + 1, 
-                    branchName, 
-                    r.totalAchv / 100 // Simpan sebagai desimal agar bisa diformat persen di Excel
+                    branchName
                 ];
 
-                // Tambahkan nilai indikator sesuai urutan finalOrderKeys (juga dalam bentuk desimal)
+                // Tambahkan nilai indikator sesuai urutan dinamis (dalam bentuk desimal)
                 finalOrderKeys.forEach(key => {
                     row.push(r.metricVals[key].achv / 100);
                 });
@@ -706,7 +712,7 @@
                     ws[cellAddrB].s = { alignment: { wrapText: true } };
                 }
 
-                // Format Persentase untuk Kolom C sampai Akhir
+                // Format Persentase untuk Kolom C sampai Akhir (Semua Indikator)
                 for(let C = 2; C <= range.e.c; ++C) { 
                     const cellAddr = XLSX.utils.encode_cell({r: R, c: C});
                     if(ws[cellAddr]) {
@@ -736,7 +742,7 @@
 
             XLSX.writeFile(wb, `${fileName}.xlsx`);
         }
-
+        
         function renderRanking() {
             const thead = document.getElementById('rankingThead');
             const tbody = document.getElementById('rankingTableBody');
