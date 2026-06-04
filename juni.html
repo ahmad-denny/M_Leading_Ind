@@ -618,12 +618,16 @@
         // --- EXPORT TO EXCEL FUNCTION (PERBAIKAN TOTAL) ---
         function exportToExcel() {
             // 1. Siapkan Header Manual agar "Total %" tidak berubah jadi "Total %1"
+            // Urutan: #, Branch, Total %, [Indikator Sesuai Sort], [Sisa Indikator]
+            let sortedMetricsKeys = activeRankingMetrics.filter(k => k !== 'total');
+            let remainingMetricsKeys = metrics.map(m => m.key).filter(k => !sortedMetricsKeys.includes(k));
+            let finalOrderKeys = [...sortedMetricsKeys, ...remainingMetricsKeys];
+            
             let ws_data = [
-                ['#', 'Branch', 'Total %', ...metrics.map(m => m.key.toUpperCase())]
+                ['#', 'Branch', 'Total %', ...finalOrderKeys.map(k => k.toUpperCase())]
             ];
 
             // 2. Ambil data dari variabel ranked yang sudah diurutkan
-            // Kita perlu mereplikasi logika sorting/rendering sebentar untuk mendapatkan data yang benar
             let groupedData = [];
             let isDrillDown = !!drillDownCo;
 
@@ -667,8 +671,8 @@
 
             // 3. Isi Data Row demi Row
             ranked.forEach((r, i) => {
-                // Format Nama Branch: "Nama Branch - Co-Branch"
-                let branchName = `${r.name} - ${r.sub}`;
+                // Format Nama Branch: "Nama Branch\nCo-Branch" untuk cell wrap di Excel
+                let branchName = `${r.name}\n${r.sub}`;
                 
                 // Mulai构建 baris data
                 let row = [
@@ -677,9 +681,9 @@
                     r.totalAchv / 100 // Simpan sebagai desimal agar bisa diformat persen di Excel
                 ];
 
-                // Tambahkan nilai indikator (juga dalam bentuk desimal)
-                metrics.forEach(m => {
-                    row.push(r.metricVals[m.key].achv / 100);
+                // Tambahkan nilai indikator sesuai urutan finalOrderKeys (juga dalam bentuk desimal)
+                finalOrderKeys.forEach(key => {
+                    row.push(r.metricVals[key].achv / 100);
                 });
 
                 ws_data.push(row);
@@ -688,11 +692,22 @@
             // 4. Buat Worksheet dari Array Data
             const ws = XLSX.utils.aoa_to_sheet(ws_data);
 
-            // 5. Terapkan Format Persentase ke Kolom C sampai Akhir
-            // Kolom A (#) dan B (Branch) tidak diformat persen
+            // 5. Terapkan Format Persentase & Wrap Text
             const range = XLSX.utils.decode_range(ws['!ref']);
+            
+            // Atur lebar kolom B (Branch) agar lebih lebar di Excel
+            if(!ws['!cols']) ws['!cols'] = [];
+            ws['!cols'][1] = { wch: 30 }; // Lebar kolom Branch 30 karakter
+
             for(let R = range.s.r + 1; R <= range.e.r; ++R) { // Mulai dari baris ke-2 (index 1)
-                for(let C = 2; C <= range.e.c; ++C) { // Mulai dari kolom ke-3 (index 2, yaitu Total %)
+                // Format Wrap Text untuk Kolom B (Branch)
+                const cellAddrB = XLSX.utils.encode_cell({r: R, c: 1});
+                if(ws[cellAddrB]) {
+                    ws[cellAddrB].s = { alignment: { wrapText: true } };
+                }
+
+                // Format Persentase untuk Kolom C sampai Akhir
+                for(let C = 2; C <= range.e.c; ++C) { 
                     const cellAddr = XLSX.utils.encode_cell({r: R, c: C});
                     if(ws[cellAddr]) {
                         ws[cellAddr].z = '0%'; // Format Excel Persentase
