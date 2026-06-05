@@ -991,6 +991,7 @@
             if (e.target == modal) closeRankingModal();
             if (e.target == sortModal) closeSortModal();
         }
+        document.addEventListener("contextmenu", function(e) { e.preventDefault(); }, false);        
     </script>
 </body>
 </html>
