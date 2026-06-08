@@ -359,7 +359,7 @@
         </div>
     </div>
 
-    <script>
+        <script>
         const metrics = [
             { key: 'ca', label: 'Current Account', icon: 'fa-wallet', type: 'Growth MTD', unit: 'M' },
             { key: 'sa', label: 'Saving Account', icon: 'fa-sack-dollar', type: 'Growth MTD', unit: 'M' },
@@ -377,7 +377,7 @@
         let currentRankingMode = 'all';
         let drillDownCo = null; 
         let activeRankingMetrics = ['total'];
-        let showActualValues = false; // State untuk toggle
+        let showActualValues = false; 
 
         window.onload = async function() {
             initTheme();
@@ -386,11 +386,7 @@
                 if (!res.ok) throw new Error('File data_juni.json tidak ditemukan');
                 rawData = await res.json();
                 
-                // Validasi Array
-                if (!Array.isArray(rawData)) {
-                    console.error("Data bukan array:", typeof rawData);
-                    throw new Error("Format JSON tidak valid");
-                }
+                if (!Array.isArray(rawData)) throw new Error("Format JSON tidak valid");
 
                 rawData = rawData.map(item => {
                     const clean = {};
@@ -461,12 +457,18 @@
             renderDashboard(rawData);
         }
 
-        // FUNGSI FORMAT ANGKA UNTUK DASHBOARD UTAMA
-        function formatDashboardValue(val, unit, isGrowthType = false, isTarget = false, isGap = false) {
+        // --- FUNGSI FORMAT ANGKA UTAMA (DIGUNAKAN DI CARD & RANKING) ---
+        function formatValue(val, unit, isGrowthType = false, isTarget = false, isGap = false) {
             let prefix = '';
-            // Hanya Growth, Gap, atau nilai negatif yang butuh tanda +
-            if ((isGrowthType || isGap) && val > 0) prefix = '+';
-            if (isTarget) prefix = ''; 
+            
+            // Logika tanda + sesuai request
+            if (isTarget) {
+                prefix = ''; // Target tidak pernah pakai +
+            } else if ((isGrowthType || isGap) && val > 0) {
+                prefix = '+'; // Growth & Gap pakai + jika positif
+            } else if (val > 0 && !isGrowthType && !isGap) {
+                prefix = ''; // Booking/Akuisisi tidak pakai +
+            }
 
             if (unit === 'M') {
                 return prefix + val.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';
@@ -531,9 +533,10 @@
                 const growthClass = isNegGrowth ? 'neg' : 'pos';
                 const isGrowthType = ['ca', 'sa', 'fu'].includes(m.key);
                 
-                const formattedMtd = formatDashboardValue(mtd, m.unit, isGrowthType, false, false);
-                const formattedTgt = formatDashboardValue(tgt, m.unit, false, true, false);
-                const formattedGap = formatDashboardValue(gap, m.unit, false, false, true);
+                // Gunakan fungsi formatValue yang sama persis
+                const formattedMtd = formatValue(mtd, m.unit, isGrowthType, false, false);
+                const formattedTgt = formatValue(tgt, m.unit, false, true, false);
+                const formattedGap = formatValue(gap, m.unit, false, false, true);
                 
                 const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
                                  m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
@@ -656,25 +659,9 @@
             renderRanking();
         }
 
-        // TOGGLE DISPLAY MODE
         function toggleDisplayMode() {
             showActualValues = document.getElementById('toggleActualValues').checked;
             renderRanking();
-        }
-
-        // FORMAT ANGKA UNTUK TABEL RANKING
-        function formatRankingValue(val, unit, isPercentage) {
-            if (isPercentage) {
-                return val.toFixed(0) + '%';
-            } else {
-                // Format Angka Aktual
-                let prefix = val >= 0 ? '+' : '';
-                if (unit === 'M') {
-                    return prefix + val.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';
-                } else {
-                    return prefix + Math.round(val).toLocaleString('id-ID');
-                }
-            }
         }
 
         // --- EXPORT TO EXCEL FUNCTION ---
@@ -688,12 +675,10 @@
             if (!showActualValues) headers.push('Total %');
             
             finalOrderKeys.forEach(key => {
-                if (key === 'total' && !showActualValues) headers.push('Total %');
+                if (key === 'total' && showActualValues) headers.push('TOTAL_ACHV_VAL'); 
                 else if (key !== 'total') headers.push(key.toUpperCase());
-                else if (key === 'total' && showActualValues) headers.push('TOTAL_ACHV_VAL'); // Placeholder logic handled below
             });
 
-            // Jika mode aktual, Total Achievement Value masuk ke urutan sort
             let ws_data = [headers];
 
             // Siapkan Data
@@ -765,24 +750,14 @@
                 const cellAddrB = XLSX.utils.encode_cell({r: R, c: 1});
                 if(ws[cellAddrB]) ws[cellAddrB].s = { alignment: { wrapText: true } };
 
-                // Tentukan kolom mana yang harus diformat persen
-                let startCol = showActualValues ? 2 : 3; // Jika aktual, Total Achv Value ada di col 2
-                if (!showActualValues) startCol = 2; // Jika persen, Total % ada di col 2
-                
-                // Logika sederhana: semua kolom setelah Branch adalah angka
-                // Tapi kita perlu bedakan mana yang persen mana yang nominal
-                // Cara termudah: cek header atau asumsikan struktur
-                // Karena kompleks, kita format SEMUA kolom numerik sebagai persen KECUALI jika showActualValues
-                // Namun requestnya: "angka aktualnya". Jadi jika showActualValues, JANGAN format persen.
-                
                 if (!showActualValues) {
-                    for(let C = startCol; C <= range.e.c; ++C) { 
+                    for(let C = 2; C <= range.e.c; ++C) { 
                         const cellAddr = XLSX.utils.encode_cell({r: R, c: C});
                         if(ws[cellAddr]) ws[cellAddr].z = '0%';
                     }
                 } else {
-                    // Jika aktual, format angka biasa dengan pemisah ribuan
-                    for(let C = startCol; C <= range.e.c; ++C) { 
+                    // Jika mode aktual, gunakan format angka biasa (sesuai card)
+                    for(let C = 2; C <= range.e.c; ++C) { 
                         const cellAddr = XLSX.utils.encode_cell({r: R, c: C});
                         if(ws[cellAddr]) ws[cellAddr].z = '#,##0.0';
                     }
@@ -898,7 +873,13 @@
                 
                 metrics.forEach(m => {
                     const v = r.metricVals[m.key];
-                    const displayVal = showActualValues ? formatRankingValue(v.mtd, m.unit, false) : formatRankingValue(v.achv, m.unit, true);
+                    const isGrowthType = ['ca', 'sa', 'fu'].includes(m.key);
+                    
+                    // PERBAIKAN: Gunakan formatValue yang sama persis dengan card dashboard
+                    const displayVal = showActualValues 
+                        ? formatValue(v.mtd, m.unit, isGrowthType, false, false) 
+                        : v.achv.toFixed(0) + '%';
+                        
                     const color = showActualValues ? 'var(--text)' : (v.achv >= 100 ? 'var(--success)' : 'var(--danger)');
                     const highlight = activeRankingMetrics.includes(m.key) ? 'highlight-col' : '';
                     rowHTML += `<td class="${highlight}" style="color:${color}; font-size:0.7rem;">${displayVal}</td>`;
