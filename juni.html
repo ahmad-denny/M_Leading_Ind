@@ -457,7 +457,7 @@
             renderDashboard(rawData);
         }
 
-        // --- FUNGSI FORMAT ANGKA UTAMA (DIPERBARUI) ---
+         // --- FUNGSI FORMAT ANGKA UTAMA (DIPERBARUI: TANPA DESIMAL JIKA 0) ---
         function formatValue(val, unit, isGrowthType = false, isTarget = false, isGap = false) {
             let prefix = '';
             
@@ -470,8 +470,12 @@
                 prefix = ''; 
             }
 
-            // PERBAIKAN: Gunakan 2 desimal untuk semua unit 'M'
             if (unit === 'M') {
+                // PERBAIKAN: Jika nilai 0, tampilkan tanpa desimal
+                if (val === 0) {
+                    return prefix + '0 M';
+                }
+                // Nilai lain tetap 2 desimal
                 return prefix + val.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' M';
             } else {
                 // Unit kosong (Integer) tetap tanpa desimal
