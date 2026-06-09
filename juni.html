@@ -278,14 +278,14 @@
         <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode"><i class="fas fa-moon" id="themeIcon"></i></button>
         <h1><i class="fas fa-university"></i> Bank Muamalat</h1>
         <p>Leading Indicator Dashboard 📍 Region Sumatera</p>
-        <p>📅 Per: 8 Juni 2026 | 📆 Hari Kerja: 20</p>
+        <p>📅 Per: 8 Juni 2026 | 📆 Workdays: 20</p>
     </div>
 
     <!-- CONTROLS -->
     <div class="controls">
         <div class="filter-group">
-            <select id="coBranchFilter" onchange="handleCoBranchChange()"><option value="">Semua Co-Branch</option></select>
-            <select id="branchFilter" onchange="applyFilters()"><option value="">Semua Branch</option></select>
+            <select id="coBranchFilter" onchange="handleCoBranchChange()"><option value="">All Co-Branch</option></select>
+            <select id="branchFilter" onchange="applyFilters()"><option value="">All Branch</option></select>
         </div>
         <button class="btn btn-reset" onclick="resetFilters()"><i class="fas fa-sync-alt"></i> Reset Filter</button>
         <button class="btn btn-ranking" onclick="openRankingModal()"><i class="fas fa-trophy"></i> Ranking Performance</button>
@@ -309,8 +309,8 @@
             <div class="modal-body">
                 <div class="ranking-tabs-wrapper">
                     <div class="ranking-controls">
-                        <button class="tab-btn active" id="tabAll" onclick="setRankingTab('all', this)">Semua Branch</button>
-                        <button class="tab-btn" id="tabCo" onclick="setRankingTab('co', this)">Per Co-Branch</button>
+                        <button class="tab-btn active" id="tabAll" onclick="setRankingTab('all', this)">All Branch</button>
+                        <button class="tab-btn" id="tabCo" onclick="setRankingTab('co', this)">All Co-Branch</button>
                         
                         <div class="action-row">
                             <button class="btn-sort-trigger" onclick="openSortModal()">
@@ -327,7 +327,7 @@
                                 <input type="checkbox" id="toggleActualValues" onchange="toggleDisplayMode()">
                                 <span class="slider"></span>
                             </div>
-                            <span>Tampilkan Angka Aktual</span>
+                            <span>Actual Value Display</span>
                         </label>
 
                         <button class="btn-back-drill" id="btnBackDrill" onclick="backToCoList()"><i class="fas fa-arrow-left"></i> Kembali</button>
@@ -364,7 +364,7 @@
             { key: 'ca', label: 'Current Account', icon: 'fa-wallet', type: 'Growth MTD', unit: 'M' },
             { key: 'sa', label: 'Saving Account', icon: 'fa-sack-dollar', type: 'Growth MTD', unit: 'M' },
             { key: 'fu', label: 'Funding', icon: 'fa-chart-line', type: 'Growth MTD', unit: 'M' },
-            { key: 'con', label: 'Booking Consumer', icon: 'fa-users', type: 'Booking MTD', unit: 'M' },
+            { key: 'con', label: 'Consumer Booking', icon: 'fa-users', type: 'Booking MTD', unit: 'M' },
             { key: 'sme', label: 'SME - Region', icon: 'fa-building', type: 'Booking MTD', unit: 'M' },
             { key: 'ph', label: 'Porsi Haji', icon: 'fa-kaaba', type: 'Booking MTD', unit: '' },
             { key: 'mdin', label: 'MDIN', icon: 'fa-mobile-alt', type: 'Akuisisi MTD', unit: '' },
@@ -597,7 +597,7 @@
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             } else {
                 btnBack.style.display = 'none';
-                title.innerHTML = `<i class="fas fa-chart-bar"></i> Ranking Performance Detail`;
+                title.innerHTML = `<i class="fas fa-chart-bar"></i> Performance Ranking Detail`;
                 if(currentRankingMode === 'all') document.getElementById('tabAll').classList.add('active');
                 else document.getElementById('tabCo').classList.add('active');
             }
@@ -773,8 +773,8 @@
             }
 
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Ranking Performance");
-            let fileName = "Ranking_Performance_Juni_2026";
+            XLSX.utils.book_append_sheet(wb, ws, "Performance Ranking");
+            let fileName = "Performance_Ranking_2026";
             if (showActualValues) fileName += "_Aktual";
             else fileName += "_Persentase";
             
@@ -784,7 +784,7 @@
         function renderRanking() {
             const thead = document.getElementById('rankingThead');
             const tbody = document.getElementById('rankingTableBody');
-            tbody.innerHTML = '<tr><td colspan="100%" style="text-align:center;">Memproses...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="100%" style="text-align:center;">Processing...</td></tr>';
 
             let groupedData = [];
             let isDrillDown = !!drillDownCo;
