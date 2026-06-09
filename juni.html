@@ -510,39 +510,47 @@
             const SME_TARGET_REGION = 50; 
             if (isRegionView) { agg['sme_tgt'] = SME_TARGET_REGION; }
 
-            metrics.forEach(m => {
+                        metrics.forEach(m => {
                 const mtd = agg[m.key + '_mtd'];
                 let tgt = agg[m.key + '_tgt'];
                 const gap = mtd - tgt;
                 
-                let achvDisplay = '0.0%';
-                let achvColorClass = 'red';
-                let barWidth = 0;
-                let barColor = 'under';
-
+                // Hitung Achievement
+                let achv = 0;
                 if (tgt > 0) {
-                    const achv = (mtd / tgt) * 100;
-                    achvDisplay = achv.toFixed(1) + '%';
-                    achvColorClass = achv >= 100 ? 'green' : 'red';
-                    barWidth = Math.min(Math.max(achv, 0), 100);
-                    barColor = achv >= 100 ? 'over' : 'under';
+                    achv = (mtd / tgt) * 100;
                 } else if (mtd > 0) {
-                    const achv = (mtd / 1) * 100; 
-                    achvDisplay = achv.toFixed(1) + '%';
-                    achvColorClass = 'green';
-                    barWidth = 100;
-                    barColor = 'over';
-                } else {
-                    achvDisplay = '0.0%';
-                    achvColorClass = 'red'; 
-                    barWidth = 0;
+                    achv = (mtd / 1) * 100; 
                 }
+                
+                let achvDisplay = achv.toFixed(1) + '%';
+                
+                // PERBAIKAN LOGIKA WARNA ACHIEVEMENT & PROGRESS BAR
+                let achvColorClass = 'red';
+                let barColor = 'under';
+                let barWidth = Math.min(Math.max(achv, 0), 100);
+
+                if (achv >= 80) {
+                    // >= 80% : HIJAU
+                    achvColorClass = 'green';
+                    barColor = 'over';
+                } else if (achv >= 50) {
+                    // 50% - 79.9% : KUNING
+                    achvColorClass = 'yellow'; // Pastikan class CSS .achv-val.yellow sudah ada atau gunakan style inline
+                    barColor = 'warning';      // Pastikan class CSS .progress-fill.warning sudah ada
+                } else {
+                    // < 50% : MERAH
+                    achvColorClass = 'red';
+                    barColor = 'under';
+                }
+
+                // Tambahkan definisi warna kuning jika belum ada di CSS global
+                // Atau gunakan style inline langsung di template literal HTML di bawah
                 
                 const isNegGrowth = (m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && mtd < 0;
                 const growthClass = isNegGrowth ? 'neg' : 'pos';
                 const isGrowthType = ['ca', 'sa', 'fu'].includes(m.key);
                 
-                // Panggil formatValue yang sudah diperbarui
                 const formattedMtd = formatValue(mtd, m.unit, isGrowthType, false, false);
                 const formattedTgt = formatValue(tgt, m.unit, false, true, false);
                 const formattedGap = formatValue(gap, m.unit, false, false, true);
@@ -561,8 +569,11 @@
                         <div class="metric-row"><span>${gapLabel}</span><span class="metric-val ${gap >= 0 ? 'pos' : 'neg'}">${formattedGap}</span></div>
                         <div class="achievement-box">
                             <div class="achv-label">Achievement</div>
-                            <div class="achv-val ${achvColorClass}">${achvDisplay}</div>
-                            <div class="progress-bar"><div class="progress-fill ${barColor}" style="width: ${barWidth}%"></div></div>
+                            <!-- Gunakan style inline untuk warna kuning agar tidak perlu edit CSS terpisah -->
+                            <div class="achv-val" style="color: ${achv >= 80 ? 'var(--success)' : achv >= 50 ? 'var(--warning)' : 'var(--danger)'};">${achvDisplay}</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="background-color: ${achv >= 80 ? 'var(--success)' : achv >= 50 ? 'var(--warning)' : 'var(--danger)'}; width: ${barWidth}%"></div>
+                            </div>
                         </div>
                     </div>`;
             });
