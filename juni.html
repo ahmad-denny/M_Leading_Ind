@@ -359,7 +359,7 @@
         </div>
     </div>
 
-        <script>
+    <script>
         const metrics = [
             { key: 'ca', label: 'Current Account', icon: 'fa-wallet', type: 'Growth MTD', unit: 'M' },
             { key: 'sa', label: 'Saving Account', icon: 'fa-sack-dollar', type: 'Growth MTD', unit: 'M' },
@@ -470,9 +470,13 @@
                 prefix = ''; // Booking/Akuisisi tidak pakai +
             }
 
+            // TENTUKAN JUMLAH DESIMAL: 2 desimal jika negatif, 1 desimal jika positif/nol
+            const decimals = val < 0 ? 2 : 1;
+
             if (unit === 'M') {
-                return prefix + val.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';
+                return prefix + val.toLocaleString('id-ID', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + ' M';
             } else {
+                // Untuk integer (Porsi Haji, dll), tetap bulat kecuali diminta lain
                 return prefix + Math.round(val).toLocaleString('id-ID');
             }
         }
