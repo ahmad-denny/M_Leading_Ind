@@ -457,11 +457,11 @@
             renderDashboard(rawData);
         }
 
-         // --- FUNGSI FORMAT ANGKA UTAMA (DIPERBARUI: TANPA DESIMAL JIKA 0) ---
+         // --- FUNGSI FORMAT ANGKA UTAMA (TARGET BULAT, AKTUAL 2 DESIMAL) ---
         function formatValue(val, unit, isGrowthType = false, isTarget = false, isGap = false) {
             let prefix = '';
             
-            // Logika tanda + sesuai request sebelumnya
+            // Logika tanda +
             if (isTarget) {
                 prefix = ''; 
             } else if ((isGrowthType || isGap) && val > 0) {
@@ -471,18 +471,21 @@
             }
 
             if (unit === 'M') {
-                // PERBAIKAN: Jika nilai 0, tampilkan tanpa desimal
+                // PERBAIKAN: Jika ini adalah TARGET, gunakan Math.round() agar bulat
+                if (isTarget) {
+                    return prefix + Math.round(val).toLocaleString('id-ID') + ' M';
+                }
+                
+                // Untuk AKTUAL & GAP: Jika 0 tampilkan bulat, jika tidak tampilkan 2 desimal
                 if (val === 0) {
                     return prefix + '0 M';
                 }
-                // Nilai lain tetap 2 desimal
                 return prefix + val.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' M';
             } else {
                 // Unit kosong (Integer) tetap tanpa desimal
                 return prefix + Math.round(val).toLocaleString('id-ID');
             }
         }
-
         function renderDashboard(data) {
             const container = document.getElementById('dashboardContainer');
             container.innerHTML = '';
