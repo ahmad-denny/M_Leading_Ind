@@ -457,26 +457,24 @@
             renderDashboard(rawData);
         }
 
-        // --- FUNGSI FORMAT ANGKA UTAMA (DIGUNAKAN DI CARD & RANKING) ---
+        // --- FUNGSI FORMAT ANGKA UTAMA (DIPERBARUI) ---
         function formatValue(val, unit, isGrowthType = false, isTarget = false, isGap = false) {
             let prefix = '';
             
-            // Logika tanda + sesuai request
+            // Logika tanda + sesuai request sebelumnya
             if (isTarget) {
-                prefix = ''; // Target tidak pernah pakai +
+                prefix = ''; 
             } else if ((isGrowthType || isGap) && val > 0) {
-                prefix = '+'; // Growth & Gap pakai + jika positif
+                prefix = '+'; 
             } else if (val > 0 && !isGrowthType && !isGap) {
-                prefix = ''; // Booking/Akuisisi tidak pakai +
+                prefix = ''; 
             }
 
-            // TENTUKAN JUMLAH DESIMAL: 2 desimal jika negatif, 1 desimal jika positif/nol
-            const decimals = val < 0 ? 2 : 1;
-
+            // PERBAIKAN: Gunakan 2 desimal untuk semua unit 'M'
             if (unit === 'M') {
-                return prefix + val.toLocaleString('id-ID', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + ' M';
+                return prefix + val.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' M';
             } else {
-                // Untuk integer (Porsi Haji, dll), tetap bulat kecuali diminta lain
+                // Unit kosong (Integer) tetap tanpa desimal
                 return prefix + Math.round(val).toLocaleString('id-ID');
             }
         }
@@ -537,7 +535,7 @@
                 const growthClass = isNegGrowth ? 'neg' : 'pos';
                 const isGrowthType = ['ca', 'sa', 'fu'].includes(m.key);
                 
-                // Gunakan fungsi formatValue yang sama persis
+                // Panggil formatValue yang sudah diperbarui
                 const formattedMtd = formatValue(mtd, m.unit, isGrowthType, false, false);
                 const formattedTgt = formatValue(tgt, m.unit, false, true, false);
                 const formattedGap = formatValue(gap, m.unit, false, false, true);
@@ -562,7 +560,6 @@
                     </div>`;
             });
         }
-
         // --- LOGIKA RANKING & DRILL-DOWN ---
         function openRankingModal() {
             document.getElementById('rankingModal').style.display = 'flex';
