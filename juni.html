@@ -434,7 +434,7 @@
         function handleCoBranchChange() {
             const coVal = document.getElementById('coBranchFilter').value;
             const brSelect = document.getElementById('branchFilter');
-            brSelect.innerHTML = '<option value="">Semua Branch</option>';
+            brSelect.innerHTML = '<option value="">All Branch</option>';
             if (coVal) {
                 const brSet = new Set(rawData.filter(d => d['co'] === coVal).map(d => d['br']).filter(Boolean));
                 [...brSet].sort().forEach(br => { brSelect.innerHTML += `<option value="${br}">${br}</option>`; });
@@ -453,7 +453,7 @@
 
         function resetFilters() {
             document.getElementById('coBranchFilter').value = "";
-            document.getElementById('branchFilter').innerHTML = '<option value="">Semua Branch</option>';
+            document.getElementById('branchFilter').innerHTML = '<option value="">All Branch</option>';
             renderDashboard(rawData);
         }
 
