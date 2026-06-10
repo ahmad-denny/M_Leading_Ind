@@ -457,35 +457,48 @@
             renderDashboard(rawData);
         }
 
-         // --- FUNGSI FORMAT ANGKA UTAMA (GAP SELALU POSITIF) ---
-        function formatValue(val, unit, isGrowthType = false, isTarget = false, isGap = false) {
+                 // --- FUNGSI FORMAT ANGKA UTAMA (TARGET CON & SME 1 DESIMAL) ---
+        function formatValue(val, unit, isGrowthType = false, isTarget = false, isGap = false, metricKey = '') {
             let prefix = '';
             
             // Logika tanda +
             if (isTarget) {
                 prefix = ''; 
             } else if ((isGrowthType || isGap) && val > 0) {
-                // PERBAIKAN: Untuk GAP, kita tidak butuh tanda + karena sudah pasti positif (absolut)
-                // Tapi untuk Growth MTD (CA/SA/FU) tetap butuh tanda +
                 if (!isGap) prefix = '+'; 
             } else if (val > 0 && !isGrowthType && !isGap) {
                 prefix = ''; 
             }
 
-            // PERBAIKAN KHUSUS GAP: Gunakan nilai absolut (Math.abs)
-            // Agar -2.76 M berubah menjadi 2.76 M
+            // PERBAIKAN: Tentukan jumlah desimal berdasarkan jenis metrik
+            let decimalPlaces = 0; // Default bulat
+            
+            if (isTarget) {
+                // Target untuk CON dan SME pakai 1 desimal
+                if (metricKey === 'con' || metricKey === 'sme') {
+                    decimalPlaces = 1;
+                }
+                // Target lainnya tetap 0 desimal (bulat)
+            } else if (unit === 'M') {
+                // Aktual & GAP tetap 2 desimal (kecuali 0)
+                decimalPlaces = 2;
+            }
+
+            // Hitung nilai yang akan diformat
             let displayVal = isGap ? Math.abs(val) : val;
 
             if (unit === 'M') {
-                if (isTarget) {
-                    return prefix + Math.round(displayVal).toLocaleString('id-ID') + ' M';
-                }
-                
-                if (displayVal === 0) {
+                if (displayVal === 0 && !isTarget) {
                     return prefix + '0 M';
                 }
-                return prefix + displayVal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' M';
+                
+                // Gunakan toLocaleString dengan opsi minimumFractionDigits dinamis
+                return prefix + displayVal.toLocaleString('id-ID', { 
+                    minimumFractionDigits: decimalPlaces, 
+                    maximumFractionDigits: decimalPlaces 
+                }) + ' M';
             } else {
+                // Unit kosong (Integer) tetap tanpa desimal
                 return prefix + Math.round(displayVal).toLocaleString('id-ID');
             }
         }
@@ -513,7 +526,7 @@
             const SME_TARGET_REGION = 50; 
             if (isRegionView) { agg['sme_tgt'] = SME_TARGET_REGION; }
 
-                        metrics.forEach(m => {
+            metrics.forEach(m => {
                 const mtd = agg[m.key + '_mtd'];
                 let tgt = agg[m.key + '_tgt'];
                 
@@ -557,12 +570,9 @@
                 const growthClass = isNegGrowth ? 'neg' : 'pos';
                 const isGrowthType = ['ca', 'sa', 'fu'].includes(m.key);
                 
-                const formattedMtd = formatValue(mtd, m.unit, isGrowthType, false, false);
-                const formattedTgt = formatValue(tgt, m.unit, false, true, false);
-                
-                // Panggil formatValue untuk GAP. Karena gap sudah dihitung sebagai (Target - Aktual),
-                // nilainya akan otomatis positif jika belum tercapai.
-                const formattedGap = formatValue(gap, m.unit, false, false, true);
+                const formattedMtd = formatValue(mtd, m.unit, isGrowthType, false, false, m.key); // Tambahkan m.key
+                const formattedTgt = formatValue(tgt, m.unit, false, true, false, m.key);         // Tambahkan m.key
+                const formattedGap = formatValue(gap, m.unit, false, false, true, m.key);         // Tambahkan m.key                
                 
                 const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
                                  m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
