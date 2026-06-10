@@ -513,10 +513,19 @@
             const SME_TARGET_REGION = 50; 
             if (isRegionView) { agg['sme_tgt'] = SME_TARGET_REGION; }
 
-            metrics.forEach(m => {
+                        metrics.forEach(m => {
                 const mtd = agg[m.key + '_mtd'];
                 let tgt = agg[m.key + '_tgt'];
-                const gap = mtd - tgt;
+                
+                // PERBAIKAN LOGIKA GAP: 
+                // Jika Target > 0, GAP = Target - Aktual (Sisa yang harus dicapai)
+                // Jika Target <= 0, GAP = Aktual - Target (Selisih murni)
+                let gap;
+                if (tgt > 0) {
+                    gap = tgt - mtd; 
+                } else {
+                    gap = mtd - tgt;
+                }
                 
                 // Hitung Achievement
                 let achv = 0;
@@ -528,38 +537,35 @@
                 
                 let achvDisplay = achv.toFixed(1) + '%';
                 
-                // PERBAIKAN LOGIKA WARNA ACHIEVEMENT & PROGRESS BAR
+                // Logika Warna Achievement & Progress Bar
                 let achvColorClass = 'red';
                 let barColor = 'under';
                 let barWidth = Math.min(Math.max(achv, 0), 100);
 
                 if (achv >= 80) {
-                    // >= 80% : HIJAU
                     achvColorClass = 'green';
                     barColor = 'over';
                 } else if (achv >= 50) {
-                    // 50% - 79.9% : KUNING
-                    achvColorClass = 'yellow'; // Pastikan class CSS .achv-val.yellow sudah ada atau gunakan style inline
-                    barColor = 'warning';      // Pastikan class CSS .progress-fill.warning sudah ada
+                    achvColorClass = 'yellow';
+                    barColor = 'warning';
                 } else {
-                    // < 50% : MERAH
                     achvColorClass = 'red';
                     barColor = 'under';
                 }
 
-                // Tambahkan definisi warna kuning jika belum ada di CSS global
-                // Atau gunakan style inline langsung di template literal HTML di bawah
-                
                 const isNegGrowth = (m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && mtd < 0;
                 const growthClass = isNegGrowth ? 'neg' : 'pos';
                 const isGrowthType = ['ca', 'sa', 'fu'].includes(m.key);
                 
                 const formattedMtd = formatValue(mtd, m.unit, isGrowthType, false, false);
                 const formattedTgt = formatValue(tgt, m.unit, false, true, false);
+                
+                // Panggil formatValue untuk GAP. Karena gap sudah dihitung sebagai (Target - Aktual),
+                // nilainya akan otomatis positif jika belum tercapai.
                 const formattedGap = formatValue(gap, m.unit, false, false, true);
                 
-                const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'Growth GAP' : 
-                                 m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'Booking GAP' : 'Acquisition GAP';
+                const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
+                                 m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
 
                 container.innerHTML += `
                     <div class="card">
@@ -568,11 +574,10 @@
                             <span class="badge-mtd">MTD</span>
                         </div>
                         <div class="metric-row"><span>${m.type}</span><span class="metric-val ${growthClass}">${formattedMtd}</span></div>
-                        <div class="metric-row"><span>MTD Target</span><span class="metric-val">${formattedTgt}</span></div>
-                        <div class="metric-row"><span>${gapLabel}</span><span class="metric-val ${gap >= 0 ? 'pos' : 'neg'}">${formattedGap}</span></div>
+                        <div class="metric-row"><span>Target MTD</span><span class="metric-val">${formattedTgt}</span></div>
+                        <div class="metric-row"><span>${gapLabel}</span><span class="metric-val" style="color: var(--danger);">${formattedGap}</span></div>
                         <div class="achievement-box">
                             <div class="achv-label">Achievement</div>
-                            <!-- Gunakan style inline untuk warna kuning agar tidak perlu edit CSS terpisah -->
                             <div class="achv-val" style="color: ${achv >= 80 ? 'var(--success)' : achv >= 50 ? 'var(--warning)' : 'var(--danger)'};">${achvDisplay}</div>
                             <div class="progress-bar">
                                 <div class="progress-fill" style="background-color: ${achv >= 80 ? 'var(--success)' : achv >= 50 ? 'var(--warning)' : 'var(--danger)'}; width: ${barWidth}%"></div>
