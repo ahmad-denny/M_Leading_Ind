@@ -361,9 +361,9 @@
 
     <script>
         const metrics = [
-            { key: 'ca', label: 'Current Account', icon: 'fa-wallet', type: 'Growth MTD', unit: 'M' },
-            { key: 'sa', label: 'Saving Account', icon: 'fa-sack-dollar', type: 'Growth MTD', unit: 'M' },
-            { key: 'fu', label: 'Funding', icon: 'fa-chart-line', type: 'Growth MTD', unit: 'M' },
+            { key: 'ca', label: 'Current Account', icon: 'fa-wallet', type: 'MTD Growth', unit: 'M' },
+            { key: 'sa', label: 'Saving Account', icon: 'fa-sack-dollar', type: 'MTD Growth', unit: 'M' },
+            { key: 'fu', label: 'Funding', icon: 'fa-chart-line', type: 'MTD Growth', unit: 'M' },
             { key: 'con', label: 'Consumer Booking', icon: 'fa-users', type: 'MTD Booking', unit: 'M' },
             { key: 'sme', label: 'SME - Region', icon: 'fa-building', type: 'MTD Booking', unit: 'M' },
             { key: 'ph', label: 'Porsi Haji', icon: 'fa-kaaba', type: 'MTD Booking', unit: '' },
@@ -556,7 +556,7 @@
                 const formattedGap = formatValue(gap, m.unit, false, false, true);
                 
                 const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'Growth GAP' : 
-                                 m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
+                                 m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'Booking GAP' : 'Acquisition GAP';
 
                 container.innerHTML += `
                     <div class="card">
