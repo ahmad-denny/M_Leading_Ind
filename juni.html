@@ -457,7 +457,7 @@
             renderDashboard(rawData);
         }
 
-         // --- FUNGSI FORMAT ANGKA UTAMA (TARGET BULAT, AKTUAL 2 DESIMAL) ---
+         // --- FUNGSI FORMAT ANGKA UTAMA (GAP SELALU POSITIF) ---
         function formatValue(val, unit, isGrowthType = false, isTarget = false, isGap = false) {
             let prefix = '';
             
@@ -465,25 +465,28 @@
             if (isTarget) {
                 prefix = ''; 
             } else if ((isGrowthType || isGap) && val > 0) {
-                prefix = '+'; 
+                // PERBAIKAN: Untuk GAP, kita tidak butuh tanda + karena sudah pasti positif (absolut)
+                // Tapi untuk Growth MTD (CA/SA/FU) tetap butuh tanda +
+                if (!isGap) prefix = '+'; 
             } else if (val > 0 && !isGrowthType && !isGap) {
                 prefix = ''; 
             }
 
+            // PERBAIKAN KHUSUS GAP: Gunakan nilai absolut (Math.abs)
+            // Agar -2.76 M berubah menjadi 2.76 M
+            let displayVal = isGap ? Math.abs(val) : val;
+
             if (unit === 'M') {
-                // PERBAIKAN: Jika ini adalah TARGET, gunakan Math.round() agar bulat
                 if (isTarget) {
-                    return prefix + Math.round(val).toLocaleString('id-ID') + ' M';
+                    return prefix + Math.round(displayVal).toLocaleString('id-ID') + ' M';
                 }
                 
-                // Untuk AKTUAL & GAP: Jika 0 tampilkan bulat, jika tidak tampilkan 2 desimal
-                if (val === 0) {
+                if (displayVal === 0) {
                     return prefix + '0 M';
                 }
-                return prefix + val.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' M';
+                return prefix + displayVal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' M';
             } else {
-                // Unit kosong (Integer) tetap tanpa desimal
-                return prefix + Math.round(val).toLocaleString('id-ID');
+                return prefix + Math.round(displayVal).toLocaleString('id-ID');
             }
         }
         function renderDashboard(data) {
@@ -510,7 +513,7 @@
             const SME_TARGET_REGION = 50; 
             if (isRegionView) { agg['sme_tgt'] = SME_TARGET_REGION; }
 
-                        metrics.forEach(m => {
+            metrics.forEach(m => {
                 const mtd = agg[m.key + '_mtd'];
                 let tgt = agg[m.key + '_tgt'];
                 const gap = mtd - tgt;
