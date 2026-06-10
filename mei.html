@@ -384,15 +384,15 @@
 
     <script>
         const metrics = [
-            { key: 'ca', label: 'Current Account', icon: 'fa-wallet', type: 'Growth MTD', unit: 'M' },
-            { key: 'sa', label: 'Saving Account', icon: 'fa-sack-dollar', type: 'Growth MTD', unit: 'M' },
-            { key: 'fu', label: 'Funding', icon: 'fa-chart-line', type: 'Growth MTD', unit: 'M' },
-            { key: 'con', label: 'Booking Consumer', icon: 'fa-users', type: 'Booking MTD', unit: 'M' },
-            { key: 'sme', label: 'SME - Region', icon: 'fa-building', type: 'Booking MTD', unit: 'M' },
-            { key: 'ph', label: 'Porsi Haji', icon: 'fa-kaaba', type: 'Booking MTD', unit: '' },
+            { key: 'ca', label: 'Current Account', icon: 'fa-wallet', type: 'MTD Growth', unit: 'M' },
+            { key: 'sa', label: 'Saving Account', icon: 'fa-sack-dollar', type: 'MTD Growth', unit: 'M' },
+            { key: 'fu', label: 'Funding', icon: 'fa-chart-line', type: 'MTD Growth', unit: 'M' },
+            { key: 'con', label: 'Booking Consumer', icon: 'fa-users', type: 'MTD Booking', unit: 'M' },
+            { key: 'sme', label: 'SME - Region', icon: 'fa-building', type: 'MTD Booking', unit: 'M' },
+            { key: 'ph', label: 'Porsi Haji', icon: 'fa-kaaba', type: 'MTD Booking', unit: '' },
             { key: 'mdin', label: 'MDIN', icon: 'fa-mobile-alt', type: 'Akuisisi MTD', unit: '' },
             { key: 'qris', label: 'QRIS', icon: 'fa-qrcode', type: 'Akuisisi MTD', unit: '' },
-            { key: 'sli', label: 'Sunlife', icon: 'fa-umbrella', type: 'Booking MTD', unit: '' },
+            { key: 'sli', label: 'Sunlife', icon: 'fa-umbrella', type: 'MTD Booking', unit: '' },
             { key: 'cif', label: 'New CIF', icon: 'fa-id-card', type: 'Akuisisi MTD', unit: '' }
         ];
 
@@ -503,7 +503,7 @@
 
             // --- FUNGSI FORMAT ANGKA YANG DISESUAIKAN ---
             const formatValue = (val, unit, forcePlus = false) => {
-                // forcePlus hanya true jika kita MEMAKSA tanda + (khusus GAP & Growth MTD)
+                // forcePlus hanya true jika kita MEMAKSA tanda + (khusus GAP & MTD Growth)
                 let prefix = '';
                 
                 // Tambahkan '+' HANYA JIKA:
@@ -571,7 +571,7 @@
                 const growthClass = isNegGrowth ? 'neg' : 'pos';
                 
                 // Tentukan apakah baris ini butuh tanda +
-                // 1. Growth MTD (CA, SA, FU): Butuh tanda + karena bisa negatif
+                // 1. MTD Growth (CA, SA, FU): Butuh tanda + karena bisa negatif
                 // 2. Target: Tidak pernah pakai +
                 // 3. GAP: Selalu butuh tanda + untuk menunjukkan arah selisih
                 // 4. Booking/Akuisisi MTD: Tidak pernah pakai +
@@ -582,8 +582,8 @@
                 const formattedTgt = formatValue(tgt, m.unit, false);         // Target tidak pernah pakai +
                 const formattedGap = formatValue(gap, m.unit, true);          // GAP selalu pakai +
                 
-                const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
-                                 m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
+                const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'Growth GAP' : 
+                                 m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'Booking GAP' : 'GAP Akuisisi';
 
                 container.innerHTML += `
                     <div class="card">
@@ -592,7 +592,7 @@
                             <span class="badge-mtd">MTD</span>
                         </div>
                         <div class="metric-row"><span>${m.type}</span><span class="metric-val ${growthClass}">${formattedMtd}</span></div>
-                        <div class="metric-row"><span>Target MTD</span><span class="metric-val">${formattedTgt}</span></div>
+                        <div class="metric-row"><span>MTD Target</span><span class="metric-val">${formattedTgt}</span></div>
                         <div class="metric-row"><span>${gapLabel}</span><span class="metric-val ${gap >= 0 ? 'pos' : 'neg'}">${formattedGap}</span></div>
                         <div class="achievement-box">
                             <div class="achv-label">Achievement</div>
