@@ -287,7 +287,7 @@
             <select id="coBranchFilter" onchange="handleCoBranchChange()"><option value="">All Co-Branch</option></select>
             <select id="branchFilter" onchange="applyFilters()"><option value="">All Branch</option></select>
         </div>
-        <button class="btn btn-reset" onclick="resetFilters()"><i class="fas fa-sync-alt"></i> Reset Filter</button>
+        <button class="btn btn-reset" onclick="resetFilters()"><i class="fas fa-sync-alt"></i> Filter Reset</button>
         <button class="btn btn-ranking" onclick="openRankingModal()"><i class="fas fa-trophy"></i> Performance Ranking</button>
     </div>
 
@@ -297,7 +297,7 @@
     </div>
 
     <!-- FOOTER -->
-    <div class="footer">💡 Update data di bagian script HTML | 📱 Optimized for Mobile & Web | Theme: Light/Dark | Made by Love - RBPM</div>
+    <div class="footer">💡 Update data in the HTML script section | 📱 Optimized for Mobile & Web | Theme: Light/Dark | Made by Love - RBPM</div>
 
     <!-- MODAL RANKING -->
     <div id="rankingModal" class="modal-overlay">
@@ -364,13 +364,13 @@
             { key: 'ca', label: 'Current Account', icon: 'fa-wallet', type: 'Growth MTD', unit: 'M' },
             { key: 'sa', label: 'Saving Account', icon: 'fa-sack-dollar', type: 'Growth MTD', unit: 'M' },
             { key: 'fu', label: 'Funding', icon: 'fa-chart-line', type: 'Growth MTD', unit: 'M' },
-            { key: 'con', label: 'Consumer Booking', icon: 'fa-users', type: 'Booking MTD', unit: 'M' },
-            { key: 'sme', label: 'SME - Region', icon: 'fa-building', type: 'Booking MTD', unit: 'M' },
-            { key: 'ph', label: 'Porsi Haji', icon: 'fa-kaaba', type: 'Booking MTD', unit: '' },
-            { key: 'mdin', label: 'MDIN', icon: 'fa-mobile-alt', type: 'Akuisisi MTD', unit: '' },
-            { key: 'qris', label: 'QRIS', icon: 'fa-qrcode', type: 'Akuisisi MTD', unit: '' },
-            { key: 'sli', label: 'Sunlife (SLI)', icon: 'fa-umbrella', type: 'Booking MTD', unit: '' },
-            { key: 'cif', label: 'New CIF', icon: 'fa-id-card', type: 'Akuisisi MTD', unit: '' }
+            { key: 'con', label: 'Consumer Booking', icon: 'fa-users', type: 'MTD Booking', unit: 'M' },
+            { key: 'sme', label: 'SME - Region', icon: 'fa-building', type: 'MTD Booking', unit: 'M' },
+            { key: 'ph', label: 'Porsi Haji', icon: 'fa-kaaba', type: 'MTD Booking', unit: '' },
+            { key: 'mdin', label: 'MDIN', icon: 'fa-mobile-alt', type: 'Acquisition MTD', unit: '' },
+            { key: 'qris', label: 'QRIS', icon: 'fa-qrcode', type: 'Acquisition MTD', unit: '' },
+            { key: 'sli', label: 'Sunlife (SLI)', icon: 'fa-umbrella', type: 'MTD Booking', unit: '' },
+            { key: 'cif', label: 'New CIF', icon: 'fa-id-card', type: 'Acquisition MTD', unit: '' }
         ];
 
         let rawData = [];
@@ -555,7 +555,7 @@
                 const formattedTgt = formatValue(tgt, m.unit, false, true, false);
                 const formattedGap = formatValue(gap, m.unit, false, false, true);
                 
-                const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
+                const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'Growth GAP' : 
                                  m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
 
                 container.innerHTML += `
@@ -565,7 +565,7 @@
                             <span class="badge-mtd">MTD</span>
                         </div>
                         <div class="metric-row"><span>${m.type}</span><span class="metric-val ${growthClass}">${formattedMtd}</span></div>
-                        <div class="metric-row"><span>Target MTD</span><span class="metric-val">${formattedTgt}</span></div>
+                        <div class="metric-row"><span>MTD Target</span><span class="metric-val">${formattedTgt}</span></div>
                         <div class="metric-row"><span>${gapLabel}</span><span class="metric-val ${gap >= 0 ? 'pos' : 'neg'}">${formattedGap}</span></div>
                         <div class="achievement-box">
                             <div class="achv-label">Achievement</div>
