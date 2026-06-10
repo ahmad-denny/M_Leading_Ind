@@ -457,8 +457,8 @@
             renderDashboard(rawData);
         }
 
-                 // --- FUNGSI FORMAT ANGKA UTAMA (TARGET CON & SME 1 DESIMAL) ---
-        function formatValue(val, unit, isGrowthType = false, isTarget = false, isGap = false, metricKey = '') {
+                // --- FUNGSI FORMAT ANGKA UTAMA (TARGET 1 DESIMAL UNTUK UNIT 'M') ---
+        function formatValue(val, unit, isGrowthType = false, isTarget = false, isGap = false) {
             let prefix = '';
             
             // Logika tanda +
@@ -470,33 +470,20 @@
                 prefix = ''; 
             }
 
-            // PERBAIKAN: Tentukan jumlah desimal berdasarkan jenis metrik
-            let decimalPlaces = 0; // Default bulat
-            
-            if (isTarget) {
-                // Target untuk CON dan SME pakai 1 desimal
-                if (metricKey === 'con' || metricKey === 'sme') {
-                    decimalPlaces = 1;
-                }
-                // Target lainnya tetap 0 desimal (bulat)
-            } else if (unit === 'M') {
-                // Aktual & GAP tetap 2 desimal (kecuali 0)
-                decimalPlaces = 2;
-            }
-
-            // Hitung nilai yang akan diformat
+            // Hitung nilai display (absolut untuk GAP)
             let displayVal = isGap ? Math.abs(val) : val;
 
             if (unit === 'M') {
-                if (displayVal === 0 && !isTarget) {
-                    return prefix + '0 M';
+                // PERBAIKAN: Jika ini TARGET, gunakan 1 desimal
+                if (isTarget) {
+                    return prefix + displayVal.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';
                 }
                 
-                // Gunakan toLocaleString dengan opsi minimumFractionDigits dinamis
-                return prefix + displayVal.toLocaleString('id-ID', { 
-                    minimumFractionDigits: decimalPlaces, 
-                    maximumFractionDigits: decimalPlaces 
-                }) + ' M';
+                // Untuk AKTUAL & GAP: Jika 0 tampilkan bulat, jika tidak tampilkan 2 desimal
+                if (displayVal === 0) {
+                    return prefix + '0 M';
+                }
+                return prefix + displayVal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' M';
             } else {
                 // Unit kosong (Integer) tetap tanpa desimal
                 return prefix + Math.round(displayVal).toLocaleString('id-ID');
