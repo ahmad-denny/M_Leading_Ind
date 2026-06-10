@@ -303,7 +303,7 @@
     <div id="rankingModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitle"><i class="fas fa-chart-bar"></i> Performance Ranking Detail</h3>
+                <h3 id="modalTitle"><i class="fas fa-chart-bar"></i> Ranking Performance</h3>
                 <button class="close-btn" onclick="closeRankingModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -608,7 +608,7 @@
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             } else {
                 btnBack.style.display = 'none';
-                title.innerHTML = `<i class="fas fa-chart-bar"></i> Performance Ranking Detail`;
+                title.innerHTML = `<i class="fas fa-chart-bar"></i> Ranking Performance`;
                 if(currentRankingMode === 'all') document.getElementById('tabAll').classList.add('active');
                 else document.getElementById('tabCo').classList.add('active');
             }
