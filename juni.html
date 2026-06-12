@@ -47,40 +47,53 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; transition: background-color 0.3s, color 0.3s; }
         body { background-color: var(--bg); color: var(--text); padding-bottom: 40px; min-height: 100vh; }
 
-        .header { background: linear-gradient(135deg, var(--primary), #2d1b50); color: white; padding: 20px; text-align: center; position: relative; border-radius: 0 0 var(--radius) var(--radius); margin-bottom: 20px; }
-        .header h1 { font-size: 1.4rem; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .header p { font-size: 0.85rem; opacity: 0.9; margin: 2px 0; }
-        
-        /* Container untuk tombol-tombol aksi di header kanan */
-        .header-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
-        .theme-toggle, .filter-toggle { background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: background 0.2s, transform 0.2s; }
-        .theme-toggle:hover, .filter-toggle:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
-        .filter-toggle.active { background: var(--warning); color: #333; }
-        
-        /* DEFAULT FILTER SEMBUNYI (ANIMASI SMOOTH) */
-        .controls { 
+        /* PERBAIKAN JEDAH RUANG DAN LOGO DI HEADER */
+        .header { 
+            background: linear-gradient(135deg, var(--primary), #2d1b50); 
+            color: white; 
+            padding: 20px; 
+            text-align: center; 
+            position: relative; 
+            border-radius: 0 0 var(--radius) var(--radius); 
+            margin-bottom: 25px; /* Jarak aman konstan di bawah header */
+        }
+        .header h1 { 
+            font-size: 1.4rem; 
+            margin-bottom: 5px; 
             display: flex; 
             align-items: center; 
-            background: var(--card-bg); 
-            margin: 0 20px 15px 20px; 
-            border-radius: var(--radius); 
-            box-shadow: var(--shadow); 
-            gap: 10px;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            padding: 0 20px;
-            transition: max-height 0.3s ease-out, opacity 0.2s ease-out, margin 0.3s ease-out, padding 0.3s ease-out;
+            justify-content: center; 
+            gap: 12px; 
         }
+        .header h1 img.logo {
+            object-fit: contain;
+            vertical-align: middle;
+        }
+        .header p { font-size: 0.85rem; opacity: 0.9; margin: 4px 0; }
         
-        /* KETIKA FILTER DITAMPILKAN */
-        .controls.show {
-            max-height: 200px; /* Batas aman tinggi filter */
-            opacity: 1;
-            margin: 15px 20px;
-            padding: 15px 20px;
+        /* TOMBOL TEMA KANAN ATAS */
+        .theme-toggle { 
+            position: absolute; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            right: 20px; 
+            background: rgba(255,255,255,0.15); 
+            border: none; 
+            color: white; 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1rem; 
+            z-index: 10;
         }
-
+        .theme-toggle:hover { background: rgba(255,255,255,0.25); }
+        
+        /* CONTROLS ADJUSTMENT */
+        .controls { display: flex; align-items: center; padding: 15px 20px; background: var(--card-bg); margin: 0 20px 15px 20px; border-radius: var(--radius); box-shadow: var(--shadow); gap: 10px; }
         .filter-group { display: flex; gap: 10px; flex: 1; min-width: 0; }
         select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; flex: 1; background: var(--card-bg); color: var(--text); min-width: 0; }
         .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
@@ -241,8 +254,27 @@
 
         /* Responsive Mobile */
         @media (max-width: 600px) {
-            /* Penyesuaian ketika filter aktif di mobile */
-            .controls.show { flex-direction: column; align-items: stretch; max-height: 300px; }
+            /* PERBAIKAN HEADER MOBILE AGAR TIDAK BERTUMPUK DENGAN TOMBOL TEMA */
+            .header { 
+                padding: 20px 60px 20px 20px; 
+                text-align: center;
+            }
+            .header h1 { 
+                font-size: 1.3rem; 
+                justify-content: center;
+            }
+            .header p {
+                font-size: 0.8rem;
+            }
+            .theme-toggle {
+                top: 20px;
+                transform: none;
+                right: 15px;
+                width: 34px;
+                height: 34px;
+            }
+
+            .controls { flex-wrap: wrap; flex-direction: column; align-items: stretch; }
             .filter-group { flex-basis: 100%; flex-direction: column; }
             .btn { flex: 1; justify-content: center; }
             
@@ -296,16 +328,13 @@
 <body>
 
     <div class="header">
-        <div class="header-actions">
-            <button class="filter-toggle" onclick="toggleFilter()" title="Tampilkan/Sembunyikan Filter" id="filterToggleBtn"><i class="fas fa-search"></i></button>
-            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode"><i class="fas fa-moon" id="themeIcon"></i></button>
-        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode"><i class="fas fa-moon" id="themeIcon"></i></button>
         <h1><img src="img/BMI.png" alt="Bank Muamalat Logo" class="logo" width="30" height="30" > Bank Muamalat</h1>
-        <p>Leading Indicator Dashboard 🗒 Region Sumatera</p>
-        <p>🗓 Per: 11 Juni 2026 | ⏳ Workdays: 20</p>
+        <p>Leading Indicator Dashboard 📍 Region Sumatera</p>
+        <p>📅 Per: 11 Juni 2026 | 📅 Workdays: 20</p>
     </div>
 
-    <div class="controls" id="filterControls">
+    <div class="controls">
         <div class="filter-group">
             <select id="coBranchFilter" onchange="handleCoBranchChange()"><option value="">All Co-Branch</option></select>
             <select id="branchFilter" onchange="applyFilters()"><option value="">All Branch</option></select>
@@ -318,7 +347,7 @@
         <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Memuat data...</div>
     </div>
 
-    <div class="footer">📋 Update data in the HTML script section | 📱 Optimized for Mobile & Web | Theme: Light/Dark | Made by Love - RBPM</div>
+    <div class="footer">Update data in the HTML script section | Optimized for Mobile & Web | Theme: Light/Dark | Made by Love - RBPM</div>
 
     <div id="rankingModal" class="modal-overlay">
         <div class="modal-content">
@@ -443,15 +472,6 @@
             }
         }
 
-        // --- FUNGSI TOGGLE FILTER (KACA PEMBESAR) ---
-        function toggleFilter() {
-            const filterControls = document.getElementById('filterControls');
-            const filterToggleBtn = document.getElementById('filterToggleBtn');
-            
-            filterControls.classList.toggle('show');
-            filterToggleBtn.classList.toggle('active');
-        }
-
         function populateCoBranchFilter() {
             const coSet = new Set(rawData.map(d => d['co']).filter(Boolean));
             const coSelect = document.getElementById('coBranchFilter');
@@ -484,7 +504,6 @@
             renderDashboard(rawData);
         }
 
-        // --- FUNGSI FORMAT ANGKA UTAMA (TARGET 1 DESIMAL UTUK UNIT 'M') ---
         function formatValue(val, unit, isGrowthType = false, isTarget = false, isGap = false) {
             let prefix = '';
             
@@ -510,7 +529,7 @@
                 return prefix + Math.round(displayVal).toLocaleString('id-ID');
             }
         }
-
+        
         function renderDashboard(data) {
             const container = document.getElementById('dashboardContainer');
             container.innerHTML = '';
@@ -560,9 +579,9 @@
                 const growthClass = isNegGrowth ? 'neg' : 'pos';
                 const isGrowthType = ['ca', 'sa', 'fu'].includes(m.key);
                 
-                const formattedMtd = formatValue(mtd, m.unit, isGrowthType, false, false);
-                const formattedTgt = formatValue(tgt, m.unit, false, true, false);
-                const formattedGap = formatValue(gap, m.unit, false, false, true);
+                const formattedMtd = formatValue(mtd, m.unit, isGrowthType, false, false, m.key);
+                const formattedTgt = formatValue(tgt, m.unit, false, true, false, m.key);
+                const formattedGap = formatValue(gap, m.unit, false, false, true, m.key);
                 
                 const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
                                  m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
