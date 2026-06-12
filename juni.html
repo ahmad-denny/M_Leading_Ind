@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,40 +49,14 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; transition: background-color 0.3s, color 0.3s; }
         body { background-color: var(--bg); color: var(--text); padding-bottom: 40px; min-height: 100vh; }
 
-        .header { background: linear-gradient(135deg, var(--primary), #2d1b50); color: white; padding: 20px; text-align: center; position: relative; border-radius: 0 0 var(--radius) var(--radius); }
+        .header { background: linear-gradient(135deg, var(--primary), #2d1b50); color: white; padding: 25px 20px; text-align: center; position: relative; border-radius: 0 0 var(--radius) var(--radius); }
         .header h1 { font-size: 1.4rem; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .header p { font-size: 0.85rem; opacity: 0.9; margin: 2px 0; }
+        .header p { font-size: 0.85rem; opacity: 0.9; margin: 4px 0; }
+        .theme-toggle { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+        .theme-toggle:hover { background: rgba(255,255,255,0.3); }
         
-        /* Container untuk tombol-tombol aksi di header kanan */
-        .header-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
-        .theme-toggle, .filter-toggle { background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: background 0.2s, transform 0.2s; }
-        .theme-toggle:hover, .filter-toggle:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
-        .filter-toggle.active { background: var(--warning); color: #333; }
-        
-        /* DEFAULT FILTER SEMBUNYI (ANIMASI SMOOTH) */
-        .controls { 
-            display: flex; 
-            align-items: center; 
-            background: var(--card-bg); 
-            margin: 0 20px; 
-            border-radius: var(--radius); 
-            box-shadow: var(--shadow); 
-            gap: 10px;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            padding: 0 20px;
-            transition: max-height 0.3s ease-out, opacity 0.2s ease-out, margin 0.3s ease-out, padding 0.3s ease-out;
-        }
-        
-        /* KETIKA FILTER DITAMPILKAN */
-        .controls.show {
-            max-height: 200px; /* Batas aman tinggi filter */
-            opacity: 1;
-            margin: 15px 20px;
-            padding: 15px 20px;
-        }
-
+        /* PERBAIKAN SPASI ANTARA HEADER DAN FILTER */
+        .controls { display: flex; align-items: center; padding: 15px 20px; background: var(--card-bg); margin: 25px 20px 15px 20px; border-radius: var(--radius); box-shadow: var(--shadow); gap: 10px; }
         .filter-group { display: flex; gap: 10px; flex: 1; min-width: 0; }
         select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; flex: 1; background: var(--card-bg); color: var(--text); min-width: 0; }
         .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
@@ -241,8 +217,8 @@
 
         /* Responsive Mobile */
         @media (max-width: 600px) {
-            /* Penyesuaian ketika filter aktif di mobile */
-            .controls.show { flex-direction: column; align-items: stretch; max-height: 300px; }
+            /* SPASI TAMBAHAN UNTUK MOBILE AGAR TETAP AMAN */
+            .controls { flex-wrap: wrap; flex-direction: column; align-items: stretch; margin: 20px 15px 10px 15px; }
             .filter-group { flex-basis: 100%; flex-direction: column; }
             .btn { flex: 1; justify-content: center; }
             
