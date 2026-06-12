@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Leading Indicator - Bank Muamalat</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Library untuk Export Excel -->
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -51,10 +50,37 @@
         .header { background: linear-gradient(135deg, var(--primary), #2d1b50); color: white; padding: 20px; text-align: center; position: relative; border-radius: 0 0 var(--radius) var(--radius); }
         .header h1 { font-size: 1.4rem; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .header p { font-size: 0.85rem; opacity: 0.9; margin: 2px 0; }
-        .theme-toggle { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-        .theme-toggle:hover { background: rgba(255,255,255,0.3); }
         
-        .controls { display: flex; align-items: center; padding: 15px 20px; background: var(--card-bg); margin: 15px 20px; border-radius: var(--radius); box-shadow: var(--shadow); gap: 10px; }
+        /* Container untuk tombol-tombol aksi di header kanan */
+        .header-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
+        .theme-toggle, .filter-toggle { background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: background 0.2s, transform 0.2s; }
+        .theme-toggle:hover, .filter-toggle:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
+        .filter-toggle.active { background: var(--warning); color: #333; }
+        
+        /* DEFAULT FILTER SEMBUNYI (ANIMASI SMOOTH) */
+        .controls { 
+            display: flex; 
+            align-items: center; 
+            background: var(--card-bg); 
+            margin: 0 20px; 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow); 
+            gap: 10px;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            padding: 0 20px;
+            transition: max-height 0.3s ease-out, opacity 0.2s ease-out, margin 0.3s ease-out, padding 0.3s ease-out;
+        }
+        
+        /* KETIKA FILTER DITAMPILKAN */
+        .controls.show {
+            max-height: 200px; /* Batas aman tinggi filter */
+            opacity: 1;
+            margin: 15px 20px;
+            padding: 15px 20px;
+        }
+
         .filter-group { display: flex; gap: 10px; flex: 1; min-width: 0; }
         select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; flex: 1; background: var(--card-bg); color: var(--text); min-width: 0; }
         .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
@@ -215,7 +241,8 @@
 
         /* Responsive Mobile */
         @media (max-width: 600px) {
-            .controls { flex-wrap: wrap; flex-direction: column; align-items: stretch; }
+            /* Penyesuaian ketika filter aktif di mobile */
+            .controls.show { flex-direction: column; align-items: stretch; max-height: 300px; }
             .filter-group { flex-basis: 100%; flex-direction: column; }
             .btn { flex: 1; justify-content: center; }
             
@@ -268,16 +295,17 @@
 </head>
 <body>
 
-    <!-- HEADER -->
     <div class="header">
-        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode"><i class="fas fa-moon" id="themeIcon"></i></button>
-        <h1><!--<i class="fas fa-university"></i>--><img src="img/BMI.png" alt="Bank Muamalat Logo" class="logo" width="30" height="30" > Bank Muamalat</h1>
-        <p>Leading Indicator Dashboard 📍 Region Sumatera</p>
-        <p>📅 Per: 11 Juni 2026 | 📆 Workdays: 20</p>
+        <div class="header-actions">
+            <button class="filter-toggle" onclick="toggleFilter()" title="Tampilkan/Sembunyikan Filter" id="filterToggleBtn"><i class="fas fa-search"></i></button>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode"><i class="fas fa-moon" id="themeIcon"></i></button>
+        </div>
+        <h1><img src="img/BMI.png" alt="Bank Muamalat Logo" class="logo" width="30" height="30" > Bank Muamalat</h1>
+        <p>Leading Indicator Dashboard 🗒 Region Sumatera</p>
+        <p>🗓 Per: 11 Juni 2026 | ⏳ Workdays: 20</p>
     </div>
 
-    <!-- CONTROLS -->
-    <div class="controls">
+    <div class="controls" id="filterControls">
         <div class="filter-group">
             <select id="coBranchFilter" onchange="handleCoBranchChange()"><option value="">All Co-Branch</option></select>
             <select id="branchFilter" onchange="applyFilters()"><option value="">All Branch</option></select>
@@ -286,15 +314,12 @@
         <button class="btn btn-ranking" onclick="openRankingModal()"><i class="fas fa-trophy"></i> Performance Ranking</button>
     </div>
 
-    <!-- DASHBOARD CARDS -->
     <div class="dashboard-grid" id="dashboardContainer">
         <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Memuat data...</div>
     </div>
 
-    <!-- FOOTER -->
-    <div class="footer">💡 Update data in the HTML script section | 📱 Optimized for Mobile & Web | Theme: Light/Dark | Made by Love - RBPM</div>
+    <div class="footer">📋 Update data in the HTML script section | 📱 Optimized for Mobile & Web | Theme: Light/Dark | Made by Love - RBPM</div>
 
-    <!-- MODAL RANKING -->
     <div id="rankingModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -316,7 +341,6 @@
                             </button>
                         </div>
 
-                        <!-- TOGGLE ANGKA AKTUAL / PERSENTASE -->
                         <label class="toggle-container">
                             <div class="toggle-switch">
                                 <input type="checkbox" id="toggleActualValues" onchange="toggleDisplayMode()">
@@ -339,7 +363,6 @@
         </div>
     </div>
 
-    <!-- MODAL SORT CHECKBOX -->
     <div id="sortModal" class="sort-modal-overlay">
         <div class="sort-modal-content">
             <div class="sort-modal-header">
@@ -420,6 +443,15 @@
             }
         }
 
+        // --- FUNGSI TOGGLE FILTER (KACA PEMBESAR) ---
+        function toggleFilter() {
+            const filterControls = document.getElementById('filterControls');
+            const filterToggleBtn = document.getElementById('filterToggleBtn');
+            
+            filterControls.classList.toggle('show');
+            filterToggleBtn.classList.toggle('active');
+        }
+
         function populateCoBranchFilter() {
             const coSet = new Set(rawData.map(d => d['co']).filter(Boolean));
             const coSelect = document.getElementById('coBranchFilter');
@@ -452,11 +484,10 @@
             renderDashboard(rawData);
         }
 
-                // --- FUNGSI FORMAT ANGKA UTAMA (TARGET 1 DESIMAL UNTUK UNIT 'M') ---
+        // --- FUNGSI FORMAT ANGKA UTAMA (TARGET 1 DESIMAL UTUK UNIT 'M') ---
         function formatValue(val, unit, isGrowthType = false, isTarget = false, isGap = false) {
             let prefix = '';
             
-            // Logika tanda +
             if (isTarget) {
                 prefix = ''; 
             } else if ((isGrowthType || isGap) && val > 0) {
@@ -465,25 +496,21 @@
                 prefix = ''; 
             }
 
-            // Hitung nilai display (absolut untuk GAP)
             let displayVal = isGap ? Math.abs(val) : val;
 
             if (unit === 'M') {
-                // PERBAIKAN: Jika ini TARGET, gunakan 1 desimal
                 if (isTarget) {
                     return prefix + displayVal.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' M';
                 }
-                
-                // Untuk AKTUAL & GAP: Jika 0 tampilkan bulat, jika tidak tampilkan 2 desimal
                 if (displayVal === 0) {
                     return prefix + '0 M';
                 }
                 return prefix + displayVal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' M';
             } else {
-                // Unit kosong (Integer) tetap tanpa desimal
                 return prefix + Math.round(displayVal).toLocaleString('id-ID');
             }
         }
+
         function renderDashboard(data) {
             const container = document.getElementById('dashboardContainer');
             container.innerHTML = '';
@@ -512,9 +539,6 @@
                 const mtd = agg[m.key + '_mtd'];
                 let tgt = agg[m.key + '_tgt'];
                 
-                // PERBAIKAN LOGIKA GAP: 
-                // Jika Target > 0, GAP = Target - Aktual (Sisa yang harus dicapai)
-                // Jika Target <= 0, GAP = Aktual - Target (Selisih murni)
                 let gap;
                 if (tgt > 0) {
                     gap = tgt - mtd; 
@@ -522,7 +546,6 @@
                     gap = mtd - tgt;
                 }
                 
-                // Hitung Achievement
                 let achv = 0;
                 if (tgt > 0) {
                     achv = (mtd / tgt) * 100;
@@ -531,30 +554,15 @@
                 }
                 
                 let achvDisplay = achv.toFixed(1) + '%';
-                
-                // Logika Warna Achievement & Progress Bar
-                let achvColorClass = 'red';
-                let barColor = 'under';
                 let barWidth = Math.min(Math.max(achv, 0), 100);
-
-                if (achv >= 80) {
-                    achvColorClass = 'green';
-                    barColor = 'over';
-                } else if (achv >= 50) {
-                    achvColorClass = 'yellow';
-                    barColor = 'warning';
-                } else {
-                    achvColorClass = 'red';
-                    barColor = 'under';
-                }
 
                 const isNegGrowth = (m.key === 'ca' || m.key === 'sa' || m.key === 'fu') && mtd < 0;
                 const growthClass = isNegGrowth ? 'neg' : 'pos';
                 const isGrowthType = ['ca', 'sa', 'fu'].includes(m.key);
                 
-                const formattedMtd = formatValue(mtd, m.unit, isGrowthType, false, false, m.key); // Tambahkan m.key
-                const formattedTgt = formatValue(tgt, m.unit, false, true, false, m.key);         // Tambahkan m.key
-                const formattedGap = formatValue(gap, m.unit, false, false, true, m.key);         // Tambahkan m.key                
+                const formattedMtd = formatValue(mtd, m.unit, isGrowthType, false, false);
+                const formattedTgt = formatValue(tgt, m.unit, false, true, false);
+                const formattedGap = formatValue(gap, m.unit, false, false, true);
                 
                 const gapLabel = m.key === 'ca' || m.key === 'sa' || m.key === 'fu' ? 'GAP Growth' : 
                                  m.key === 'con' || m.key === 'sme' || m.key === 'ph' || m.key === 'sli' ? 'GAP Booking' : 'GAP Akuisisi';
@@ -578,6 +586,7 @@
                     </div>`;
             });
         }
+
         // --- LOGIKA RANKING & DRILL-DOWN ---
         function openRankingModal() {
             document.getElementById('rankingModal').style.display = 'flex';
@@ -689,7 +698,6 @@
             let remainingKeys = metrics.map(m => m.key).filter(k => !sortedKeys.includes(k));
             let finalOrderKeys = [...sortedKeys, ...remainingKeys];
             
-            // Header Dinamis
             let headers = ['#', 'Branch'];
             if (!showActualValues) headers.push('Total %');
             
@@ -700,7 +708,6 @@
 
             let ws_data = [headers];
 
-            // Siapkan Data
             let groupedData = [];
             let isDrillDown = !!drillDownCo;
             if (isDrillDown) {
@@ -775,7 +782,6 @@
                         if(ws[cellAddr]) ws[cellAddr].z = '0%';
                     }
                 } else {
-                    // Jika mode aktual, gunakan format angka biasa (sesuai card)
                     for(let C = 2; C <= range.e.c; ++C) { 
                         const cellAddr = XLSX.utils.encode_cell({r: R, c: C});
                         if(ws[cellAddr]) ws[cellAddr].z = '#,##0.0';
@@ -840,7 +846,6 @@
                 return 0;
             });
 
-            // Build Header
             let headerHTML = `<tr>
                 <th><div class="th-content">#</div></th>
                 <th><div class="th-content">${isDrillDown ? 'Branch' : (currentRankingMode === 'co' ? 'Co-Branch' : 'Branch')}</div></th>`;
@@ -894,7 +899,6 @@
                     const v = r.metricVals[m.key];
                     const isGrowthType = ['ca', 'sa', 'fu'].includes(m.key);
                     
-                    // PERBAIKAN: Gunakan formatValue yang sama persis dengan card dashboard
                     const displayVal = showActualValues 
                         ? formatValue(v.mtd, m.unit, isGrowthType, false, false) 
                         : v.achv.toFixed(0) + '%';
